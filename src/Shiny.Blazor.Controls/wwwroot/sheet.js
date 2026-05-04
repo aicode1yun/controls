@@ -34,6 +34,7 @@ function snapInternal(state, ratio, animate) {
     state.currentY = targetY;
     state.sheet.style.transition = animate ? `transform ${state.duration}ms cubic-bezier(.2,.8,.2,1)` : 'none';
     applyTransform(state.sheet, targetY);
+    state.sheet.style.setProperty('--sheet-visible-height', `${state.height * ratio}px`);
     state.dotnet.invokeMethodAsync('OnBackdropOpacity', backdropOpacityFor(targetY, state.height));
     state.dotnet.invokeMethodAsync('OnDetentChanged', ratio);
 }

@@ -3,7 +3,7 @@
     flex-direction: column;
     gap: 12px;
     padding: 0;
-    height: 100%;
+    max-height: calc(var(--sheet-visible-height, 50vh) - 62px);
 }
 
 .shiny-sigpad-title {
@@ -56,6 +56,9 @@
 
 .shiny-sigpad-btn {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 12px 0;
     border: none;
     border-radius: 8px;

@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Shiny.Blazor.Controls.SpeechAddins\Shiny.Blazor.Controls.SpeechAddins.csproj" />
         <ProjectReference Include="..\..\src\Shiny.Blazor.Controls\Shiny.Blazor.Controls.csproj"/>
         <ProjectReference Include="..\..\src\Shiny.Blazor.Controls.Markdown\Shiny.Blazor.Controls.Markdown.csproj"/>
         <ProjectReference Include="..\..\src\Shiny.Blazor.Controls.MermaidDiagrams\Shiny.Blazor.Controls.MermaidDiagrams.csproj"/>
