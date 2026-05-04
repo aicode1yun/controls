@@ -87,9 +87,10 @@ public sealed class ToastService : IToastService
                 var handle = new ToastHandle(() => DismissEntry(entry));
                 tcs.SetResult(handle);
 
-                if (config.Duration > TimeSpan.Zero)
+                var effectiveDuration = GetEffectiveDuration(config);
+                if (effectiveDuration > TimeSpan.Zero)
                 {
-                    _ = AutoDismissAsync(entry, config.Duration);
+                    _ = AutoDismissAsync(entry, effectiveDuration);
                 }
 
                 await entry.DismissedTcs.Task;
@@ -118,14 +119,32 @@ public sealed class ToastService : IToastService
         var handle = new ToastHandle(() => DismissEntry(entry));
         tcs.SetResult(handle);
 
-        if (config.Duration > TimeSpan.Zero)
+        var effectiveDuration = GetEffectiveDuration(config);
+        if (effectiveDuration > TimeSpan.Zero)
         {
-            _ = AutoDismissAsync(entry, config.Duration);
+            _ = AutoDismissAsync(entry, effectiveDuration);
         }
 
         await entry.DismissedTcs.Task;
         activeToasts.Remove(entry);
         OnChanged?.Invoke();
+    }
+
+    static TimeSpan GetEffectiveDuration(ToastConfig config)
+    {
+        if (config.TextOverflow == ToastTextOverflow.Marquee && config.MarqueeLoops > 0)
+        {
+            var onePassSeconds = GetOnePassDuration(config);
+            return TimeSpan.FromSeconds(onePassSeconds * config.MarqueeLoops);
+        }
+        return config.Duration;
+    }
+
+    public static double GetOnePassDuration(ToastConfig config)
+    {
+        var estimatedWidth = Math.Max(config.Text.Length * 8, 200);
+        var speed = config.MarqueeSpeedPixelsPerSecond > 0 ? config.MarqueeSpeedPixelsPerSecond : 40;
+        return estimatedWidth * 2 / speed;
     }
 
     async Task AutoDismissAsync(ToastEntry entry, TimeSpan duration)

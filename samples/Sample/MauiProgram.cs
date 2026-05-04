@@ -23,10 +23,6 @@ using Sample.Features.Toast;
 using Sample.Features.Feedback;
 using Shiny;
 using Shiny.Maui.Controls.Scheduler;
-#if IOS
-using Sample.Platforms.iOS;
-using Microsoft.Maui.Controls.Handlers.Compatibility;
-#endif
 
 namespace Sample;
 
@@ -82,12 +78,12 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+#if IOS
         builder.ConfigureMauiHandlers(handlers =>
         {
-#if IOS
-            handlers.AddHandler<Shell, SolidTabBarRenderer>();
-#endif
+            handlers.AddHandler<Shell, Sample.Platforms.iOS.SolidTabBarRenderer>();
         });
+#endif
         builder.Services.AddSpeechServices();
         builder.Services.AddSingleton<AppSettings>();
 
@@ -107,6 +103,7 @@ public static class MauiProgram
         builder.AddMauiDevFlowAgent();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        return app;
     }
 }

@@ -12,7 +12,7 @@ public partial class ToastViewModel(IToaster toaster) : ObservableObject
     string statusMessage = "Configure and tap Show Toast";
 
     [ObservableProperty]
-    string toastText = "Hello from Shiny!";
+    string toastText = "This is a really long toast message that is meant to demonstrate what happens when the text content exceeds the available width of the toast container";
 
     // --- Configuration properties ---
 
@@ -58,6 +58,9 @@ public partial class ToastViewModel(IToaster toaster) : ObservableObject
     [ObservableProperty]
     double marqueeSpeed = 40;
 
+    [ObservableProperty]
+    double marqueeLoops = 1;
+
     // --- Commands ---
 
     [RelayCommand]
@@ -77,6 +80,7 @@ public partial class ToastViewModel(IToaster toaster) : ObservableObject
             cfg.AnnounceToScreenReader = AnnounceToScreenReader;
             cfg.TextOverflow = SelectedTextOverflow;
             cfg.MarqueeSpeedPixelsPerSecond = MarqueeSpeed;
+            cfg.MarqueeLoops = (int)MarqueeLoops;
         });
         StatusMessage = "Configured toast shown";
     }

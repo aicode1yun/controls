@@ -14,9 +14,10 @@
         var positionClass = isBottom ? "shiny-toast-bottom" : "shiny-toast-top";
         var modeClass = isPill ? "shiny-toast-pill" : "shiny-toast-fill";
         var animClass = isDismissing ? "shiny-toast-exit" : "shiny-toast-enter";
+        var marqueeClass = entry.Config.TextOverflow == ToastTextOverflow.Marquee ? "shiny-toast-has-marquee" : "";
         var clickable = entry.Config.DismissOnTap || entry.Config.TapCallback is not null;
 
-        <div class="shiny-toast @positionClass @modeClass @animClass"
+        <div class="shiny-toast @positionClass @modeClass @animClass @marqueeClass"
              style="@GetStyle(entry, index)"
              @onclick="() => OnClick(entry)"
              role="alert"
@@ -32,9 +33,13 @@
                 }
                 @if (entry.Config.TextOverflow == ToastTextOverflow.Marquee)
                 {
+                    var onePass = ToastService.GetOnePassDuration(entry.Config);
+                    var loops = entry.Config.MarqueeLoops;
+                    var iterationCount = loops > 0 ? loops.ToString() : "infinite";
+
                     <span class="shiny-toast-text shiny-toast-text-marquee">
                         <span class="shiny-toast-marquee-inner"
-                              style="animation-duration: @(GetMarqueeDuration(entry.Config))s;">
+                              style="animation-duration: @(onePass)s; animation-iteration-count: @iterationCount;">
                             @entry.Config.Text
                         </span>
                     </span>
@@ -51,11 +56,15 @@
                     <div class="shiny-toast-spinner"></div>
                 }
             </div>
-            @if (entry.Config.ShowProgressBar && entry.Config.Duration > TimeSpan.Zero)
+            @if (entry.Config.ShowProgressBar)
             {
-                <div class="shiny-toast-progress"
-                     style="animation-duration: @(entry.Config.Duration.TotalMilliseconds)ms;">
-                </div>
+                var progressDuration = GetProgressDuration(entry.Config);
+                if (progressDuration > 0)
+                {
+                    <div class="shiny-toast-progress"
+                         style="animation-duration: @(progressDuration)ms;">
+                    </div>
+                }
             }
         </div>
     }
@@ -102,12 +111,12 @@
         return sb.ToString();
     }
 
-    double GetMarqueeDuration(ToastConfig config)
+    double GetProgressDuration(ToastConfig config)
     {
-        // Estimate width: ~8px per character, scroll full width
-        var estimatedWidth = Math.Max(config.Text.Length * 8, 200);
-        var speed = config.MarqueeSpeedPixelsPerSecond > 0 ? config.MarqueeSpeedPixelsPerSecond : 40;
-        return estimatedWidth / speed;
+        if (config.TextOverflow == ToastTextOverflow.Marquee && config.MarqueeLoops > 0)
+            return ToastService.GetOnePassDuration(config) * config.MarqueeLoops * 1000;
+
+        return config.Duration.TotalMilliseconds;
     }
 
     void OnClick(ToastEntry entry)

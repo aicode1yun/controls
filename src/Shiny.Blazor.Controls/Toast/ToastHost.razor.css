@@ -44,7 +44,7 @@
     right: auto;
     transform: translateX(-50%);
     width: fit-content;
-    max-width: calc(100% - 48px);
+    max-width: min(400px, calc(100% - 48px));
     border-radius: 20px;
 }
 
@@ -54,6 +54,10 @@
 
 .shiny-toast-pill.shiny-toast-top {
     top: 12px;
+}
+
+.shiny-toast-pill.shiny-toast-has-marquee {
+    width: min(400px, calc(100% - 48px));
 }
 
 .shiny-toast-fill {
@@ -163,7 +167,8 @@
 .shiny-toast-marquee-inner {
     display: inline-block;
     white-space: nowrap;
-    animation: shiny-toast-marquee linear infinite;
+    animation: shiny-toast-marquee linear;
+    animation-fill-mode: forwards;
 }
 
 @keyframes shiny-toast-marquee {

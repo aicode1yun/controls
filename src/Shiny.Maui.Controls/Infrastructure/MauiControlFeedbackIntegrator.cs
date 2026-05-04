@@ -3,6 +3,7 @@ namespace Shiny.Maui.Controls.Infrastructure;
 public class MauiControlFeedbackIntegrator(IReadOnlyList<IControlFeedbackHook> hooks) : IMauiInitializeService
 {
     IFeedbackService? feedback;
+    bool attached;
 
     public void Initialize(IServiceProvider services)
     {
@@ -10,9 +11,20 @@ public class MauiControlFeedbackIntegrator(IReadOnlyList<IControlFeedbackHook> h
         if (feedback == null)
             return;
 
-        var app = services.GetRequiredService<IApplication>();
-        if (app is Application application)
-            Attach(application);
+        // Cannot resolve IApplication during IMauiInitializeService.Initialize()
+        // because the platform (iOS) may not be ready yet. Defer until the first
+        // page is created, which guarantees the Application is fully initialized.
+        Microsoft.Maui.Handlers.PageHandler.Mapper.AppendToMapping("FeedbackIntegrator", (handler, view) =>
+        {
+            if (attached)
+                return;
+
+            if (Application.Current is Application application)
+            {
+                attached = true;
+                Attach(application);
+            }
+        });
     }
 
     void Attach(Application application)

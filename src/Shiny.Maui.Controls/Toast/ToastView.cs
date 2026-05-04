@@ -65,30 +65,66 @@ sealed class ToastView : ContentView
             MaxLines = config.TextOverflow == ToastTextOverflow.MultiLine ? int.MaxValue : 1
         };
 
-        // Content layout
-        var contentLayout = new HorizontalStackLayout
+        // Content layout — use Grid so the label column is width-constrained
+        // (HorizontalStackLayout gives unlimited width, breaking truncation/wrap)
+        var contentLayout = new Grid
         {
-            Spacing = 10,
+            ColumnSpacing = 10,
             VerticalOptions = LayoutOptions.Center,
-            HorizontalOptions = config.DisplayMode == ToastDisplayMode.FillHorizontal
-                ? LayoutOptions.Start
-                : LayoutOptions.Center
+            HorizontalOptions = LayoutOptions.Fill
         };
+
+        var col = 0;
 
         // Add spinner on left
         if (config.Spinner == ToastSpinnerPosition.Left && spinner is not null)
+        {
+            contentLayout.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
             contentLayout.Children.Add(spinner);
+            Grid.SetColumn(spinner, col++);
+        }
 
         // Add icon
         if (icon is not null)
+        {
+            contentLayout.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
             contentLayout.Children.Add(icon);
+            Grid.SetColumn(icon, col++);
+        }
 
-        // Add label
-        contentLayout.Children.Add(label);
+        // Label gets star column so it's constrained to remaining width
+        contentLayout.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+        // For marquee, wrap label in a clipped container
+        if (config.TextOverflow == ToastTextOverflow.Marquee)
+        {
+            label.LineBreakMode = LineBreakMode.NoWrap;
+            label.MaxLines = 1;
+            label.HorizontalOptions = LayoutOptions.Start;
+
+            var marqueeContainer = new Grid
+            {
+                IsClippedToBounds = true,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Center
+            };
+            marqueeContainer.Children.Add(label);
+            contentLayout.Children.Add(marqueeContainer);
+            Grid.SetColumn(marqueeContainer, col++);
+        }
+        else
+        {
+            contentLayout.Children.Add(label);
+            Grid.SetColumn(label, col++);
+        }
 
         // Add spinner on right
         if (config.Spinner == ToastSpinnerPosition.Right && spinner is not null)
+        {
+            contentLayout.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
             contentLayout.Children.Add(spinner);
+            Grid.SetColumn(spinner, col++);
+        }
 
         // Main container
         View innerContent;
@@ -133,6 +169,7 @@ sealed class ToastView : ContentView
             StrokeThickness = config.BorderThickness,
             Stroke = config.BorderColor ?? Colors.Transparent,
             HorizontalOptions = isPill ? LayoutOptions.Center : LayoutOptions.Fill,
+            MaximumWidthRequest = isPill ? 400 : double.PositiveInfinity,
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle
             {
                 CornerRadius = isPill ? config.CornerRadius : 0
@@ -259,26 +296,66 @@ sealed class ToastView : ContentView
         if (config.TextOverflow != ToastTextOverflow.Marquee)
             return;
 
-        // Estimate text width (~8px per character at 14pt)
-        var estimatedTextWidth = Math.Max(config.Text.Length * 8.0, 200);
-        var speed = config.MarqueeSpeedPixelsPerSecond > 0 ? config.MarqueeSpeedPixelsPerSecond : 40;
-        var duration = (uint)(estimatedTextWidth * 2 / speed * 1000);
+        // Wait for layout so we know the container width
+        label.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), () =>
+        {
+            var containerWidth = label.Parent is View parent ? parent.Width : 0;
+            if (containerWidth <= 0)
+                containerWidth = 200;
 
-        label.LineBreakMode = LineBreakMode.NoWrap;
-        label.MaxLines = 1;
-        label.HorizontalOptions = LayoutOptions.Start;
+            // Measure desired label width
+            var measured = label.Measure(double.PositiveInfinity, double.PositiveInfinity);
+            var textWidth = measured.Width;
 
-        var animation = new Animation(
-            v => label.TranslationX = v,
-            estimatedTextWidth,
-            -estimatedTextWidth
-        );
-        animation.Commit(
-            this,
-            "MarqueeScroll",
-            length: duration,
-            easing: Easing.Linear,
-            repeat: () => true
-        );
+            // Only scroll if text is wider than container
+            if (textWidth <= containerWidth)
+                return;
+
+            var speed = config.MarqueeSpeedPixelsPerSecond > 0 ? config.MarqueeSpeedPixelsPerSecond : 40;
+            var totalDistance = textWidth + containerWidth;
+            var onePassMs = (uint)(totalDistance / speed * 1000);
+
+            var loopCount = 0;
+            var loops = config.MarqueeLoops;
+
+            // When MarqueeLoops > 0, override auto-dismiss to match scroll time
+            if (loops > 0)
+            {
+                autoDismissCts?.Cancel();
+
+                var totalMs = onePassMs * (uint)loops;
+                autoDismissCts = new CancellationTokenSource();
+                var token = autoDismissCts.Token;
+
+                Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(totalMs), () =>
+                {
+                    if (!token.IsCancellationRequested)
+                        _ = AnimateOutAsync();
+                });
+
+                // Re-run progress bar against marquee total time
+                if (progressBar is not null)
+                {
+                    this.AbortAnimation("ProgressCountdown");
+                    var progressAnim = new Animation(v => progressBar.Progress = v, 1.0, 0.0);
+                    progressAnim.Commit(this, "ProgressCountdown",
+                        length: totalMs, easing: Easing.Linear);
+                }
+            }
+
+            // Start at right edge of container, scroll until fully off left
+            var animation = new Animation(
+                v => label.TranslationX = v,
+                containerWidth,
+                -textWidth
+            );
+            animation.Commit(
+                this,
+                "MarqueeScroll",
+                length: onePassMs,
+                easing: Easing.Linear,
+                repeat: () => loops <= 0 || ++loopCount < loops
+            );
+        });
     }
 }

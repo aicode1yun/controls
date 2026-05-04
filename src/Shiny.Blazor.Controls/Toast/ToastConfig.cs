@@ -19,5 +19,11 @@ public class ToastConfig
     public string? IconHtml { get; set; }
     public ToastTextOverflow TextOverflow { get; set; } = ToastTextOverflow.Ellipsis;
     public double MarqueeSpeedPixelsPerSecond { get; set; } = 40;
+
+    /// <summary>
+    /// Number of full marquee scroll passes before auto-dismiss.
+    /// Default is 1. Set to 0 to use Duration instead (marquee loops indefinitely).
+    /// </summary>
+    public int MarqueeLoops { get; set; } = 1;
     public Action? TapCallback { get; set; }
 }

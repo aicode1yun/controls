@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFramework>$(BaseTargetFramework)</TargetFramework>
         <RootNamespace>Sample.Blazor</RootNamespace>
-        <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     </PropertyGroup>
 
     <ItemGroup>
