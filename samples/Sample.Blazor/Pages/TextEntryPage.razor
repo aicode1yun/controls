@@ -14,20 +14,18 @@
 
 <div class="demo-section">
     <h2>With Clear Button</h2>
-    <TextEntry Placeholder="Search" @bind-Text="searchText">
-        <RightTools>
-            @if (!string.IsNullOrEmpty(searchText))
-            {
-                <button class="shiny-te-clear-btn" @onclick="() => searchText = string.Empty">&times;</button>
-            }
-        </RightTools>
-    </TextEntry>
+    <TextEntry Placeholder="Search"
+               @bind-Text="searchText"
+               RightTools="searchTools" />
     <div class="state">Search: <code>@searchText</code></div>
 </div>
 
 <div class="demo-section">
     <h2>Password</h2>
-    <TextEntry Placeholder="Password" IsPassword="true" @bind-Text="password" />
+    <TextEntry Placeholder="Password"
+               IsPassword="true"
+               @bind-Text="password"
+               RightTools="passwordTools" />
 </div>
 
 <div class="demo-section">
@@ -40,14 +38,8 @@
     <TextEntry Placeholder="Email"
                @bind-Text="email"
                HasError="@hasEmailError"
-               HintText="@emailError">
-        <RightTools>
-            @if (!string.IsNullOrEmpty(email))
-            {
-                <button class="shiny-te-clear-btn" @onclick="() => { email = string.Empty; hasEmailError = false; emailError = null; }">&times;</button>
-            }
-        </RightTools>
-    </TextEntry>
+               HintText="@emailError"
+               RightTools="emailTools" />
 </div>
 
 <div class="demo-section">
@@ -58,7 +50,8 @@
                FocusedPlaceholderColor="#7C3AED"
                FocusedBorderThickness="2"
                CornerRadius="16px"
-               EntryBackgroundColor="#F5F3FF" />
+               EntryBackgroundColor="#F5F3FF"
+               RightTools="customTools" />
 </div>
 
 <div class="demo-section">
@@ -77,6 +70,14 @@
                HintText="Include country code" />
 </div>
 
+<div class="demo-section">
+    <h2>Left Tool (Currency Prefix)</h2>
+    <TextEntry Placeholder="Amount"
+               @bind-Text="amount"
+               LeftTools="amountLeftTools"
+               RightTools="amountRightTools" />
+</div>
+
 @code {
     string firstName = "";
     string lastName = "";
@@ -85,15 +86,24 @@
     string bio = "";
     string customText = "";
     string phone = "";
+    string amount = "";
 
     string email = "";
     bool hasEmailError;
     string? emailError;
 
-    // Simple validation on email change
-    protected override void OnParametersSet()
+    List<TextEntryTool> searchTools = [new ClearButtonTool()];
+    List<TextEntryTool> passwordTools = [new ClearButtonTool()];
+    List<TextEntryTool> emailTools = [new ClearButtonTool()];
+    List<TextEntryTool> customTools = [new ClearButtonTool()];
+    List<TextEntryTool> amountLeftTools = [new TextEntryTool { Text = "$", ToolColor = "#059669" }];
+    List<TextEntryTool> amountRightTools = [new ClearButtonTool()];
+
+    protected override void OnAfterRender(bool firstRender)
     {
-        ValidateEmail();
+        // Validate email when it changes
+        if (!string.IsNullOrEmpty(email))
+            ValidateEmail();
     }
 
     void ValidateEmail()

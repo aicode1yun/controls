@@ -1,0 +1,101 @@
+@namespace Shiny.Blazor.Controls.SpeechAddins
+@inject IJSRuntime JS
+
+<button class="shiny-te-stt-btn @(isListening ? "shiny-te-stt-btn--listening" : "")"
+        type="button"
+        style="@ButtonStyle"
+        @onclick="ToggleListening"
+        @onclick:stopPropagation
+        title="@(isListening ? "Stop listening" : "Voice input")">
+    @if (isListening)
+    {
+        @ListeningText
+    }
+    else
+    {
+        @IdleText
+    }
+</button>
+
+@code {
+    bool isListening;
+    IJSObjectReference? moduleRef;
+    DotNetObjectReference<TextEntrySpeechToTextButton>? dotnetRef;
+
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public EventCallback<string> TextChanged { get; set; }
+    [Parameter] public string IdleText { get; set; } = "\uD83C\uDF99";
+    [Parameter] public string ListeningText { get; set; } = "\u23F9";
+    [Parameter] public string IdleColor { get; set; } = "#4CAF50";
+    [Parameter] public string ListeningColor { get; set; } = "#F44336";
+    [Parameter] public string? Culture { get; set; }
+    [Parameter] public bool Continuous { get; set; }
+
+    string ButtonStyle => $"color: {(isListening ? ListeningColor : IdleColor)};";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotnetRef = DotNetObjectReference.Create(this);
+            moduleRef = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./_content/Shiny.Blazor.Controls.SpeechAddins/shinySpeechToText.js");
+        }
+    }
+
+    async Task ToggleListening()
+    {
+        if (moduleRef is null) return;
+
+        if (isListening)
+        {
+            await moduleRef.InvokeVoidAsync("stopListening");
+            isListening = false;
+        }
+        else
+        {
+            isListening = true;
+            await moduleRef.InvokeVoidAsync("startListening", dotnetRef, Culture, Continuous);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnSpeechResult(string transcript)
+    {
+        if (string.IsNullOrEmpty(transcript)) return;
+
+        var existing = Text?.Trim();
+        var newText = string.IsNullOrEmpty(existing)
+            ? transcript
+            : $"{existing} {transcript}";
+
+        Text = newText;
+        await TextChanged.InvokeAsync(newText);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnSpeechEnd()
+    {
+        isListening = false;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnSpeechError(string error)
+    {
+        isListening = false;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (moduleRef is not null)
+        {
+            try { await moduleRef.InvokeVoidAsync("stopListening"); } catch { }
+            await moduleRef.DisposeAsync();
+        }
+        dotnetRef?.Dispose();
+    }
+}

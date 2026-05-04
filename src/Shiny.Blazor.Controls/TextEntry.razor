@@ -8,10 +8,29 @@
          style="@BorderStyle"
          @onclick="FocusInput">
 
-        @if (LeftTools is not null)
+        @if (LeftTools is { Count: > 0 })
         {
             <div class="shiny-te-tools shiny-te-tools--left">
-                @LeftTools
+                @foreach (var tool in LeftTools)
+                {
+                    if (tool.IsVisible)
+                    {
+                        <button class="shiny-te-tool-btn @tool.CssClass"
+                                type="button"
+                                style="color: @tool.ToolColor;"
+                                @onclick="() => OnToolClicked(tool)"
+                                @onclick:stopPropagation>
+                            @if (!string.IsNullOrEmpty(tool.Icon))
+                            {
+                                <span class="shiny-te-tool-icon">@tool.Icon</span>
+                            }
+                            @if (!string.IsNullOrEmpty(tool.Text))
+                            {
+                                <span class="shiny-te-tool-text">@tool.Text</span>
+                            }
+                        </button>
+                    }
+                }
             </div>
         }
 
@@ -33,10 +52,29 @@
                    style="@InputStyle" />
         </div>
 
-        @if (RightTools is not null)
+        @if (RightTools is { Count: > 0 })
         {
             <div class="shiny-te-tools shiny-te-tools--right">
-                @RightTools
+                @foreach (var tool in RightTools)
+                {
+                    if (tool.IsVisible)
+                    {
+                        <button class="shiny-te-tool-btn @tool.CssClass"
+                                type="button"
+                                style="color: @tool.ToolColor;"
+                                @onclick="() => OnToolClicked(tool)"
+                                @onclick:stopPropagation>
+                            @if (!string.IsNullOrEmpty(tool.Icon))
+                            {
+                                <span class="shiny-te-tool-icon">@tool.Icon</span>
+                            }
+                            @if (!string.IsNullOrEmpty(tool.Text))
+                            {
+                                <span class="shiny-te-tool-text">@tool.Text</span>
+                            }
+                        </button>
+                    }
+                }
             </div>
         }
     </div>

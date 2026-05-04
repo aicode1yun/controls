@@ -2,7 +2,7 @@ using System.Globalization;
 using Shiny.Maui.Controls;
 using Shiny.Speech;
 
-namespace Shiny.Maui.Controls.SpeechAddins.Chat;
+namespace Shiny.Maui.Controls.SpeechAddins;
 
 /// <summary>
 /// A TextEntry tool that listens for speech and backfills the entry text.

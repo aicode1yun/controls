@@ -115,7 +115,15 @@ TextEntry supports left and right tool slots. Tools are `TextEntryTool` instance
 <TextEntry Placeholder="Email"
            @bind-Text="email"
            HasError="@hasError"
-           HintText="@errorMessage" />
+           HintText="@errorMessage"
+           RightTools="emailTools" />
+
+@code {
+    string email = "";
+    bool hasError;
+    string? errorMessage;
+    List<TextEntryTool> emailTools = [new ClearButtonTool()];
+}
 ```
 
 ### Parameters
@@ -143,32 +151,57 @@ TextEntry supports left and right tool slots. Tools are `TextEntryTool` instance
 | HasError | bool | false | Error state |
 | ErrorColor | string | #DC3545 | CSS color |
 | ShowCharacterCount | bool | false | Show counter |
-| LeftTools | RenderFragment? | null | Left tool slot |
-| RightTools | RenderFragment? | null | Right tool slot |
+| LeftTools | List\<TextEntryTool\>? | null | Left tool list |
+| RightTools | List\<TextEntryTool\>? | null | Right tool list |
 | CssClass | string? | null | Additional CSS class |
 | Completed | EventCallback | - | Return key event |
 
-### Blazor Clear Button
+### Blazor Tools
 
-Use `TextEntryClearButton` companion component:
+Tools use the same `TextEntryTool` base class as MAUI. Pass them as `List<TextEntryTool>` to `LeftTools` or `RightTools`.
 
-```razor
-<TextEntry Placeholder="Search" @bind-Text="search">
-    <RightTools>
-        <TextEntryClearButton Text="@search" TextChanged="v => search = v" />
-    </RightTools>
-</TextEntry>
-```
+**Built-in tools:**
+- `ClearButtonTool` — Shows ✕ when text is non-empty, clears on click. Auto-hides when empty.
+- `SpeechToTextTool` — (Shiny.Blazor.Controls.SpeechAddins) Voice input via Web Speech API.
+
+**TextEntryTool properties:**
+
+| Property | Type | Description |
+|---|---|---|
+| Icon | string? | Icon text/emoji |
+| Text | string? | Tool text label |
+| ToolColor | string | CSS color for the tool |
+| IsVisible | bool | Whether the tool is shown (default: true) |
+| Clicked | Action? | Click callback |
+| CssClass | string? | Additional CSS class |
+
+**Lifecycle methods** — Override in subclasses:
+- `OnTextChanged(string? text)` — Called when entry text changes
+- `OnAttached(TextEntryContext context)` / `OnDetached()` — Lifecycle hooks
+- `SetEntryText(string text)` / `GetEntryText()` — Read/write parent text
 
 ### Blazor Example
 
 ```razor
-<TextEntry Placeholder="Bio"
-           @bind-Text="bio"
-           MaxLength="100"
-           ShowCharacterCount="true"
-           FocusedBorderColor="#7C3AED"
-           FocusedPlaceholderColor="#7C3AED"
-           CornerRadius="16px"
-           EntryBackgroundColor="#F5F3FF" />
+<TextEntry Placeholder="Search"
+           @bind-Text="query"
+           RightTools="tools" />
+
+@code {
+    string query = "";
+    List<TextEntryTool> tools = [new ClearButtonTool()];
+}
+```
+
+```razor
+<TextEntry Placeholder="Amount"
+           @bind-Text="amount"
+           LeftTools="leftTools"
+           RightTools="rightTools" />
+
+@code {
+    string amount = "";
+    List<TextEntryTool> leftTools = [new TextEntryTool { Text = "$", ToolColor = "#059669" }];
+    List<TextEntryTool> rightTools = [new ClearButtonTool()];
+}
 ```

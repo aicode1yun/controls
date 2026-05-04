@@ -335,7 +335,7 @@ All controls exist on both hosts, but the Blazor surface is idiomatic Razor, not
 | `shiny:AddressEntry`   | `<AddressEntry>`  | Colors are CSS strings on Blazor; uses `IAddressSearchProvider` on both hosts |
 | Scheduler views        | `<SchedulerCalendarView>`, `<SchedulerAgendaView>`, `<SchedulerCalendarListView>` | Same names |
 | `IToaster.ShowAsync(text, cfg => {})` | `IToastService.ShowAsync(text, cfg => {})` | MAUI uses DI-injected `IToaster` (registered by `UseShinyControls()`); Blazor uses DI-injected `IToastService`. Blazor requires `AddShinyToast()` in DI and `<ToastHost />` in layout |
-| `shiny:TextEntry` | `<TextEntry>` | Colors are CSS strings on Blazor; tools are `RenderFragment` slots (LeftTools/RightTools) instead of `IList<TextEntryTool>` |
+| `shiny:TextEntry` | `<TextEntry>` | Colors are CSS strings on Blazor; tools are `List<TextEntryTool>` on both hosts. MAUI uses `ICommand`, Blazor uses `Action` callback. Blazor `TextEntryTool` has `Icon` as string (not ImageSource) |
 
 ### Binding, events, content
 

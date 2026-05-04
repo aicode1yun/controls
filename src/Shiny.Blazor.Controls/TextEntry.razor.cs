@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace Shiny.Blazor.Controls;
 
-public partial class TextEntry
+public partial class TextEntry : IDisposable
 {
     ElementReference inputRef;
     bool IsFocused;
+    TextEntryContext? context;
     bool IsPlaceholderUp => IsFocused || !string.IsNullOrEmpty(Text);
 
     // Parameters
@@ -32,8 +33,8 @@ public partial class TextEntry
     [Parameter] public bool HasError { get; set; }
     [Parameter] public string ErrorColor { get; set; } = "#DC3545";
     [Parameter] public bool ShowCharacterCount { get; set; }
-    [Parameter] public RenderFragment? LeftTools { get; set; }
-    [Parameter] public RenderFragment? RightTools { get; set; }
+    [Parameter] public List<TextEntryTool>? LeftTools { get; set; }
+    [Parameter] public List<TextEntryTool>? RightTools { get; set; }
     [Parameter] public string? CssClass { get; set; }
     [Parameter] public EventCallback Completed { get; set; }
     [Parameter(CaptureUnmatchedValues = true)]
@@ -87,10 +88,25 @@ public partial class TextEntry
         }
     }
 
+    protected override void OnInitialized()
+    {
+        context = new TextEntryContext(() => Text, SetTextFromTool);
+        AttachTools(LeftTools);
+        AttachTools(RightTools);
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Re-attach if tool lists changed
+        AttachTools(LeftTools);
+        AttachTools(RightTools);
+    }
+
     async Task OnInput(ChangeEventArgs e)
     {
         Text = e.Value?.ToString() ?? "";
         await TextChanged.InvokeAsync(Text);
+        NotifyToolsTextChanged();
     }
 
     void OnFocusIn()
@@ -114,5 +130,55 @@ public partial class TextEntry
     async Task FocusInput()
     {
         try { await inputRef.FocusAsync(); } catch { }
+    }
+
+    void OnToolClicked(TextEntryTool tool)
+    {
+        tool.InternalClick();
+        StateHasChanged();
+    }
+
+    async void SetTextFromTool(string text)
+    {
+        Text = text;
+        await TextChanged.InvokeAsync(text);
+        NotifyToolsTextChanged();
+        StateHasChanged();
+    }
+
+    void NotifyToolsTextChanged()
+    {
+        NotifyToolsInList(LeftTools);
+        NotifyToolsInList(RightTools);
+    }
+
+    void NotifyToolsInList(List<TextEntryTool>? tools)
+    {
+        if (tools is null) return;
+        foreach (var tool in tools)
+            tool.OnTextChanged(Text);
+    }
+
+    void AttachTools(List<TextEntryTool>? tools)
+    {
+        if (tools is null || context is null) return;
+        foreach (var tool in tools)
+        {
+            if (tool._context is null)
+                tool.InternalAttach(context);
+        }
+    }
+
+    void DetachTools(List<TextEntryTool>? tools)
+    {
+        if (tools is null) return;
+        foreach (var tool in tools)
+            tool.InternalDetach();
+    }
+
+    public void Dispose()
+    {
+        DetachTools(LeftTools);
+        DetachTools(RightTools);
     }
 }

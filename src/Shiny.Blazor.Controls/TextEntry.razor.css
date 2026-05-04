@@ -81,10 +81,9 @@
     box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
 }
 
-.shiny-te-clear-btn {
+.shiny-te-tool-btn {
     border: none;
     background: transparent;
-    color: #9CA3AF;
     cursor: pointer;
     font-size: 16px;
     padding: 4px;
@@ -92,13 +91,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     border-radius: 50%;
-    width: 24px;
+    min-width: 24px;
     height: 24px;
     transition: background 0.15s, color 0.15s;
 }
 
-.shiny-te-clear-btn:hover {
+.shiny-te-tool-btn:hover {
     background: rgba(0, 0, 0, 0.08);
-    color: #374151;
+}
+
+.shiny-te-tool-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.shiny-te-tool-text {
+    font-size: 13px;
+    line-height: 1;
 }
