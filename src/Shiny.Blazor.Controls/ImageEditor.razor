@@ -3,7 +3,20 @@
 @implements IAsyncDisposable
 
 <div class="shiny-imgeditor" @ref="rootEl">
-    <canvas class="shiny-imgeditor-canvas" @ref="canvasEl"></canvas>
+    <div class="shiny-imgeditor-canvas-container">
+        <canvas class="shiny-imgeditor-canvas" @ref="canvasEl"></canvas>
+
+        @if (isTextInputVisible)
+        {
+            <input class="shiny-imgeditor-text-input"
+                   @ref="textInputEl"
+                   @bind="textInputValue"
+                   @bind:event="oninput"
+                   @onkeydown="OnTextInputKeyDown"
+                   @onblur="CommitTextInput"
+                   style="left:@(textInputLeft)px;top:@(textInputTop)px;font-size:@(TextFontSize)px;color:@(activeColor);font-family:@(TextFontFamily);" />
+        }
+    </div>
 
     @if (ToolbarTemplate != null)
     {
@@ -13,7 +26,7 @@
     }
     else
     {
-        <div class="shiny-imgeditor-toolbar" style="@(ToolbarPosition == "top" ? "top:0;bottom:auto;" : "")">
+        <div class="shiny-imgeditor-toolbar" style="@(ToolbarPosition == "top" ? "order:-1;" : "")">
             @if (AllowCrop)
             {
                 <button class="shiny-imgeditor-btn @(currentMode == "crop" ? "active" : "")"
@@ -63,6 +76,11 @@
                     </select>
                 }
             }
+
+            <span class="shiny-imgeditor-separator"></span>
+
+            <input type="color" class="shiny-imgeditor-color" value="@activeColor"
+                   @onchange="OnColorChanged" title="Color" />
 
             <span class="shiny-imgeditor-separator"></span>
 

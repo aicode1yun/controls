@@ -6,6 +6,15 @@
     overflow: hidden;
     user-select: none;
     touch-action: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.shiny-imgeditor-canvas-container {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .shiny-imgeditor-canvas {
@@ -17,16 +26,13 @@
 }
 
 .shiny-imgeditor-toolbar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
     padding: 8px;
     background: rgba(0, 0, 0, 0.6);
+    flex-shrink: 0;
     z-index: 10;
 }
 
@@ -75,4 +81,40 @@
     color: #fff;
     font-size: 13px;
     cursor: pointer;
+}
+
+.shiny-imgeditor-color {
+    width: 36px;
+    height: 36px;
+    padding: 2px;
+    border: 2px solid #888;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.shiny-imgeditor-color::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.shiny-imgeditor-color::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+
+.shiny-imgeditor-color::-moz-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+
+.shiny-imgeditor-text-input {
+    position: absolute;
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.6);
+    outline: none;
+    padding: 2px 4px;
+    min-width: 100px;
+    z-index: 5;
 }

@@ -16,7 +16,7 @@ export function init(root, canvas, dotnetRef, options) {
         cropStartRect: null,
         // Draw
         currentStroke: null,
-        drawColor: options?.drawColor || '#ff0000',
+        drawColor: options?.drawColor || '#ffffff',
         drawWidth: options?.drawWidth || 3,
         // Line / arrow
         activeLine: null, // { start: {x,y}, end: {x,y}, isArrow: bool }
@@ -43,8 +43,9 @@ export function init(root, canvas, dotnetRef, options) {
     canvas.addEventListener('pointercancel', e => onPointerUp(state, e));
 
     resizeCanvas(state);
+    const container = canvas.parentElement;
     const observer = new ResizeObserver(() => { resizeCanvas(state); redraw(state); });
-    observer.observe(root);
+    observer.observe(container);
     state._observer = observer;
 }
 
@@ -212,7 +213,8 @@ export function dispose(root) {
 // --- Internal ---
 
 function resizeCanvas(state) {
-    const rect = state.root.getBoundingClientRect();
+    const container = state.canvas.parentElement;
+    const rect = container.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     state.canvas.width = rect.width * dpr;
     state.canvas.height = rect.height * dpr;
@@ -723,18 +725,23 @@ async function handleTextPlacement(state, pt) {
     if (ir.w <= 0 || ir.h <= 0) return;
     if (pt.x < ir.x || pt.x > ir.x + ir.w || pt.y < ir.y || pt.y > ir.y + ir.h) return;
 
-    const text = await state.dotnet.invokeMethodAsync('OnPromptText');
-    if (!text) return;
-
     const normalized = {
         x: (pt.x - ir.x) / ir.w,
         y: (pt.y - ir.y) / ir.h
     };
 
+    // Request inline text input from Blazor at the canvas position
+    await state.dotnet.invokeMethodAsync('OnRequestTextInput', pt.x, pt.y, normalized.x, normalized.y);
+}
+
+export function addTextAnnotation(root, text, normX, normY) {
+    const state = states.get(root);
+    if (!state || !text) return;
+
     state.actions.push({
         type: 'text',
         text,
-        position: normalized,
+        position: { x: normX, y: normY },
         size: state.textSize,
         color: state.textColor,
         font: state.textFont

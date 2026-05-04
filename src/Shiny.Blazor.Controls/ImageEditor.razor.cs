@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace Shiny.Blazor.Controls;
@@ -9,10 +10,20 @@ public partial class ImageEditor : IAsyncDisposable
     DotNetObjectReference<ImageEditor>? selfRef;
     ElementReference rootEl;
     ElementReference canvasEl;
+    ElementReference textInputEl;
     bool initialized;
     bool canUndo;
     bool canRedo;
     string currentMode = "none";
+    string activeColor = "#ffffff";
+
+    // Inline text input state
+    bool isTextInputVisible;
+    string textInputValue = "";
+    double textInputLeft;
+    double textInputTop;
+    double textInputNormX;
+    double textInputNormY;
 
     [Parameter] public string? Source { get; set; }
     [Parameter] public byte[]? ImageData { get; set; }
@@ -25,7 +36,7 @@ public partial class ImageEditor : IAsyncDisposable
     [Parameter] public bool AllowZoom { get; set; } = true;
     [Parameter] public bool AllowFontSelection { get; set; }
     [Parameter] public bool AllowFontSizeSelection { get; set; }
-    [Parameter] public string DrawStrokeColor { get; set; } = "#ff0000";
+    [Parameter] public string DrawStrokeColor { get; set; } = "#ffffff";
     [Parameter] public double DrawStrokeWidth { get; set; } = 3;
     [Parameter] public double TextFontSize { get; set; } = 16;
     [Parameter] public string TextColor { get; set; } = "#ffffff";
@@ -46,6 +57,8 @@ public partial class ImageEditor : IAsyncDisposable
     {
         if (firstRender)
         {
+            activeColor = DrawStrokeColor;
+
             module = await JS.InvokeAsync<IJSObjectReference>(
                 "import",
                 "./_content/Shiny.Blazor.Controls/image-editor.js");
@@ -54,9 +67,9 @@ public partial class ImageEditor : IAsyncDisposable
 
             await module.InvokeVoidAsync("init", rootEl, canvasEl, selfRef, new
             {
-                drawColor = DrawStrokeColor,
+                drawColor = activeColor,
                 drawWidth = DrawStrokeWidth,
-                textColor = TextColor,
+                textColor = activeColor,
                 textSize = TextFontSize,
                 textFont = TextFontFamily,
                 allowZoom = AllowZoom
@@ -68,6 +81,15 @@ public partial class ImageEditor : IAsyncDisposable
         else if (initialized)
         {
             await SyncParametersAsync();
+
+            if (isTextInputVisible)
+            {
+                try
+                {
+                    await textInputEl.FocusAsync();
+                }
+                catch { }
+            }
         }
     }
 
@@ -80,8 +102,8 @@ public partial class ImageEditor : IAsyncDisposable
         if (Source != previousSource || ImageData != previousImageData)
             await LoadImageAsync();
 
-        await module.InvokeVoidAsync("updateDrawSettings", rootEl, DrawStrokeColor, DrawStrokeWidth);
-        await module.InvokeVoidAsync("updateTextSettings", rootEl, TextColor, TextFontSize, TextFontFamily);
+        await module.InvokeVoidAsync("updateDrawSettings", rootEl, activeColor, DrawStrokeWidth);
+        await module.InvokeVoidAsync("updateTextSettings", rootEl, activeColor, TextFontSize, TextFontFamily);
         await module.InvokeVoidAsync("updateAllowZoom", rootEl, AllowZoom);
     }
 
@@ -123,6 +145,7 @@ public partial class ImageEditor : IAsyncDisposable
         {
             await module.InvokeVoidAsync("reset", rootEl);
             currentMode = "none";
+            DismissTextInput();
             StateHasChanged();
         }
     }
@@ -131,6 +154,7 @@ public partial class ImageEditor : IAsyncDisposable
     {
         if (module != null)
         {
+            DismissTextInput();
             await module.InvokeVoidAsync("setMode", rootEl, mode);
             currentMode = mode;
             StateHasChanged();
@@ -187,13 +211,27 @@ public partial class ImageEditor : IAsyncDisposable
         await SetModeAsync(newMode);
     }
 
+    async Task OnColorChanged(ChangeEventArgs e)
+    {
+        var color = e.Value?.ToString() ?? "#ffffff";
+        activeColor = color;
+        DrawStrokeColor = color;
+        TextColor = color;
+
+        if (module != null)
+        {
+            await module.InvokeVoidAsync("updateDrawSettings", rootEl, color, DrawStrokeWidth);
+            await module.InvokeVoidAsync("updateTextSettings", rootEl, color, TextFontSize, TextFontFamily);
+        }
+    }
+
     async Task OnFontFamilySelected(ChangeEventArgs e)
     {
         var value = e.Value?.ToString() ?? string.Empty;
         TextFontFamily = value;
         await TextFontFamilyChanged.InvokeAsync(value);
         if (module != null)
-            await module.InvokeVoidAsync("updateTextSettings", rootEl, TextColor, TextFontSize, TextFontFamily);
+            await module.InvokeVoidAsync("updateTextSettings", rootEl, activeColor, TextFontSize, TextFontFamily);
     }
 
     async Task OnFontSizeSelected(ChangeEventArgs e)
@@ -203,11 +241,42 @@ public partial class ImageEditor : IAsyncDisposable
             TextFontSize = size;
             await TextFontSizeChanged.InvokeAsync(size);
             if (module != null)
-                await module.InvokeVoidAsync("updateTextSettings", rootEl, TextColor, TextFontSize, TextFontFamily);
+                await module.InvokeVoidAsync("updateTextSettings", rootEl, activeColor, TextFontSize, TextFontFamily);
         }
     }
 
     Task CancelCrop() => SetModeAsync("none").AsTask();
+
+    // Inline text input
+    async Task OnTextInputKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await CommitTextInput();
+        else if (e.Key == "Escape")
+            DismissTextInput();
+    }
+
+    async Task CommitTextInput()
+    {
+        if (!isTextInputVisible) return;
+
+        var text = textInputValue?.Trim();
+        isTextInputVisible = false;
+        textInputValue = "";
+
+        if (!string.IsNullOrEmpty(text) && module != null)
+        {
+            await module.InvokeVoidAsync("addTextAnnotation", rootEl, text, textInputNormX, textInputNormY);
+        }
+
+        StateHasChanged();
+    }
+
+    void DismissTextInput()
+    {
+        isTextInputVisible = false;
+        textInputValue = "";
+    }
 
     // JS callbacks
     [JSInvokable]
@@ -227,12 +296,16 @@ public partial class ImageEditor : IAsyncDisposable
     }
 
     [JSInvokable]
-    public async Task<string?> OnPromptText()
+    public Task OnRequestTextInput(double canvasX, double canvasY, double normX, double normY)
     {
-        // In Blazor, we use JS prompt as a simple fallback.
-        // Users can override ToolbarTemplate for custom text input UI.
-        if (module == null) return null;
-        return await JS.InvokeAsync<string?>("prompt", "Enter annotation text:");
+        textInputLeft = canvasX;
+        textInputTop = canvasY;
+        textInputNormX = normX;
+        textInputNormY = normY;
+        textInputValue = "";
+        isTextInputVisible = true;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     public async ValueTask DisposeAsync()
