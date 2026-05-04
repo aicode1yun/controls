@@ -102,6 +102,52 @@ public partial class KitchenSinkViewModel(INavigator navigator) : ObservableObje
     }
 
     [RelayCommand]
+    async Task TakePhoto()
+    {
+        try
+        {
+            var photo = await MediaPicker.Default.CapturePhotoAsync();
+            if (photo is not null)
+                await AttachFileResult(photo);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"TakePhoto failed: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    async Task PickImage()
+    {
+        try
+        {
+            var photo = await MediaPicker.Default.PickPhotoAsync();
+            if (photo is not null)
+                await AttachFileResult(photo);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"PickImage failed: {ex.Message}");
+        }
+    }
+
+    async Task AttachFileResult(FileResult file)
+    {
+        var stream = await file.OpenReadAsync();
+        var filePath = Path.Combine(FileSystem.CacheDirectory, file.FileName);
+        using (var fileStream = File.OpenWrite(filePath))
+            await stream.CopyToAsync(fileStream);
+
+        Messages.Add(new ChatMessage
+        {
+            ImageUrl = filePath,
+            SenderId = myId,
+            IsFromMe = true,
+            Timestamp = DateTimeOffset.Now
+        });
+    }
+
+    [RelayCommand]
     async Task EditImage(string? imageUrl)
     {
         if (imageUrl is null)

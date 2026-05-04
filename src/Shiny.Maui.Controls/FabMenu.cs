@@ -278,6 +278,45 @@ public class FabMenu : ContentView
     }
 
 
+    // ------- Fab Size / Appearance -------
+
+    public static readonly BindableProperty FabSizeProperty = BindableProperty.Create(
+        nameof(FabSize),
+        typeof(double),
+        typeof(FabMenu),
+        56.0,
+        propertyChanged: (b, _, n) => ((FabMenu)b).mainFab.Size = (double)n);
+    public double FabSize
+    {
+        get => (double)GetValue(FabSizeProperty);
+        set => SetValue(FabSizeProperty, value);
+    }
+
+    public static readonly BindableProperty HasShadowProperty = BindableProperty.Create(
+        nameof(HasShadow),
+        typeof(bool),
+        typeof(FabMenu),
+        true,
+        propertyChanged: (b, _, n) => ((FabMenu)b).mainFab.HasShadow = (bool)n);
+    public bool HasShadow
+    {
+        get => (bool)GetValue(HasShadowProperty);
+        set => SetValue(HasShadowProperty, value);
+    }
+
+    public static readonly BindableProperty MenuAlignmentProperty = BindableProperty.Create(
+        nameof(MenuAlignment),
+        typeof(LayoutOptions),
+        typeof(FabMenu),
+        LayoutOptions.End,
+        propertyChanged: (b, _, _) => ((FabMenu)b).ApplyMenuAlignment());
+    public LayoutOptions MenuAlignment
+    {
+        get => (LayoutOptions)GetValue(MenuAlignmentProperty);
+        set => SetValue(MenuAlignmentProperty, value);
+    }
+
+
     public event EventHandler<FabMenuItem>? ItemTapped;
 
 
@@ -287,6 +326,13 @@ public class FabMenu : ContentView
 
 
     // ------- Internals -------
+
+    void ApplyMenuAlignment()
+    {
+        stack.HorizontalOptions = MenuAlignment;
+        itemsLayout.HorizontalOptions = MenuAlignment;
+        mainFab.HorizontalOptions = MenuAlignment;
+    }
 
     void OnMainFabClicked(object? sender, EventArgs e)
     {

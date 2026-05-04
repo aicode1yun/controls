@@ -44,11 +44,22 @@
                         IsMultiPerson="{Binding IsMultiPerson}"
                         TypingParticipants="{Binding TypingParticipants}"
                         SendCommand="{Binding SendCommand}"
-                        AttachImageCommand="{Binding AttachImageCommand}"
                         LoadMoreCommand="{Binding LoadMoreCommand}"
+                        ToolsIcon="dotnet_bot.png"
                         MyBubbleColor="#DCF8C6"
                         OtherBubbleColor="White"
-                        PlaceholderText="Type a message..." />
+                        PlaceholderText="Type a message...">
+            <shiny:ChatView.ToolItems>
+                <shiny:FabMenuItem Text="Take Photo"
+                                   Icon="dotnet_bot.png"
+                                   FabBackgroundColor="#4CAF50"
+                                   Command="{Binding TakePhotoCommand}" />
+                <shiny:FabMenuItem Text="Pick Image"
+                                   Icon="dotnet_bot.png"
+                                   FabBackgroundColor="#FF9800"
+                                   Command="{Binding PickImageCommand}" />
+            </shiny:ChatView.ToolItems>
+        </shiny:ChatView>
     </Grid>
 
 </ContentPage>

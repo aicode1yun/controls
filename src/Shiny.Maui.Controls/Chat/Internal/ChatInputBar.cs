@@ -5,6 +5,7 @@ class ChatInputBar : ContentView
     readonly BorderlessEntry entry;
     readonly Button sendButton;
     readonly Button attachButton;
+    readonly BoxView toolsSpacer;
     readonly Grid rootGrid;
 
     public event Action<string>? SendRequested;
@@ -50,10 +51,18 @@ class ChatInputBar : ContentView
         };
         attachButton.Clicked += OnAttachClicked;
 
+        toolsSpacer = new BoxView
+        {
+            WidthRequest = 44,
+            Color = Colors.Transparent,
+            IsVisible = false
+        };
+
         rootGrid = new Grid
         {
             ColumnDefinitions =
             {
+                new ColumnDefinition(GridLength.Auto),
                 new ColumnDefinition(GridLength.Auto),
                 new ColumnDefinition(GridLength.Star),
                 new ColumnDefinition(GridLength.Auto)
@@ -81,9 +90,10 @@ class ChatInputBar : ContentView
             }
         };
 
-        rootGrid.Add(attachButton, 0, 0);
-        rootGrid.Add(entry, 1, 0);
-        rootGrid.Add(sendButton, 2, 0);
+        rootGrid.Add(toolsSpacer, 0, 0);
+        rootGrid.Add(attachButton, 1, 0);
+        rootGrid.Add(entry, 2, 0);
+        rootGrid.Add(sendButton, 3, 0);
 
         wrapper.Add(separator, 0, 0);
         wrapper.Add(rootGrid, 0, 1);
@@ -107,6 +117,12 @@ class ChatInputBar : ContentView
     {
         get => attachButton.IsVisible;
         set => attachButton.IsVisible = value;
+    }
+
+    public bool ShowToolsSpacer
+    {
+        get => toolsSpacer.IsVisible;
+        set => toolsSpacer.IsVisible = value;
     }
 
     public void ClearText() => entry.Text = string.Empty;

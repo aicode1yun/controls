@@ -269,6 +269,63 @@ public partial class ChatView
         set => SetValue(MessageTemplateSelectorProperty, value);
     }
 
+    // Tools
+    public static readonly BindableProperty ToolItemsProperty = BindableProperty.Create(
+        nameof(ToolItems),
+        typeof(IList<FabMenuItem>),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, o, n) => ((ChatView)b).OnToolItemsChanged(o as IList<FabMenuItem>, n as IList<FabMenuItem>));
+
+    public IList<FabMenuItem>? ToolItems
+    {
+        get => (IList<FabMenuItem>?)GetValue(ToolItemsProperty);
+        set => SetValue(ToolItemsProperty, value);
+    }
+
+    public static readonly BindableProperty ToolsIconProperty = BindableProperty.Create(
+        nameof(ToolsIcon),
+        typeof(ImageSource),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, _, n) => ((ChatView)b).toolsMenu.Icon = n as ImageSource);
+
+    public ImageSource? ToolsIcon
+    {
+        get => (ImageSource?)GetValue(ToolsIconProperty);
+        set => SetValue(ToolsIconProperty, value);
+    }
+
+    public static readonly BindableProperty ToolsTextProperty = BindableProperty.Create(
+        nameof(ToolsText),
+        typeof(string),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, _, n) => ((ChatView)b).toolsMenu.Text = n as string);
+
+    public string? ToolsText
+    {
+        get => (string?)GetValue(ToolsTextProperty);
+        set => SetValue(ToolsTextProperty, value);
+    }
+
+    public static readonly BindableProperty ToolsFabBackgroundColorProperty = BindableProperty.Create(
+        nameof(ToolsFabBackgroundColor),
+        typeof(Color),
+        typeof(ChatView),
+        Color.FromArgb("#007AFF"),
+        propertyChanged: (b, _, n) =>
+        {
+            if (n is Color c)
+                ((ChatView)b).toolsMenu.FabBackgroundColor = c;
+        });
+
+    public Color? ToolsFabBackgroundColor
+    {
+        get => (Color?)GetValue(ToolsFabBackgroundColorProperty);
+        set => SetValue(ToolsFabBackgroundColorProperty, value);
+    }
+
     // Haptic
     public static readonly BindableProperty UseFeedbackProperty = BindableProperty.Create(
         nameof(UseFeedback),

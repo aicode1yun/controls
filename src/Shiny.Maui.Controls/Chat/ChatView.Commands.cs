@@ -294,4 +294,41 @@ public partial class ChatView
 
         UpdateToastPill();
     }
+
+    // ------- Tools -------
+
+    void OnToolItemsChanged(IList<FabMenuItem>? oldItems, IList<FabMenuItem>? newItems)
+    {
+        if (observedToolItems is not null)
+        {
+            observedToolItems.CollectionChanged -= OnToolItemsCollectionChanged;
+            observedToolItems = null;
+        }
+
+        toolsMenu.Items = newItems ?? new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>();
+
+        if (newItems is INotifyCollectionChanged ncc)
+        {
+            ncc.CollectionChanged += OnToolItemsCollectionChanged;
+            observedToolItems = ncc;
+        }
+
+        SyncToolsVisibility();
+    }
+
+    void OnToolItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        => SyncToolsVisibility();
+
+    void SyncToolsVisibility()
+    {
+        var hasTools = ToolItems is { Count: > 0 };
+        toolsMenu.IsVisible = hasTools;
+        inputBar.ShowToolsSpacer = hasTools;
+    }
+
+    void OnToolItemTapped(object? sender, FabMenuItem item)
+    {
+        if (UseFeedback)
+            FeedbackHelper.Execute(this, "ToolItemTapped", item);
+    }
 }

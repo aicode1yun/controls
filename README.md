@@ -385,6 +385,10 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 | TypingParticipants | IList\<ChatParticipant\> | null | Currently typing participants |
 | ScrollToFirstUnread | bool | false | Scroll to first unread instead of end |
 | FirstUnreadMessageId | string? | null | ID of the first unread message |
+| ToolItems | IList\<FabMenuItem\> | null | Tool actions in a FabMenu on the left of the input bar (MAUI only) |
+| ToolsIcon | ImageSource | null | Icon for the tools FabMenu button (MAUI only) |
+| ToolsText | string? | null | Text for the tools FabMenu button (MAUI only) |
+| ToolsFabBackgroundColor | Color | #007AFF | Background color of the tools FabMenu button (MAUI only) |
 | UseFeedback | bool | true | Feedback on send |
 
 **Commands:** `SendCommand` (ICommand, receives text string), `AttachImageCommand` (ICommand), `LoadMoreCommand` (ICommand), `MessageTappedCommand` (ICommand, receives ChatMessage)
@@ -431,6 +435,7 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 - Auto-link detection in text messages
 - Image messages (text and image are mutually exclusive per message)
 - Bottom input bar with Enter key and Send button; optional attach button
+- Tools menu: set `ToolItems` with `FabMenuItem` instances to show a FabMenu on the left of the input bar (MAUI only)
 - Entire input bar can be hidden for read-only use
 - Custom message templates for action buttons, cards, or any custom content
 
@@ -720,6 +725,9 @@ Events: `Clicked`.
 |---|---|---|---|
 | IsOpen | bool | false | Two-way bindable; opens/closes the menu with animation |
 | Items | `IList<FabMenuItem>` | empty | Menu items (content property — place items directly inside the FabMenu) |
+| FabSize | double | 56 | Main FAB button size (diameter) |
+| HasShadow | bool | true | Drop shadow on the main FAB |
+| MenuAlignment | LayoutOptions | End | Horizontal alignment of the menu stack (Start for left-aligned, End for right-aligned) |
 | HasBackdrop | bool | true | Show a dim backdrop while open |
 | BackdropColor | Color | Black | Backdrop color |
 | BackdropOpacity | double | 0.4 | Backdrop peak opacity |

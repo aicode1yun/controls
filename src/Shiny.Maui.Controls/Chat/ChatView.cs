@@ -13,9 +13,11 @@ public partial class ChatView : ContentView
     readonly Border toastPill;
     readonly Label toastNewMessagesLabel;
     readonly Label toastTypingLabel;
+    readonly FabMenu toolsMenu;
 
     INotifyCollectionChanged? observedCollection;
     INotifyCollectionChanged? observedTypingCollection;
+    INotifyCollectionChanged? observedToolItems;
     bool isLoadingMore;
     bool isNearBottom = true;
     int unreadCount;
@@ -94,6 +96,21 @@ public partial class ChatView : ContentView
         inputBar.SendRequested += OnSendRequested;
         inputBar.AttachRequested += OnAttachRequested;
 
+        // Tools FabMenu overlay — spans full chat area for proper backdrop/item expansion
+        toolsMenu = new FabMenu
+        {
+            IsVisible = false,
+            FabSize = 40,
+            HasShadow = false,
+            HasBackdrop = true,
+            CloseOnBackdropTap = true,
+            CloseOnItemTap = true,
+            MenuAlignment = LayoutOptions.Start,
+            FabBackgroundColor = Color.FromArgb("#007AFF"),
+            Margin = new Thickness(8, 0, 0, 6)
+        };
+        toolsMenu.ItemTapped += OnToolItemTapped;
+
         // Root: messages fill space, typing bubbles below, input bar at bottom
         var rootGrid = new Grid
         {
@@ -107,6 +124,10 @@ public partial class ChatView : ContentView
         rootGrid.Add(messageArea, 0, 0);
         rootGrid.Add(typingBubbleHost, 0, 1);
         rootGrid.Add(inputBar, 0, 2);
+
+        // FabMenu overlay spans all rows, anchored to bottom-left
+        rootGrid.Add(toolsMenu, 0, 0);
+        Grid.SetRowSpan(toolsMenu, 3);
 
         Content = rootGrid;
     }
