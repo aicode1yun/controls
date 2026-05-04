@@ -21,6 +21,7 @@ using Sample.Features.TableView;
 using Sample.Features.SignaturePad;
 using Sample.Features.Toast;
 using Sample.Features.Feedback;
+using Sample.Features.TextEntry;
 using Shiny;
 using Shiny.Maui.Controls.Scheduler;
 
@@ -71,6 +72,7 @@ public static class MauiProgram
                 .Add<SignaturePadPage, SignaturePadViewModel>(registerRoute: false)
                 .Add<FeedbackPage, FeedbackViewModel>(registerRoute: false)
                 .Add<ToastPage, ToastViewModel>(registerRoute: false)
+                .Add<TextEntryPage, TextEntryViewModel>(registerRoute: false)
             )
             .ConfigureFonts(fonts =>
             {

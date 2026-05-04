@@ -1,0 +1,117 @@
+@page "/textentry"
+
+<PageTitle>Text Entry</PageTitle>
+
+<h1>Text Entry</h1>
+
+<div class="demo-section">
+    <h2>Basic</h2>
+    <TextEntry Placeholder="First Name" @bind-Text="firstName" />
+    <br />
+    <TextEntry Placeholder="Last Name" @bind-Text="lastName" />
+    <div class="state">First: <code>@firstName</code> | Last: <code>@lastName</code></div>
+</div>
+
+<div class="demo-section">
+    <h2>With Clear Button</h2>
+    <TextEntry Placeholder="Search" @bind-Text="searchText">
+        <RightTools>
+            @if (!string.IsNullOrEmpty(searchText))
+            {
+                <button class="shiny-te-clear-btn" @onclick="() => searchText = string.Empty">&times;</button>
+            }
+        </RightTools>
+    </TextEntry>
+    <div class="state">Search: <code>@searchText</code></div>
+</div>
+
+<div class="demo-section">
+    <h2>Password</h2>
+    <TextEntry Placeholder="Password" IsPassword="true" @bind-Text="password" />
+</div>
+
+<div class="demo-section">
+    <h2>Character Count</h2>
+    <TextEntry Placeholder="Bio (max 100)" @bind-Text="bio" MaxLength="100" ShowCharacterCount="true" />
+</div>
+
+<div class="demo-section">
+    <h2>Validation</h2>
+    <TextEntry Placeholder="Email"
+               @bind-Text="email"
+               HasError="@hasEmailError"
+               HintText="@emailError">
+        <RightTools>
+            @if (!string.IsNullOrEmpty(email))
+            {
+                <button class="shiny-te-clear-btn" @onclick="() => { email = string.Empty; hasEmailError = false; emailError = null; }">&times;</button>
+            }
+        </RightTools>
+    </TextEntry>
+</div>
+
+<div class="demo-section">
+    <h2>Custom Styling</h2>
+    <TextEntry Placeholder="Purple theme"
+               @bind-Text="customText"
+               FocusedBorderColor="#7C3AED"
+               FocusedPlaceholderColor="#7C3AED"
+               FocusedBorderThickness="2"
+               CornerRadius="16px"
+               EntryBackgroundColor="#F5F3FF" />
+</div>
+
+<div class="demo-section">
+    <h2>Read Only</h2>
+    <TextEntry Placeholder="Read only"
+               Text="This field is read only"
+               IsReadOnly="true"
+               BorderColor="#E5E7EB"
+               EntryBackgroundColor="#F9FAFB" />
+</div>
+
+<div class="demo-section">
+    <h2>Hint Text</h2>
+    <TextEntry Placeholder="Phone Number"
+               @bind-Text="phone"
+               HintText="Include country code" />
+</div>
+
+@code {
+    string firstName = "";
+    string lastName = "";
+    string searchText = "";
+    string password = "";
+    string bio = "";
+    string customText = "";
+    string phone = "";
+
+    string email = "";
+    bool hasEmailError;
+    string? emailError;
+
+    // Simple validation on email change
+    protected override void OnParametersSet()
+    {
+        ValidateEmail();
+    }
+
+    void ValidateEmail()
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            hasEmailError = false;
+            emailError = null;
+        }
+        else if (!email.Contains('@'))
+        {
+            hasEmailError = true;
+            emailError = "Please enter a valid email address";
+        }
+        else
+        {
+            hasEmailError = false;
+            emailError = null;
+        }
+    }
+}

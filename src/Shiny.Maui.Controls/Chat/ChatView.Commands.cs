@@ -305,7 +305,9 @@ public partial class ChatView
             observedToolItems = null;
         }
 
+        DetachChatEntryTools(oldItems);
         toolsMenu.Items = newItems ?? new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>();
+        AttachChatEntryTools(newItems);
 
         if (newItems is INotifyCollectionChanged ncc)
         {
@@ -331,4 +333,72 @@ public partial class ChatView
         if (UseFeedback)
             FeedbackHelper.Execute(this, "ToolItemTapped", item);
     }
+
+    // ------- Bubble Tools -------
+
+    internal bool HasBubbleTools(ChatMessage message)
+        => message.ToolItems is { Count: > 0 } || BubbleToolItems is { Count: > 0 };
+
+    internal void ShowBubbleTools(ChatMessage message)
+    {
+        // Per-message tools take priority, fall back to ChatView-level defaults
+        var tools = message.ToolItems is { Count: > 0 }
+            ? message.ToolItems
+            : BubbleToolItems;
+
+        if (tools is not { Count: > 0 })
+            return;
+
+        activeBubbleToolMessage = message;
+
+        // Set CommandParameter to the ChatMessage so individual item Commands get context
+        foreach (var tool in tools)
+            tool.CommandParameter = message;
+
+        bubbleToolsMenu.Items = new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>(tools);
+        bubbleToolsMenu.IsVisible = true;
+        bubbleToolsMenu.Open();
+    }
+
+    void SyncBubbleToolsButtonVisibility() => RefreshBubbles();
+
+    void OnBubbleToolItemTapped(object? sender, FabMenuItem item)
+    {
+        var message = activeBubbleToolMessage;
+        activeBubbleToolMessage = null;
+        bubbleToolsMenu.IsVisible = false;
+
+        if (message is null)
+            return;
+
+        var context = new ChatBubbleToolContext(message, item);
+
+        if (UseFeedback)
+            FeedbackHelper.Execute(this, "BubbleToolItemTapped", context);
+
+        BubbleToolItemTapped?.Invoke(this, context);
+
+        if (BubbleToolItemTappedCommand?.CanExecute(context) == true)
+            BubbleToolItemTappedCommand.Execute(context);
+    }
+
+    // ------- IChatEntryTool -------
+
+    void ScanChatEntryTools(IList<FabMenuItem>? items, bool attach)
+    {
+        if (items is null) return;
+        foreach (var item in items)
+        {
+            if (item is IChatEntryTool tool)
+            {
+                if (attach)
+                    tool.Attach(this);
+                else
+                    tool.Detach();
+            }
+        }
+    }
+
+    void DetachChatEntryTools(IList<FabMenuItem>? items) => ScanChatEntryTools(items, false);
+    void AttachChatEntryTools(IList<FabMenuItem>? items) => ScanChatEntryTools(items, true);
 }

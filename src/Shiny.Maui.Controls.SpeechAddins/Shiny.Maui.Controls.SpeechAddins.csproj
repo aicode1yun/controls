@@ -1,11 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>$(BaseTargetFramework)</TargetFramework>
+        <TargetFrameworks>$(BaseTargetFramework)-ios;$(BaseTargetFramework)-maccatalyst;$(BaseTargetFramework)-android</TargetFrameworks>
+        <UseMaui>true</UseMaui>
+        <IsAotCompatible>true</IsAotCompatible>
+        <SingleProject>true</SingleProject>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Shiny.Blazor.Controls\Shiny.Blazor.Controls.csproj"/>
+        <ProjectReference Include="..\Shiny.Maui.Controls\Shiny.Maui.Controls.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

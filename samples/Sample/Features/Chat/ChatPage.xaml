@@ -45,11 +45,14 @@
                         TypingParticipants="{Binding TypingParticipants}"
                         SendCommand="{Binding SendCommand}"
                         LoadMoreCommand="{Binding LoadMoreCommand}"
+                        BubbleToolItemTappedCommand="{Binding BubbleToolTappedCommand}"
                         ToolsIcon="dotnet_bot.png"
                         MyBubbleColor="#DCF8C6"
                         OtherBubbleColor="White"
                         PlaceholderText="Type a message...">
             <shiny:ChatView.ToolItems>
+                <shiny:SpeechToTextTool AutoSend="False"
+                                        SilenceTimeout="00:00:03" />
                 <shiny:FabMenuItem Text="Take Photo"
                                    Icon="dotnet_bot.png"
                                    FabBackgroundColor="#4CAF50"
@@ -59,6 +62,13 @@
                                    FabBackgroundColor="#FF9800"
                                    Command="{Binding PickImageCommand}" />
             </shiny:ChatView.ToolItems>
+            <shiny:ChatView.BubbleToolItems>
+                <shiny:CopyBubbleTool />
+                <shiny:TextToSpeechBubbleTool />
+                <shiny:FabMenuItem Text="Translate"
+                                   FabBackgroundColor="#9C27B0"
+                                   Command="{Binding TranslateCommand}" />
+            </shiny:ChatView.BubbleToolItems>
         </shiny:ChatView>
     </Grid>
 

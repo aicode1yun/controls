@@ -159,6 +159,26 @@ public partial class ChatViewModel : ObservableObject
     }
 
     [RelayCommand]
+    async Task BubbleToolTapped(ChatBubbleToolContext context)
+    {
+        var action = context.Item.Text ?? "Unknown";
+        var preview = context.Message.Text?.Length > 30
+            ? context.Message.Text[..30] + "…"
+            : context.Message.Text ?? "(image)";
+
+        await Shell.Current.DisplayAlert(
+            action,
+            $"Action: {action}\nMessage: {preview}",
+            "OK");
+    }
+
+[RelayCommand]
+    async Task Translate(ChatMessage message)
+    {
+        await Shell.Current.DisplayAlert("Translate", $"Translating: {message.Text}", "OK");
+    }
+
+    [RelayCommand]
     void ToggleTyping()
     {
         if (TypingParticipants.Count == 0)
@@ -178,14 +198,14 @@ public partial class ChatViewModel : ObservableObject
         {
             Text = "Hey everyone! Has anyone tried the new controls library?",
             SenderId = alice.Id,
-            Timestamp = yesterday.AddHours(-2)
+            Timestamp = yesterday.AddHours(-2),
         });
 
         Messages.Add(new ChatMessage
         {
             Text = "Yes! The TableView is really nice.",
             SenderId = bob.Id,
-            Timestamp = yesterday.AddHours(-2).AddMinutes(1)
+            Timestamp = yesterday.AddHours(-2).AddMinutes(1),
         });
 
         Messages.Add(new ChatMessage
@@ -193,28 +213,28 @@ public partial class ChatViewModel : ObservableObject
             Text = "I agree, the styling system is great.",
             SenderId = myId,
             IsFromMe = true,
-            Timestamp = yesterday.AddHours(-1).AddMinutes(30)
+            Timestamp = yesterday.AddHours(-1).AddMinutes(30),
         });
 
         Messages.Add(new ChatMessage
         {
             Text = "Check out https://github.com/shinyorg/controls for the latest updates.",
             SenderId = alice.Id,
-            Timestamp = now.AddMinutes(-30)
+            Timestamp = now.AddMinutes(-30),
         });
 
         Messages.Add(new ChatMessage
         {
             Text = "The scheduler component is my favorite so far.",
             SenderId = alice.Id,
-            Timestamp = now.AddMinutes(-30)
+            Timestamp = now.AddMinutes(-30),
         });
 
         Messages.Add(new ChatMessage
         {
             Text = "Same here! Really clean API.",
             SenderId = bob.Id,
-            Timestamp = now.AddMinutes(-28)
+            Timestamp = now.AddMinutes(-28),
         });
 
         Messages.Add(new ChatMessage
@@ -222,7 +242,7 @@ public partial class ChatViewModel : ObservableObject
             Text = "Here's a screenshot of what I built:",
             SenderId = myId,
             IsFromMe = true,
-            Timestamp = now.AddMinutes(-5)
+            Timestamp = now.AddMinutes(-5),
         });
 
         Messages.Add(new ChatMessage
@@ -244,7 +264,8 @@ public partial class ChatViewModel : ObservableObject
         {
             Text = "That's great! Thanks for sharing.",
             SenderId = alice.Id,
-            Timestamp = DateTimeOffset.Now
+            Timestamp = DateTimeOffset.Now,
         });
     }
+
 }

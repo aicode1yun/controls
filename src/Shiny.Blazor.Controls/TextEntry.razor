@@ -1,0 +1,50 @@
+@namespace Shiny.Blazor.Controls
+
+<div class="shiny-te @(IsFocused ? "shiny-te--focused" : "") @(HasError ? "shiny-te--error" : "") @CssClass"
+     style="@RootStyle"
+     @attributes="AdditionalAttributes">
+
+    <div class="shiny-te-border"
+         style="@BorderStyle"
+         @onclick="FocusInput">
+
+        @if (LeftTools is not null)
+        {
+            <div class="shiny-te-tools shiny-te-tools--left">
+                @LeftTools
+            </div>
+        }
+
+        <div class="shiny-te-field">
+            <label class="shiny-te-placeholder @(IsPlaceholderUp ? "shiny-te-placeholder--up" : "")"
+                   style="@PlaceholderStyle">
+                @Placeholder
+            </label>
+            <input @ref="inputRef"
+                   class="shiny-te-input"
+                   type="@InputType"
+                   value="@Text"
+                   readonly="@IsReadOnly"
+                   maxlength="@(MaxLength > 0 ? MaxLength : (int?)null)"
+                   @oninput="OnInput"
+                   @onfocus="OnFocusIn"
+                   @onblur="OnFocusOut"
+                   @onkeydown="OnKeyDown"
+                   style="@InputStyle" />
+        </div>
+
+        @if (RightTools is not null)
+        {
+            <div class="shiny-te-tools shiny-te-tools--right">
+                @RightTools
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(HintDisplay))
+    {
+        <div class="shiny-te-hint" style="@HintStyle">
+            @HintDisplay
+        </div>
+    }
+</div>

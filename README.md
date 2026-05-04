@@ -1,6 +1,6 @@
 # Shiny Controls
 
-A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, AutoCompleteEntry, CountryPicker, and AddressEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
+A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, AutoCompleteEntry, CountryPicker, AddressEntry, and TextEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
 
 [![MAUI NuGet](https://img.shields.io/nuget/v/Shiny.Maui.Controls.svg?label=Shiny.Maui.Controls)](https://www.nuget.org/packages/Shiny.Maui.Controls)
 [![Blazor NuGet](https://img.shields.io/nuget/v/Shiny.Blazor.Controls.svg?label=Shiny.Blazor.Controls)](https://www.nuget.org/packages/Shiny.Blazor.Controls)
@@ -87,6 +87,7 @@ No DI registration is required — drop the components into any `.razor` page.
 | `Fab.Icon="add.png"` (ImageSource) | `<Fab Icon="+">` (inline text/SVG string) |
 | `ItemTemplate` as `DataTemplate` | `ItemTemplate` as `RenderFragment<object>` |
 | `IToaster.ShowAsync(text, cfg => {})` (DI) | `IToastService.ShowAsync(text, cfg => {})` (DI + `<ToastHost />`) |
+| `<shiny:TextEntry>` | `<TextEntry>` |
 
 `ISchedulerEventProvider` is identical across both hosts.
 
@@ -499,6 +500,45 @@ Font family and font size picker controls for MAUI. Includes inline list (`FontP
 | FontSizeChangedCommand | ICommand? | null | Command on selection (button only) |
 
 These controls are also integrated into the **ImageEditor** toolbar when `AllowFontSelection` and `AllowFontSizeSelection` are enabled.
+
+### TextEntry
+
+A Material Design-inspired text entry control with animated floating placeholder, customizable border, left/right tool slots, hint text for validation errors, and character count display.
+
+```xml
+<shiny:TextEntry Placeholder="Email"
+                 Text="{Binding Email, Mode=TwoWay}"
+                 Keyboard="Email"
+                 HasError="{Binding HasEmailError}"
+                 HintText="{Binding EmailError}">
+    <shiny:ClearButtonTool />
+</shiny:TextEntry>
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| Text | string | "" | Current text value (TwoWay) |
+| Placeholder | string | "" | Animated floating placeholder |
+| PlaceholderColor | Color | Grey | Placeholder color unfocused |
+| FocusedPlaceholderColor | Color | #007AFF | Placeholder color focused |
+| BorderColor | Color | #CCCCCC | Border color unfocused |
+| FocusedBorderColor | Color | #007AFF | Border color focused |
+| BorderThickness | double | 1 | Unfocused border thickness |
+| FocusedBorderThickness | double | 2 | Focused border thickness |
+| CornerRadius | CornerRadius | 8 | Corner radius |
+| EntryBackgroundColor | Color | Transparent | Background fill |
+| IsReadOnly | bool | false | Read-only mode |
+| IsPassword | bool | false | Password masking |
+| Keyboard | Keyboard | Default | Keyboard type |
+| MaxLength | int | unlimited | Character limit |
+| HintText | string? | null | Hint/error text below field |
+| HasError | bool | false | Error state |
+| ErrorColor | Color | #DC3545 | Error color |
+| ShowCharacterCount | bool | false | Show counter |
+| LeftTools | IList&lt;TextEntryTool&gt; | empty | Left tool slot |
+| RightTools | IList&lt;TextEntryTool&gt; | empty | Right tool slot (ContentProperty) |
+
+**Built-in tools:** `ClearButtonTool` (auto-shows ✕ when text present), `TextEntrySpeechToTextTool` (voice input, in SpeechAddins package).
 
 ### AutoCompleteEntry
 

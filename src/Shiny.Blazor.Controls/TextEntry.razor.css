@@ -1,0 +1,104 @@
+.shiny-te {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.shiny-te-border {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    min-height: 56px;
+    transition: border-color 0.15s ease, border-width 0.15s ease;
+    cursor: text;
+    box-sizing: border-box;
+}
+
+.shiny-te-field {
+    flex: 1;
+    position: relative;
+    padding: 8px 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.shiny-te-placeholder {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transform-origin: left center;
+    font-size: inherit;
+    pointer-events: none;
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                font-size 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.15s ease;
+    white-space: nowrap;
+}
+
+.shiny-te-placeholder--up {
+    transform: translateY(-130%) scale(0.8);
+    transform-origin: left top;
+}
+
+.shiny-te-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    padding: 12px 0 0 0;
+    margin: 0;
+    color: inherit;
+}
+
+.shiny-te-input:read-only {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.shiny-te-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.shiny-te-hint {
+    font-size: 12px;
+    margin: 4px 12px 0;
+    min-height: 18px;
+}
+
+/* Focus state adds a subtle elevation feel */
+.shiny-te--focused .shiny-te-border {
+    box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.1);
+}
+
+.shiny-te--error .shiny-te-border {
+    box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
+}
+
+.shiny-te-clear-btn {
+    border: none;
+    background: transparent;
+    color: #9CA3AF;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.shiny-te-clear-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #374151;
+}

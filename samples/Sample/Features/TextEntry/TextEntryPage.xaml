@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:shiny="http://shiny.net/maui/controls"
+    xmlns:local="clr-namespace:Sample.Features.TextEntry"
+    x:Class="Sample.Features.TextEntry.TextEntryPage"
+    x:DataType="local:TextEntryViewModel"
+    Title="Text Entry">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="20">
+
+            <!-- Basic -->
+            <Label Text="Basic" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="First Name"
+                             Text="{Binding FirstName, Mode=TwoWay}" />
+
+            <shiny:TextEntry Placeholder="Last Name"
+                             Text="{Binding LastName, Mode=TwoWay}" />
+
+            <!-- With Clear Button -->
+            <Label Text="With Clear Button" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Search"
+                             Text="{Binding SearchText, Mode=TwoWay}">
+                <shiny:ClearButtonTool />
+            </shiny:TextEntry>
+
+            <!-- Password -->
+            <Label Text="Password" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Password"
+                             IsPassword="True"
+                             Text="{Binding Password, Mode=TwoWay}">
+                <shiny:ClearButtonTool />
+            </shiny:TextEntry>
+
+            <!-- Character Count -->
+            <Label Text="Character Count" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Bio (max 100)"
+                             Text="{Binding Bio, Mode=TwoWay}"
+                             MaxLength="100"
+                             ShowCharacterCount="True" />
+
+            <!-- Validation Error -->
+            <Label Text="Validation" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Email"
+                             Text="{Binding Email, Mode=TwoWay}"
+                             Keyboard="Email"
+                             HasError="{Binding HasEmailError}"
+                             HintText="{Binding EmailError}">
+                <shiny:ClearButtonTool />
+            </shiny:TextEntry>
+
+            <!-- Custom Styling -->
+            <Label Text="Custom Styling" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Purple theme"
+                             Text="{Binding CustomText, Mode=TwoWay}"
+                             FocusedBorderColor="#7C3AED"
+                             FocusedPlaceholderColor="#7C3AED"
+                             FocusedBorderThickness="2"
+                             CornerRadius="16"
+                             EntryBackgroundColor="#F5F3FF">
+                <shiny:ClearButtonTool />
+            </shiny:TextEntry>
+
+            <!-- Read Only -->
+            <Label Text="Read Only" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Read only"
+                             Text="This field is read only"
+                             IsReadOnly="True"
+                             BorderColor="#E5E7EB"
+                             EntryBackgroundColor="#F9FAFB" />
+
+            <!-- Hint Text (no error) -->
+            <Label Text="Hint Text" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Phone Number"
+                             Text="{Binding Phone, Mode=TwoWay}"
+                             Keyboard="Telephone"
+                             HintText="Include country code" />
+
+            <!-- Numeric Keyboard -->
+            <Label Text="Numeric" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Amount"
+                             Text="{Binding Amount, Mode=TwoWay}"
+                             Keyboard="Numeric">
+                <shiny:TextEntryTool Text="$" ToolColor="#059669" />
+            </shiny:TextEntry>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

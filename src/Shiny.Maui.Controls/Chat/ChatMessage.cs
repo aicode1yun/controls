@@ -10,6 +10,12 @@ public class ChatMessage
     public bool IsFromMe { get; set; }
 
     /// <summary>
+    /// Tool actions displayed as a FabMenu next to the chat bubble.
+    /// When set, a small tools button appears beside the bubble.
+    /// </summary>
+    public IList<FabMenuItem>? ToolItems { get; set; }
+
+    /// <summary>
     /// Internal flag used by ChatView to render this message as a typing indicator bubble.
     /// </summary>
     internal bool IsTypingIndicator { get; set; }

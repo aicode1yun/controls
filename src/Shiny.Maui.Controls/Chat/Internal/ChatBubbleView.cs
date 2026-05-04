@@ -15,11 +15,13 @@ partial class ChatBubbleView : ContentView
     readonly Label avatarLabel;
     readonly Image avatarImage;
     readonly Label nameLabel;
+    readonly Grid bubbleRow;
     readonly Border bubbleBorder;
     readonly VerticalStackLayout defaultContentLayout;
     readonly Label textLabel;
     readonly Image imageView;
     readonly Label timestampLabel;
+    readonly Button toolsButton;
     View? customTemplateView;
 
     public ChatBubbleView(ChatView chatView, bool isMe)
@@ -107,6 +109,34 @@ partial class ChatBubbleView : ContentView
         bubbleTap.Tapped += OnBubbleTapped;
         bubbleBorder.GestureRecognizers.Add(bubbleTap);
 
+        toolsButton = new Button
+        {
+            Text = "\u22ee",
+            FontSize = 16,
+            TextColor = Colors.Grey,
+            BackgroundColor = Colors.Transparent,
+            WidthRequest = 28,
+            HeightRequest = 28,
+            Padding = 0,
+            VerticalOptions = LayoutOptions.Center,
+            IsVisible = false
+        };
+        toolsButton.Clicked += OnToolsButtonClicked;
+
+        bubbleRow = new Grid
+        {
+            ColumnDefinitions =
+            {
+                new ColumnDefinition(GridLength.Auto),
+                new ColumnDefinition(GridLength.Auto)
+            },
+            ColumnSpacing = 2
+        };
+
+        // Column order depends on isMe; set during Configure
+        bubbleRow.Add(bubbleBorder, 0, 0);
+        bubbleRow.Add(toolsButton, 1, 0);
+
         timestampLabel = new Label
         {
             FontSize = 11,
@@ -125,7 +155,7 @@ partial class ChatBubbleView : ContentView
             Padding = new Thickness(12, 0)
         };
         rootLayout.Add(avatarNameRow, 0, 0);
-        rootLayout.Add(bubbleBorder, 0, 1);
+        rootLayout.Add(bubbleRow, 0, 1);
         rootLayout.Add(timestampLabel, 0, 2);
 
         Content = rootLayout;
@@ -175,6 +205,16 @@ partial class ChatBubbleView : ContentView
             rootLayout.HorizontalOptions = LayoutOptions.Start;
             timestampLabel.HorizontalTextAlignment = TextAlignment.Start;
         }
+
+        // Tools button: position relative to bubble
+        var hasTools = chatView.HasBubbleTools(message);
+        toolsButton.IsVisible = hasTools;
+
+        // Reorder columns: tools button on the outside of the bubble
+        // "my" messages (right-aligned): tools on the left, bubble on the right
+        // "other" messages (left-aligned): bubble on the left, tools on the right
+        Grid.SetColumn(bubbleBorder, isMe ? 1 : 0);
+        Grid.SetColumn(toolsButton, isMe ? 0 : 1);
 
         // Avatar + Name
         avatarNameRow.IsVisible = showAvatar;
@@ -275,6 +315,12 @@ partial class ChatBubbleView : ContentView
     {
         if (BindingContext is ChatMessage msg)
             chatView.OnMessageTapped(msg);
+    }
+
+    void OnToolsButtonClicked(object? sender, EventArgs e)
+    {
+        if (BindingContext is ChatMessage msg)
+            chatView.ShowBubbleTools(msg);
     }
 
     ChatParticipant? GetParticipant(string senderId)

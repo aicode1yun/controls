@@ -326,6 +326,31 @@ public partial class ChatView
         set => SetValue(ToolsFabBackgroundColorProperty, value);
     }
 
+    // Bubble Tools
+    public static readonly BindableProperty BubbleToolItemsProperty = BindableProperty.Create(
+        nameof(BubbleToolItems),
+        typeof(IList<FabMenuItem>),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, _, _) => ((ChatView)b).SyncBubbleToolsButtonVisibility());
+
+    public IList<FabMenuItem>? BubbleToolItems
+    {
+        get => (IList<FabMenuItem>?)GetValue(BubbleToolItemsProperty);
+        set => SetValue(BubbleToolItemsProperty, value);
+    }
+
+    public static readonly BindableProperty BubbleToolItemTappedCommandProperty = BindableProperty.Create(
+        nameof(BubbleToolItemTappedCommand),
+        typeof(ICommand),
+        typeof(ChatView));
+
+    public ICommand? BubbleToolItemTappedCommand
+    {
+        get => (ICommand?)GetValue(BubbleToolItemTappedCommandProperty);
+        set => SetValue(BubbleToolItemTappedCommandProperty, value);
+    }
+
     // Haptic
     public static readonly BindableProperty UseFeedbackProperty = BindableProperty.Create(
         nameof(UseFeedback),

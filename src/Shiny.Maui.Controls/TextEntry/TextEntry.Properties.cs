@@ -1,0 +1,209 @@
+using System.Windows.Input;
+
+namespace Shiny.Maui.Controls;
+
+public partial class TextEntry
+{
+    // Text
+    public static readonly BindableProperty TextProperty = BindableProperty.Create(
+        nameof(Text), typeof(string), typeof(TextEntry), string.Empty,
+        BindingMode.TwoWay,
+        propertyChanged: (b, _, n) =>
+        {
+            var te = (TextEntry)b;
+            if (te.suppressTextChanged) return;
+            te.suppressTextChanged = true;
+            te.entry.Text = (string)n;
+            te.suppressTextChanged = false;
+            te.InternalTextChanged?.Invoke(te, EventArgs.Empty);
+
+            // If text was set programmatically and is non-empty, ensure placeholder is up
+            if (!string.IsNullOrEmpty((string)n) && !te.isPlaceholderUp)
+                te.AnimatePlaceholder(true);
+            else if (string.IsNullOrEmpty((string)n) && !te.entry.IsFocused && te.isPlaceholderUp)
+                te.AnimatePlaceholder(false);
+        });
+    public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
+
+    // Placeholder
+    public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(
+        nameof(Placeholder), typeof(string), typeof(TextEntry), string.Empty,
+        propertyChanged: (b, _, n) => ((TextEntry)b).placeholderLabel.Text = (string)n);
+    public string Placeholder { get => (string)GetValue(PlaceholderProperty); set => SetValue(PlaceholderProperty, value); }
+
+    // PlaceholderColor
+    public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(
+        nameof(PlaceholderColor), typeof(Color), typeof(TextEntry), Colors.Grey,
+        propertyChanged: (b, _, n) =>
+        {
+            if (n is Color c && !((TextEntry)b).isPlaceholderUp)
+                ((TextEntry)b).placeholderLabel.TextColor = c;
+        });
+    public Color PlaceholderColor { get => (Color)GetValue(PlaceholderColorProperty); set => SetValue(PlaceholderColorProperty, value); }
+
+    // FocusedPlaceholderColor
+    public static readonly BindableProperty FocusedPlaceholderColorProperty = BindableProperty.Create(
+        nameof(FocusedPlaceholderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#007AFF"));
+    public Color FocusedPlaceholderColor { get => (Color)GetValue(FocusedPlaceholderColorProperty); set => SetValue(FocusedPlaceholderColorProperty, value); }
+
+    // Border
+    public static readonly BindableProperty BorderColorProperty = BindableProperty.Create(
+        nameof(BorderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#CCCCCC"),
+        propertyChanged: (b, _, n) =>
+        {
+            var te = (TextEntry)b;
+            if (n is Color c && !te.entry.IsFocused && !te.HasError)
+                te.outerBorder.Stroke = c;
+        });
+    public Color BorderColor { get => (Color)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
+
+    public static readonly BindableProperty FocusedBorderColorProperty = BindableProperty.Create(
+        nameof(FocusedBorderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#007AFF"));
+    public Color FocusedBorderColor { get => (Color)GetValue(FocusedBorderColorProperty); set => SetValue(FocusedBorderColorProperty, value); }
+
+    public static readonly BindableProperty BorderThicknessProperty = BindableProperty.Create(
+        nameof(BorderThickness), typeof(double), typeof(TextEntry), 1.0,
+        propertyChanged: (b, _, n) =>
+        {
+            var te = (TextEntry)b;
+            if (!te.entry.IsFocused)
+                te.outerBorder.StrokeThickness = (double)n;
+        });
+    public double BorderThickness { get => (double)GetValue(BorderThicknessProperty); set => SetValue(BorderThicknessProperty, value); }
+
+    public static readonly BindableProperty FocusedBorderThicknessProperty = BindableProperty.Create(
+        nameof(FocusedBorderThickness), typeof(double), typeof(TextEntry), 2.0);
+    public double FocusedBorderThickness { get => (double)GetValue(FocusedBorderThicknessProperty); set => SetValue(FocusedBorderThicknessProperty, value); }
+
+    public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(
+        nameof(CornerRadius), typeof(CornerRadius), typeof(TextEntry), new CornerRadius(8),
+        propertyChanged: (b, _, n) => ((TextEntry)b).borderShape.CornerRadius = (CornerRadius)n);
+    public CornerRadius CornerRadius { get => (CornerRadius)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
+
+    public static readonly BindableProperty EntryBackgroundColorProperty = BindableProperty.Create(
+        nameof(EntryBackgroundColor), typeof(Color), typeof(TextEntry), Colors.Transparent,
+        propertyChanged: (b, _, n) =>
+        {
+            if (n is Color c)
+                ((TextEntry)b).outerBorder.BackgroundColor = c;
+        });
+    public Color EntryBackgroundColor { get => (Color)GetValue(EntryBackgroundColorProperty); set => SetValue(EntryBackgroundColorProperty, value); }
+
+    // Font
+    public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(
+        nameof(FontSize), typeof(double), typeof(TextEntry), 15.0,
+        propertyChanged: (b, _, n) =>
+        {
+            var te = (TextEntry)b;
+            var s = (double)n;
+            te.entry.FontSize = s;
+            te.placeholderLabel.FontSize = s;
+        });
+    public double FontSize { get => (double)GetValue(FontSizeProperty); set => SetValue(FontSizeProperty, value); }
+
+    public static readonly BindableProperty FontFamilyProperty = BindableProperty.Create(
+        nameof(FontFamily), typeof(string), typeof(TextEntry), null,
+        propertyChanged: (b, _, n) =>
+        {
+            var te = (TextEntry)b;
+            te.entry.FontFamily = n as string;
+            te.placeholderLabel.FontFamily = n as string;
+        });
+    public string? FontFamily { get => (string?)GetValue(FontFamilyProperty); set => SetValue(FontFamilyProperty, value); }
+
+    public static readonly BindableProperty FontAttributesProperty = BindableProperty.Create(
+        nameof(FontAttributes), typeof(FontAttributes), typeof(TextEntry), FontAttributes.None,
+        propertyChanged: (b, _, n) => ((TextEntry)b).entry.FontAttributes = (FontAttributes)n);
+    public FontAttributes FontAttributes { get => (FontAttributes)GetValue(FontAttributesProperty); set => SetValue(FontAttributesProperty, value); }
+
+    public static readonly BindableProperty TextColorProperty = BindableProperty.Create(
+        nameof(TextColor), typeof(Color), typeof(TextEntry), Colors.Black,
+        propertyChanged: (b, _, n) =>
+        {
+            if (n is Color c)
+                ((TextEntry)b).entry.TextColor = c;
+        });
+    public Color TextColor { get => (Color)GetValue(TextColorProperty); set => SetValue(TextColorProperty, value); }
+
+    // Entry behavior
+    public static readonly BindableProperty IsReadOnlyProperty = BindableProperty.Create(
+        nameof(IsReadOnly), typeof(bool), typeof(TextEntry), false,
+        propertyChanged: (b, _, n) => ((TextEntry)b).entry.IsReadOnly = (bool)n);
+    public bool IsReadOnly { get => (bool)GetValue(IsReadOnlyProperty); set => SetValue(IsReadOnlyProperty, value); }
+
+    public static readonly BindableProperty IsPasswordProperty = BindableProperty.Create(
+        nameof(IsPassword), typeof(bool), typeof(TextEntry), false,
+        propertyChanged: (b, _, n) => ((TextEntry)b).entry.IsPassword = (bool)n);
+    public bool IsPassword { get => (bool)GetValue(IsPasswordProperty); set => SetValue(IsPasswordProperty, value); }
+
+    public static readonly BindableProperty ReturnTypeProperty = BindableProperty.Create(
+        nameof(ReturnType), typeof(ReturnType), typeof(TextEntry), ReturnType.Default,
+        propertyChanged: (b, _, n) => ((TextEntry)b).entry.ReturnType = (ReturnType)n);
+    public ReturnType ReturnType { get => (ReturnType)GetValue(ReturnTypeProperty); set => SetValue(ReturnTypeProperty, value); }
+
+    public static readonly BindableProperty KeyboardProperty = BindableProperty.Create(
+        nameof(Keyboard), typeof(Keyboard), typeof(TextEntry), Keyboard.Default,
+        propertyChanged: (b, _, n) =>
+        {
+            if (n is Keyboard k)
+                ((TextEntry)b).entry.Keyboard = k;
+        });
+    public Keyboard Keyboard { get => (Keyboard)GetValue(KeyboardProperty); set => SetValue(KeyboardProperty, value); }
+
+    public static readonly BindableProperty MaxLengthProperty = BindableProperty.Create(
+        nameof(MaxLength), typeof(int), typeof(TextEntry), int.MaxValue,
+        propertyChanged: (b, _, n) => ((TextEntry)b).entry.MaxLength = (int)n);
+    public int MaxLength { get => (int)GetValue(MaxLengthProperty); set => SetValue(MaxLengthProperty, value); }
+
+    // Hint / Validation
+    public static readonly BindableProperty HintTextProperty = BindableProperty.Create(
+        nameof(HintText), typeof(string), typeof(TextEntry), null,
+        propertyChanged: (b, _, _) => ((TextEntry)b).SyncHint());
+    public string? HintText { get => (string?)GetValue(HintTextProperty); set => SetValue(HintTextProperty, value); }
+
+    public static readonly BindableProperty HintColorProperty = BindableProperty.Create(
+        nameof(HintColor), typeof(Color), typeof(TextEntry), Colors.Grey,
+        propertyChanged: (b, _, _) => ((TextEntry)b).SyncHint());
+    public Color HintColor { get => (Color)GetValue(HintColorProperty); set => SetValue(HintColorProperty, value); }
+
+    public static readonly BindableProperty HasErrorProperty = BindableProperty.Create(
+        nameof(HasError), typeof(bool), typeof(TextEntry), false,
+        propertyChanged: (b, _, _) => ((TextEntry)b).SyncHint());
+    public bool HasError { get => (bool)GetValue(HasErrorProperty); set => SetValue(HasErrorProperty, value); }
+
+    public static readonly BindableProperty ErrorColorProperty = BindableProperty.Create(
+        nameof(ErrorColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#DC3545"),
+        propertyChanged: (b, _, _) => ((TextEntry)b).SyncHint());
+    public Color ErrorColor { get => (Color)GetValue(ErrorColorProperty); set => SetValue(ErrorColorProperty, value); }
+
+    public static readonly BindableProperty ShowCharacterCountProperty = BindableProperty.Create(
+        nameof(ShowCharacterCount), typeof(bool), typeof(TextEntry), false,
+        propertyChanged: (b, _, _) => ((TextEntry)b).SyncHint());
+    public bool ShowCharacterCount { get => (bool)GetValue(ShowCharacterCountProperty); set => SetValue(ShowCharacterCountProperty, value); }
+
+    // Tools
+    public static readonly BindableProperty LeftToolsProperty = BindableProperty.Create(
+        nameof(LeftTools), typeof(IList<TextEntryTool>), typeof(TextEntry), null,
+        propertyChanged: (b, o, n) => ((TextEntry)b).OnToolsChanged(
+            o as IList<TextEntryTool>,
+            n as IList<TextEntryTool>,
+            ((TextEntry)b).leftToolsLayout));
+    public IList<TextEntryTool>? LeftTools { get => (IList<TextEntryTool>?)GetValue(LeftToolsProperty); set => SetValue(LeftToolsProperty, value); }
+
+    public static readonly BindableProperty RightToolsProperty = BindableProperty.Create(
+        nameof(RightTools), typeof(IList<TextEntryTool>), typeof(TextEntry), null,
+        propertyChanged: (b, o, n) => ((TextEntry)b).OnToolsChanged(
+            o as IList<TextEntryTool>,
+            n as IList<TextEntryTool>,
+            ((TextEntry)b).rightToolsLayout));
+    public IList<TextEntryTool>? RightTools { get => (IList<TextEntryTool>?)GetValue(RightToolsProperty); set => SetValue(RightToolsProperty, value); }
+
+    // Commands
+    public static readonly BindableProperty TextChangedCommandProperty = BindableProperty.Create(
+        nameof(TextChangedCommand), typeof(ICommand), typeof(TextEntry));
+    public ICommand? TextChangedCommand { get => (ICommand?)GetValue(TextChangedCommandProperty); set => SetValue(TextChangedCommandProperty, value); }
+
+    public static readonly BindableProperty CompletedCommandProperty = BindableProperty.Create(
+        nameof(CompletedCommand), typeof(ICommand), typeof(TextEntry));
+    public ICommand? CompletedCommand { get => (ICommand?)GetValue(CompletedCommandProperty); set => SetValue(CompletedCommandProperty, value); }
+}

@@ -6,6 +6,7 @@ namespace Shiny.Maui.Controls.Chat;
 public partial class ChatView : ContentView
 {
     public event EventHandler<ChatMessage>? MessageTapped;
+    public event EventHandler<ChatBubbleToolContext>? BubbleToolItemTapped;
 
     readonly CollectionView collectionView;
     readonly ChatInputBar inputBar;
@@ -14,6 +15,8 @@ public partial class ChatView : ContentView
     readonly Label toastNewMessagesLabel;
     readonly Label toastTypingLabel;
     readonly FabMenu toolsMenu;
+    readonly FabMenu bubbleToolsMenu;
+    ChatMessage? activeBubbleToolMessage;
 
     INotifyCollectionChanged? observedCollection;
     INotifyCollectionChanged? observedTypingCollection;
@@ -111,6 +114,20 @@ public partial class ChatView : ContentView
         };
         toolsMenu.ItemTapped += OnToolItemTapped;
 
+        // Bubble tools FabMenu overlay — shared across all bubbles, populated dynamically
+        bubbleToolsMenu = new FabMenu
+        {
+            IsVisible = false,
+            FabSize = 36,
+            HasShadow = false,
+            HasBackdrop = true,
+            CloseOnBackdropTap = true,
+            CloseOnItemTap = true,
+            FabBackgroundColor = Color.FromArgb("#007AFF"),
+            Text = "\u22ee"
+        };
+        bubbleToolsMenu.ItemTapped += OnBubbleToolItemTapped;
+
         // Root: messages fill space, typing bubbles below, input bar at bottom
         var rootGrid = new Grid
         {
@@ -129,6 +146,32 @@ public partial class ChatView : ContentView
         rootGrid.Add(toolsMenu, 0, 0);
         Grid.SetRowSpan(toolsMenu, 3);
 
+        // Bubble tools FabMenu overlay spans all rows
+        rootGrid.Add(bubbleToolsMenu, 0, 0);
+        Grid.SetRowSpan(bubbleToolsMenu, 3);
+
         Content = rootGrid;
+    }
+
+    /// <summary>
+    /// Gets or sets the current text in the input bar entry field.
+    /// </summary>
+    public string EntryText
+    {
+        get => inputBar.EntryText;
+        set => inputBar.EntryText = value;
+    }
+
+    /// <summary>
+    /// Programmatically submits the current entry text as if the user pressed Send.
+    /// </summary>
+    public void SubmitEntry()
+    {
+        var text = inputBar.EntryText?.Trim();
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        inputBar.ClearText();
+        OnSendRequested(text);
     }
 }

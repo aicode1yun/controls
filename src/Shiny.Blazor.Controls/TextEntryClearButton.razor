@@ -1,0 +1,18 @@
+@namespace Shiny.Blazor.Controls
+
+@if (!string.IsNullOrEmpty(Text))
+{
+    <button class="shiny-te-clear-btn" type="button" @onclick="OnClear" @onclick:stopPropagation>
+        &#x2715;
+    </button>
+}
+
+@code {
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public EventCallback Cleared { get; set; }
+
+    async Task OnClear()
+    {
+        await Cleared.InvokeAsync();
+    }
+}

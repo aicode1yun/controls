@@ -125,6 +125,12 @@ class ChatInputBar : ContentView
         set => toolsSpacer.IsVisible = value;
     }
 
+    public string EntryText
+    {
+        get => entry.Text ?? string.Empty;
+        set => entry.Text = value;
+    }
+
     public void ClearText() => entry.Text = string.Empty;
 
     void OnEntryCompleted(object? sender, EventArgs e)
