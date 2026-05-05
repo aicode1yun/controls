@@ -5,7 +5,8 @@
                         xmlns:local="clr-namespace:Sample.Features.Overlay"
                         x:Class="Sample.Features.Overlay.OverlayPage"
                         x:DataType="local:OverlayViewModel"
-                        Title="Overlay">
+                        Title="Overlay"
+                        AutomationId="OverlayPage">
 
     <ScrollView Padding="16">
         <VerticalStackLayout Spacing="24">
@@ -13,19 +14,19 @@
             <!-- Basic Overlay -->
             <Label Text="Basic Overlay" FontSize="18" FontAttributes="Bold" />
             <Label Text="Shows a custom overlay with configurable backdrop and blur." />
-            <Button Text="Show Custom Overlay"
+            <Button AutomationId="ShowCustomOverlayButton" Text="Show Custom Overlay"
                     Command="{Binding ShowCustomOverlayCommand}" />
 
             <!-- Loading Overlay (Indeterminate) -->
             <Label Text="Loading Overlay (Indeterminate)" FontSize="18" FontAttributes="Bold" />
             <Label Text="Shows a spinner with a message." />
-            <Button Text="Show Loading (Spinner)"
+            <Button AutomationId="ShowSpinnerButton" Text="Show Loading (Spinner)"
                     Command="{Binding ShowIndeterminateCommand}" />
 
             <!-- Loading Overlay (Determinate) -->
             <Label Text="Loading Overlay (Determinate)" FontSize="18" FontAttributes="Bold" />
             <Label Text="Shows a progress bar that fills to 100%." />
-            <Button Text="Show Loading (Progress Bar)"
+            <Button AutomationId="ShowProgressButton" Text="Show Loading (Progress Bar)"
                     Command="{Binding ShowDeterminateCommand}" />
 
         </VerticalStackLayout>

@@ -5,7 +5,8 @@
              xmlns:local="clr-namespace:Sample.Features.Fab"
              x:Class="Sample.Features.Fab.FabPage"
              x:DataType="local:FabViewModel"
-             Title="FAB &amp; FabMenu">
+             Title="FAB &amp; FabMenu"
+             AutomationId="FabPage">
 
     <Grid>
 

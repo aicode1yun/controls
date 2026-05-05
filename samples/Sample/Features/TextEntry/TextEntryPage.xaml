@@ -6,22 +6,23 @@
     xmlns:local="clr-namespace:Sample.Features.TextEntry"
     x:Class="Sample.Features.TextEntry.TextEntryPage"
     x:DataType="local:TextEntryViewModel"
-    Title="Text Entry">
+    Title="Text Entry"
+    AutomationId="TextEntryPage">
 
     <ScrollView Padding="16">
         <VerticalStackLayout Spacing="20">
 
             <!-- Basic -->
             <Label Text="Basic" FontSize="18" FontAttributes="Bold" />
-            <shiny:TextEntry Placeholder="First Name"
+            <shiny:TextEntry AutomationId="FirstNameEntry" Placeholder="First Name"
                              Text="{Binding FirstName, Mode=TwoWay}" />
 
-            <shiny:TextEntry Placeholder="Last Name"
+            <shiny:TextEntry AutomationId="LastNameEntry" Placeholder="Last Name"
                              Text="{Binding LastName, Mode=TwoWay}" />
 
             <!-- With Clear Button -->
             <Label Text="With Clear Button" FontSize="18" FontAttributes="Bold" />
-            <shiny:TextEntry Placeholder="Search"
+            <shiny:TextEntry AutomationId="SearchEntry" Placeholder="Search"
                              Text="{Binding SearchText, Mode=TwoWay}">
                 <shiny:ClearButtonTool />
             </shiny:TextEntry>

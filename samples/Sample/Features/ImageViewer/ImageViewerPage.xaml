@@ -5,7 +5,8 @@
              xmlns:local="clr-namespace:Sample.Features.ImageViewer"
              x:Class="Sample.Features.ImageViewer.ImageViewerPage"
              x:DataType="local:ImageViewerViewModel"
-             Title="Image Viewer">
+             Title="Image Viewer"
+             AutomationId="ImageViewerPage">
 
     <shiny:ShinyContentPage.PageContent>
         <ScrollView>

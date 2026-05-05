@@ -5,7 +5,8 @@
              xmlns:shiny="http://shiny.net/maui/controls"
              x:Class="Sample.Features.SignaturePad.SignaturePadPage"
              x:DataType="local:SignaturePadViewModel"
-             Title="Signature Pad">
+             Title="Signature Pad"
+             AutomationId="SignaturePadPage">
   <shiny:ShinyContentPage.PageContent>
     <ScrollView>
         <VerticalStackLayout Padding="30,0" Spacing="20">
@@ -27,7 +28,7 @@
 
             <BoxView HeightRequest="1" Color="LightGray" Margin="0,10" />
 
-            <Button Text="Capture Signature"
+            <Button AutomationId="CaptureSignatureButton" Text="Capture Signature"
                     Command="{Binding OpenSignatureCommand}" />
 
             <Button Text="Clear Signature"

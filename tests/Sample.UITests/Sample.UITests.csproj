@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(BaseTargetFramework)</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="Microsoft.Maui.DevFlow.Driver"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="TUnit.Core"/>
+        <Using Include="TUnit.Assertions"/>
+        <Using Include="TUnit.Assertions.Extensions"/>
+    </ItemGroup>
+
+</Project>

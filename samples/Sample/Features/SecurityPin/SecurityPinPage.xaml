@@ -5,7 +5,8 @@
              xmlns:shiny="http://shiny.net/maui/controls"
              x:Class="Sample.Features.SecurityPin.SecurityPinPage"
              x:DataType="local:SecurityPinViewModel"
-             Title="Security Pin">
+             Title="Security Pin"
+             AutomationId="SecurityPinPage">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="30">
 
@@ -37,7 +38,7 @@
             <VerticalStackLayout Spacing="8">
                 <Label Text="4-digit masked PIN (HideCharacter='*')"
                        FontAttributes="Bold" />
-                <shiny:SecurityPin x:Name="HiddenPinControl"
+                <shiny:SecurityPin x:Name="HiddenPinControl" AutomationId="HiddenPin"
                                    Length="4"
                                    HideCharacter="*"
                                    Value="{Binding HiddenPin}"
@@ -53,7 +54,7 @@
             <VerticalStackLayout Spacing="8">
                 <Label Text="6-digit visible PIN (no HideCharacter)"
                        FontAttributes="Bold" />
-                <shiny:SecurityPin x:Name="VisiblePinControl"
+                <shiny:SecurityPin x:Name="VisiblePinControl" AutomationId="VisiblePin"
                                    Length="6"
                                    Value="{Binding VisiblePin}"
                                    Keyboard="Numeric"

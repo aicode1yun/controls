@@ -5,12 +5,13 @@
     xmlns:local="clr-namespace:Sample.Features.Chat"
     x:Class="Sample.Features.Chat.ChatPage"
     x:DataType="local:ChatViewModel"
-    Title="Chat">
+    Title="Chat"
+    AutomationId="ChatPage">
 
     <Grid RowDefinitions="Auto,*">
 
         <HorizontalStackLayout Grid.Row="0" Spacing="8" Padding="12,8">
-            <Button Text="Simulate Incoming"
+            <Button AutomationId="SimulateIncomingButton" Text="Simulate Incoming"
                     Command="{Binding SimulateIncomingCommand}"
                     FontSize="12"
                     HeightRequest="36" />
@@ -25,7 +26,7 @@
                    FontSize="12" />
         </HorizontalStackLayout>
 
-        <shiny:ChatView Grid.Row="1"
+        <shiny:ChatView AutomationId="ChatView" Grid.Row="1"
                         Messages="{Binding Messages}"
                         Participants="{Binding Participants}"
                         IsMultiPerson="{Binding IsMultiPerson}"

@@ -6,6 +6,7 @@
              x:Class="Sample.Features.AutoComplete.AutoCompletePage"
              x:DataType="local:AutoCompleteViewModel"
              Title="AutoComplete"
+             AutomationId="AutoCompletePage"
              BackgroundColor="#F5F7FA">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">

@@ -5,7 +5,8 @@
              xmlns:local="clr-namespace:Sample.Features.Markdown"
              x:Class="Sample.Features.Markdown.MarkdownViewPage"
              x:DataType="local:MarkdownViewViewModel"
-             Title="Markdown Viewer">
+             Title="Markdown Viewer"
+             AutomationId="MarkdownViewPage">
 
     <md:MarkdownView Markdown="{Binding Markdown}" Padding="16" />
 

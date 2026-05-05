@@ -5,7 +5,8 @@
              xmlns:sc="clr-namespace:Shiny.Maui.Controls;assembly=Shiny.Maui.Controls"
              x:Class="Sample.Features.Pills.PillPage"
              x:DataType="local:PillViewModel"
-             Title="Pills">
+             Title="Pills"
+             AutomationId="PillPage">
     <ScrollView Padding="20">
         <VerticalStackLayout Spacing="20">
 

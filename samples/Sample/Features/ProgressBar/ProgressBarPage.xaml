@@ -6,14 +6,15 @@
     xmlns:local="clr-namespace:Sample.Features.ProgressBar"
     x:Class="Sample.Features.ProgressBar.ProgressBarPage"
     x:DataType="local:ProgressBarViewModel"
-    Title="Progress Bar">
+    Title="Progress Bar"
+    AutomationId="ProgressBarPage">
 
     <ScrollView Padding="16">
         <VerticalStackLayout Spacing="24">
 
             <!-- Basic -->
             <Label Text="Basic" FontSize="18" FontAttributes="Bold" />
-            <shiny:ProgressBar Value="{Binding BasicValue}"
+            <shiny:ProgressBar AutomationId="BasicProgressBar" Value="{Binding BasicValue}"
                                TrackHeight="10"
                                CornerRadius="5" />
 
@@ -95,11 +96,11 @@
             <!-- Controls -->
             <Label Text="Controls" FontSize="18" FontAttributes="Bold" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Text="- 10" Command="{Binding DecrementCommand}" />
-                <Button Text="+ 10" Command="{Binding IncrementCommand}" Grid.Column="1" />
+                <Button AutomationId="DecrementButton" Text="- 10" Command="{Binding DecrementCommand}" />
+                <Button AutomationId="IncrementButton" Text="+ 10" Command="{Binding IncrementCommand}" Grid.Column="1" />
             </Grid>
 
-            <Label Text="{Binding BasicValue, StringFormat='Value: {0:0}'}" />
+            <Label AutomationId="ProgressValueLabel" Text="{Binding BasicValue, StringFormat='Value: {0:0}'}" />
 
         </VerticalStackLayout>
     </ScrollView>

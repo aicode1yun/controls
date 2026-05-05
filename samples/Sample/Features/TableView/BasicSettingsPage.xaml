@@ -4,9 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:tv="http://shiny.net/maui/controls"
     x:Class="Sample.Features.TableView.BasicSettingsPage"
-    Title="Basic">
+    Title="Basic"
+    AutomationId="BasicSettingsPage">
 
-    <tv:TableView x:Name="MyTableView"
+    <tv:TableView x:Name="MyTableView" AutomationId="SettingsTableView"
                   CellSelectedColor="#E0E0E0">
         <tv:TableRoot>
             <tv:TableSection Title="Toggle Controls">

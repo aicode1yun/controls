@@ -5,7 +5,8 @@
              xmlns:local="clr-namespace:Sample.Features.Scheduler"
              x:Class="Sample.Features.Scheduler.CalendarPage"
              x:DataType="local:CalendarViewModel"
-             Title="Calendar">
+             Title="Calendar"
+             AutomationId="CalendarPage">
 
     <shiny:SchedulerCalendarView
         Provider="{Binding Provider}"
