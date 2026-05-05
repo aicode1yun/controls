@@ -8,6 +8,7 @@ public partial class LoadingOverlay
     [Parameter] public EventCallback<bool> IsShownChanged { get; set; }
 
     [Parameter] public string OverlayColor { get; set; } = "rgba(0, 0, 0, 0.5)";
+    [Parameter] public double BlurRadius { get; set; }
 
     [Parameter] public bool IsIndeterminate { get; set; } = true;
     [Parameter] public double Progress { get; set; }

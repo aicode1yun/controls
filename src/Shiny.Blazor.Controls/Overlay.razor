@@ -6,7 +6,7 @@
     @if (IsShown)
     {
         <div class="shiny-overlay-backdrop @(isVisible ? "shiny-overlay-backdrop--visible" : "")"
-             style="background: @OverlayColor; opacity: @OverlayOpacity;">
+             style="background: @OverlayColor; opacity: @OverlayOpacity;@(BlurRadius > 0 ? $" backdrop-filter: blur({BlurRadius}px); -webkit-backdrop-filter: blur({BlurRadius}px);" : "")">
         </div>
         <div class="shiny-overlay-content @(isVisible ? "shiny-overlay-content--visible" : "")">
             @if (OverlayContent != null)

@@ -63,7 +63,7 @@
             IsFromMe = true,
             Identifier = Guid.NewGuid().ToString(),
             Timestamp = DateTimeOffset.Now,
-            IsSent = false
+            DateSent = null
         };
         messages.Add(msg);
         StateHasChanged();
@@ -78,7 +78,7 @@
     async Task SimulateSendConfirmationAsync(ChatMessage msg)
     {
         await Task.Delay(800);
-        msg.IsSent = true;
+        msg.DateSent = DateTimeOffset.Now;
         StateHasChanged();
     }
 
@@ -93,7 +93,7 @@
         {
             Text = "That's great! Thanks for sharing.",
             SenderId = alice.Id,
-            IsSent = true,
+            DateSent = DateTimeOffset.Now,
             Timestamp = DateTimeOffset.Now
         });
         StateHasChanged();
@@ -200,7 +200,7 @@
                 Text = "I agree, the styling system is great.",
                 SenderId = "me",
                 IsFromMe = true,
-                IsSent = true,
+                DateSent = DateTimeOffset.Now,
                 Timestamp = yesterday.AddHours(-1).AddMinutes(30),
                 Acknowledgements =
                 [
@@ -219,7 +219,7 @@
             {
                 Text = "The scheduler component is my favorite so far.",
                 SenderId = alice.Id,
-                IsSent = true,
+                DateSent = DateTimeOffset.Now,
                 Timestamp = now.AddMinutes(-30),
                 Acknowledgements =
                 [

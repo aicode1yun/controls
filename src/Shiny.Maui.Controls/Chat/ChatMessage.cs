@@ -15,10 +15,10 @@ public class ChatMessage
     public string? Identifier { get; set; }
 
     /// <summary>
-    /// Indicates whether the message has been confirmed sent to the server.
-    /// When false, the bubble is rendered with reduced opacity. Only applies to user messages (IsFromMe).
+    /// The date/time the message was confirmed sent to the server.
+    /// When null, the bubble is rendered with reduced opacity (pending/offline). Only applies to user messages (IsFromMe).
     /// </summary>
-    public bool IsSent { get; set; }
+    public DateTimeOffset? DateSent { get; set; }
 
     /// <summary>
     /// Acknowledgements (reactions) on this message. Displayed as grouped badges below the bubble.

@@ -43,7 +43,7 @@
                     }
 
                     @{var tapMsg = msg;}
-                    <div class="shiny-chat-bubble" style="background:@bubbleColor;color:@textColor;cursor:pointer;@(msg.IsFromMe && !msg.IsSent ? "opacity:0.5;" : "")"
+                    <div class="shiny-chat-bubble" style="background:@bubbleColor;color:@textColor;cursor:pointer;@(msg.IsFromMe && msg.DateSent == null ? "opacity:0.5;" : "")"
                          @onclick="() => OnMessageTap(tapMsg)">
                         @if (msg.ImageUrl is not null)
                         {

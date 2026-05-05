@@ -11,6 +11,7 @@ public partial class Overlay
 
     [Parameter] public string OverlayColor { get; set; } = "rgba(0, 0, 0, 0.5)";
     [Parameter] public double OverlayOpacity { get; set; } = 1.0;
+    [Parameter] public double BlurRadius { get; set; }
 
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public RenderFragment? OverlayContent { get; set; }

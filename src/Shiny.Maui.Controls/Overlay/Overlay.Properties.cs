@@ -21,6 +21,15 @@ public partial class Overlay
         nameof(AnimationDuration), typeof(uint), typeof(Overlay), (uint)250);
     public uint AnimationDuration { get => (uint)GetValue(AnimationDurationProperty); set => SetValue(AnimationDurationProperty, value); }
 
+    public static readonly BindableProperty BlurRadiusProperty = BindableProperty.Create(
+        nameof(BlurRadius), typeof(double), typeof(Overlay), 0d,
+        propertyChanged: (b, _, _) => ((Overlay)b).OnBlurRadiusChanged());
+    /// <summary>
+    /// When set to a value greater than 0, applies a frosted glass blur effect to the backdrop.
+    /// Uses native platform blur (UIVisualEffectView on iOS, RenderEffect on Android 12+).
+    /// </summary>
+    public double BlurRadius { get => (double)GetValue(BlurRadiusProperty); set => SetValue(BlurRadiusProperty, value); }
+
     public static readonly BindableProperty OverlayContentTemplateProperty = BindableProperty.Create(
         nameof(OverlayContentTemplate), typeof(DataTemplate), typeof(Overlay),
         propertyChanged: (b, _, _) => ((Overlay)b).UpdateOverlayContent());

@@ -51,7 +51,7 @@ public partial class ChatViewModel : ObservableObject
             IsFromMe = true,
             Identifier = Guid.NewGuid().ToString(),
             Timestamp = DateTimeOffset.Now,
-            IsSent = false // Dimmed until confirmed
+            DateSent = null // Dimmed until confirmed
         };
         Messages.Add(msg);
 
@@ -164,7 +164,7 @@ public partial class ChatViewModel : ObservableObject
             Text = "I agree, the styling system is great.",
             SenderId = myId,
             IsFromMe = true,
-            IsSent = true,
+            DateSent = DateTimeOffset.Now,
             Timestamp = yesterday.AddHours(-1).AddMinutes(30),
             Acknowledgements =
             [
@@ -185,7 +185,7 @@ public partial class ChatViewModel : ObservableObject
         {
             Text = "The scheduler component is my favorite so far.",
             SenderId = alice.Id,
-            IsSent = true,
+            DateSent = DateTimeOffset.Now,
             Timestamp = now.AddMinutes(-30),
             Acknowledgements =
             [
@@ -220,7 +220,7 @@ public partial class ChatViewModel : ObservableObject
     async Task SimulateSendConfirmationAsync(ChatMessage msg)
     {
         await Task.Delay(800);
-        msg.IsSent = true;
+        msg.DateSent = DateTimeOffset.Now;
 
         // Force UI refresh by notifying collection
         var idx = Messages.IndexOf(msg);
@@ -241,7 +241,7 @@ public partial class ChatViewModel : ObservableObject
         {
             Text = "That's great! Thanks for sharing.",
             SenderId = alice.Id,
-            IsSent = true,
+            DateSent = DateTimeOffset.Now,
             Timestamp = DateTimeOffset.Now,
         });
     }

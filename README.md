@@ -448,7 +448,7 @@ public class TranslateTool : ChatBubbleTool
 - Input bar tools: FAB menu for camera, voice, custom actions
 - Auto-link detection in text messages
 - Image messages (text and image are mutually exclusive)
-- IsSent pending state (50% opacity until server confirmation)
+- DateSent pending state (null = pending/offline, renders at 50% opacity until server confirmation)
 - Smart scrolling with unread message pill
 - Load-more pagination (auto-trigger on MAUI, button on Blazor)
 - Custom message templates for action buttons, cards, or rich content
@@ -693,6 +693,7 @@ A full-screen overlay control with configurable background color and transparenc
 | OverlayColor | Color/string | Black/rgba(0,0,0,0.5) | Backdrop color |
 | OverlayOpacity | double | 0.5 (MAUI) / 1.0 (Blazor) | Backdrop opacity (MAUI uses separate opacity; Blazor bakes it into rgba color) |
 | AnimationDuration | uint | 250 | Fade animation duration in ms (MAUI) |
+| BlurRadius | double | 0 | When > 0, applies a frosted glass blur behind the backdrop (MAUI uses FrostedGlassView; Blazor uses CSS backdrop-filter) |
 | OverlayContentTemplate | DataTemplate | null | Custom overlay content (MAUI) |
 | OverlayContent | RenderFragment | null | Custom overlay content (Blazor) |
 

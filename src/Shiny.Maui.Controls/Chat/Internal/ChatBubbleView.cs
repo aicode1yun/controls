@@ -309,7 +309,7 @@ partial class ChatBubbleView : ContentView
             timestampLabel.Text = ChatGroupHelper.FormatTimestamp(message.Timestamp);
 
         // Dim unsent user messages
-        bubbleBorder.Opacity = (message.IsFromMe && !message.IsSent) ? 0.5 : 1.0;
+        bubbleBorder.Opacity = (message.IsFromMe && message.DateSent == null) ? 0.5 : 1.0;
 
         // Spacing
         Margin = new Thickness(0, isFirst ? 12 : 2, 0, 0);
