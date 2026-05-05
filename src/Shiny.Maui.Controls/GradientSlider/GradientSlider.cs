@@ -1,0 +1,292 @@
+namespace Shiny.Maui.Controls;
+
+public partial class GradientSlider : ContentView
+{
+    readonly BoxView trackBackground;
+    readonly BoxView trackFill;
+    readonly Frame thumb;
+    readonly Border tooltipBadge;
+    readonly Label tooltipLabel;
+    readonly ContentView tooltipContainer;
+    readonly AbsoluteLayout trackLayout;
+    readonly Grid rootGrid;
+
+    double trackWidth;
+    bool isDragging;
+
+    public GradientSlider()
+    {
+        // Tooltip label (default)
+        tooltipLabel = new Label
+        {
+            HorizontalTextAlignment = TextAlignment.Center,
+            VerticalTextAlignment = TextAlignment.Center,
+            FontSize = 12,
+            TextColor = Colors.White,
+            FontAttributes = FontAttributes.Bold
+        };
+
+        tooltipBadge = new Border
+        {
+            BackgroundColor = Color.FromArgb("#1F2937"),
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 4 },
+            Stroke = Colors.Transparent,
+            Padding = new Thickness(10, 4),
+            Content = tooltipLabel,
+            HorizontalOptions = LayoutOptions.Center
+        };
+
+        tooltipContainer = new ContentView
+        {
+            Content = tooltipBadge,
+            HorizontalOptions = LayoutOptions.Start,
+            VerticalOptions = LayoutOptions.End,
+            Margin = new Thickness(0, 0, 0, 4)
+        };
+
+        // Track background (full gradient)
+        trackBackground = new BoxView
+        {
+            HeightRequest = 8,
+            CornerRadius = 4,
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        // Track fill (partial gradient up to value)
+        trackFill = new BoxView
+        {
+            HeightRequest = 8,
+            CornerRadius = 4,
+            VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Start
+        };
+
+        // Thumb
+        thumb = new Frame
+        {
+            WidthRequest = 24,
+            HeightRequest = 24,
+            CornerRadius = 12,
+            BackgroundColor = Colors.White,
+            BorderColor = ColdColor,
+            HasShadow = true,
+            Padding = 0,
+            HorizontalOptions = LayoutOptions.Start,
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        // Track layout
+        trackLayout = new AbsoluteLayout
+        {
+            HeightRequest = 32,
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        AbsoluteLayout.SetLayoutBounds(trackBackground, new Rect(0, 0.5, 1, 8));
+        AbsoluteLayout.SetLayoutFlags(trackBackground, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.PositionProportional | Microsoft.Maui.Layouts.AbsoluteLayoutFlags.WidthProportional);
+
+        AbsoluteLayout.SetLayoutBounds(trackFill, new Rect(0, 0.5, 0, 8));
+        AbsoluteLayout.SetLayoutFlags(trackFill, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.YProportional);
+
+        AbsoluteLayout.SetLayoutBounds(thumb, new Rect(0, 0.5, 24, 24));
+        AbsoluteLayout.SetLayoutFlags(thumb, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.YProportional);
+
+        trackLayout.Children.Add(trackBackground);
+        trackLayout.Children.Add(trackFill);
+        trackLayout.Children.Add(thumb);
+
+        rootGrid = new Grid
+        {
+            RowDefinitions =
+            {
+                new RowDefinition(GridLength.Auto),
+                new RowDefinition(GridLength.Auto)
+            },
+            RowSpacing = 0
+        };
+
+        rootGrid.Add(tooltipContainer, 0, 0);
+        rootGrid.Add(trackLayout, 0, 1);
+
+        Content = rootGrid;
+
+        // Gesture recognizers
+        var panGesture = new PanGestureRecognizer();
+        panGesture.PanUpdated += OnPanUpdated;
+        trackLayout.GestureRecognizers.Add(panGesture);
+
+        var tapGesture = new TapGestureRecognizer();
+        tapGesture.Tapped += OnTrackTapped;
+        trackLayout.GestureRecognizers.Add(tapGesture);
+
+        UpdateVisuals();
+    }
+
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+        if (width > 0)
+        {
+            trackWidth = width;
+            UpdateVisuals();
+        }
+    }
+
+    void OnPanUpdated(object? sender, PanUpdatedEventArgs e)
+    {
+        if (!IsEnabled) return;
+
+        switch (e.StatusType)
+        {
+            case GestureStatus.Started:
+                isDragging = true;
+                break;
+
+            case GestureStatus.Running:
+                if (isDragging && trackWidth > 0)
+                {
+                    var currentX = AbsoluteLayout.GetLayoutBounds(thumb).X + e.TotalX;
+                    var percent = Math.Clamp(currentX / (trackWidth - ThumbSize), 0, 1);
+                    SetValueFromPercent(percent);
+                }
+                break;
+
+            case GestureStatus.Completed:
+            case GestureStatus.Canceled:
+                isDragging = false;
+                break;
+        }
+    }
+
+    void OnTrackTapped(object? sender, TappedEventArgs e)
+    {
+        if (!IsEnabled || trackWidth <= 0) return;
+
+        var point = e.GetPosition(trackLayout);
+        if (point is null) return;
+
+        var percent = Math.Clamp(point.Value.X / trackWidth, 0, 1);
+        SetValueFromPercent(percent);
+    }
+
+    void SetValueFromPercent(double percent)
+    {
+        var rawValue = Minimum + (percent * (Maximum - Minimum));
+
+        if (Step > 0)
+            rawValue = Math.Round(rawValue / Step) * Step;
+
+        rawValue = Math.Clamp(rawValue, Minimum, Maximum);
+
+        if (Math.Abs(rawValue - Value) > double.Epsilon)
+        {
+            Value = rawValue;
+            ValueChangedCommand?.Execute(rawValue);
+            ValueChangedEvent?.Invoke(this, rawValue);
+        }
+    }
+
+    void UpdateVisuals()
+    {
+        if (trackWidth <= 0) return;
+
+        var percent = Maximum > Minimum
+            ? (Value - Minimum) / (Maximum - Minimum)
+            : 0;
+
+        var blended = BlendColors(ColdColor, HotColor, percent);
+
+        // Update track background gradient
+        trackBackground.Background = new LinearGradientBrush
+        {
+            StartPoint = new Point(0, 0.5),
+            EndPoint = new Point(1, 0.5),
+            GradientStops =
+            {
+                new GradientStop(ColdColor, 0),
+                new GradientStop(HotColor, 1)
+            }
+        };
+
+        // Update track fill
+        var fillWidth = percent * trackWidth;
+        AbsoluteLayout.SetLayoutBounds(trackFill, new Rect(0, 0.5, fillWidth, TrackHeight));
+        trackFill.Background = new LinearGradientBrush
+        {
+            StartPoint = new Point(0, 0.5),
+            EndPoint = new Point(1, 0.5),
+            GradientStops =
+            {
+                new GradientStop(ColdColor, 0),
+                new GradientStop(blended, 1)
+            }
+        };
+        trackFill.CornerRadius = new CornerRadius(TrackHeight / 2);
+
+        // Update thumb position and color
+        var thumbX = percent * (trackWidth - ThumbSize);
+        AbsoluteLayout.SetLayoutBounds(thumb, new Rect(thumbX, 0.5, ThumbSize, ThumbSize));
+        thumb.BorderColor = blended;
+        thumb.CornerRadius = (float)(ThumbSize / 2);
+        thumb.WidthRequest = ThumbSize;
+        thumb.HeightRequest = ThumbSize;
+
+        // Update track height
+        trackBackground.HeightRequest = TrackHeight;
+        trackBackground.CornerRadius = new CornerRadius(TrackHeight / 2);
+
+        // Update tooltip
+        UpdateTooltip(percent, blended);
+    }
+
+    void UpdateTooltip(double percent, Color blended)
+    {
+        tooltipContainer.IsVisible = ShowTooltip;
+        if (!ShowTooltip) return;
+
+        // Position tooltip
+        var tooltipX = percent * trackWidth;
+        tooltipContainer.Margin = new Thickness(tooltipX - 20, 0, 0, 4);
+
+        // Update tooltip content
+        if (TooltipTemplate is not null)
+        {
+            tooltipContainer.Content = CreateTooltipFromTemplate();
+        }
+        else
+        {
+            tooltipLabel.Text = FormatValue(Value);
+            tooltipLabel.TextColor = TooltipTextColor;
+            tooltipLabel.FontSize = TooltipFontSize;
+            tooltipBadge.BackgroundColor = TooltipBackgroundColor;
+        }
+    }
+
+    View? CreateTooltipFromTemplate()
+    {
+        if (TooltipTemplate is null) return null;
+        var content = TooltipTemplate.CreateContent();
+        if (content is View view)
+        {
+            view.BindingContext = Value;
+            return view;
+        }
+        return null;
+    }
+
+    string FormatValue(double val)
+    {
+        if (!string.IsNullOrEmpty(ValueFormat))
+            return val.ToString(ValueFormat);
+        return val % 1 == 0 ? val.ToString("0") : val.ToString("0.#");
+    }
+
+    static Color BlendColors(Color color1, Color color2, double ratio)
+    {
+        ratio = Math.Clamp(ratio, 0, 1);
+        var r = color1.Red + (color2.Red - color1.Red) * (float)ratio;
+        var g = color1.Green + (color2.Green - color1.Green) * (float)ratio;
+        var b = color1.Blue + (color2.Blue - color1.Blue) * (float)ratio;
+        return new Color(r, g, b);
+    }
+}

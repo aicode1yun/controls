@@ -1,0 +1,32 @@
+@namespace Shiny.Blazor.Controls
+
+<div class="shiny-gs @CssClass"
+     style="@RootStyle"
+     @attributes="AdditionalAttributes">
+
+    @if (ShowTooltip)
+    {
+        <div class="shiny-gs-tooltip" style="left: @(Percentage)%;">
+            @if (TooltipTemplate is not null)
+            {
+                @TooltipTemplate(Value)
+            }
+            else
+            {
+                <div class="shiny-gs-tooltip-badge" style="@TooltipBadgeStyle">
+                    <span class="shiny-gs-tooltip-text">@FormatValue(Value)</span>
+                    <div class="shiny-gs-tooltip-pointer" style="@TooltipPointerStyle"></div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="shiny-gs-track" style="@TrackStyle" @onclick="OnTrackClick" @ref="trackRef">
+        <div class="shiny-gs-track-fill" style="@TrackFillStyle"></div>
+        <div class="shiny-gs-thumb"
+             style="@ThumbStyle"
+             @onpointerdown="OnThumbPointerDown"
+             @onpointerdown:stopPropagation>
+        </div>
+    </div>
+</div>

@@ -43,7 +43,7 @@
                     }
 
                     @{var tapMsg = msg;}
-                    <div class="shiny-chat-bubble" style="background:@bubbleColor;color:@textColor;cursor:pointer;"
+                    <div class="shiny-chat-bubble" style="background:@bubbleColor;color:@textColor;cursor:pointer;@(msg.IsFromMe && !msg.IsSent ? "opacity:0.5;" : "")"
                          @onclick="() => OnMessageTap(tapMsg)">
                         @if (msg.ImageUrl is not null)
                         {
@@ -54,6 +54,22 @@
                             <span>@((MarkupString)Linkify(msg.Text ?? ""))</span>
                         }
                     </div>
+
+                    @if (msg.Acknowledgements is { Count: > 0 })
+                    {
+                        <div class="shiny-chat-acks">
+                            @foreach (var group in msg.Acknowledgements.Where(a => !string.IsNullOrEmpty(a.Glyph)).GroupBy(a => a.Glyph))
+                            {
+                                <span class="shiny-chat-ack-badge">
+                                    <span class="shiny-chat-ack-glyph">@group.Key</span>
+                                    @if (group.Count() > 1)
+                                    {
+                                        <span class="shiny-chat-ack-count">@group.Count()</span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    }
 
                     @if (isLast)
                     {

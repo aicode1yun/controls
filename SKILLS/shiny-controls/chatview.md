@@ -23,14 +23,30 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 ```csharp
 public class ChatMessage
 {
-    public string Id { get; set; }                  // Auto-generated GUID
-    public string? Text { get; set; }               // null for image messages
-    public string? ImageUrl { get; set; }           // null for text messages
+    public string Id { get; set; }                          // Auto-generated GUID
+    public string? Text { get; set; }                       // null for image messages
+    public string? ImageUrl { get; set; }                   // null for text messages
     public string SenderId { get; set; }
     public DateTimeOffset Timestamp { get; set; }
     public bool IsFromMe { get; set; }
+    public string? Identifier { get; set; }                 // Optional user-defined identifier for post-send context
+    public bool IsSent { get; set; }                        // When false, bubble renders dimmed (user messages only)
+    public List<Acknowledgement>? Acknowledgements { get; set; } // Reactions displayed as badges below bubble
 }
 ```
+
+### Acknowledgement
+
+```csharp
+public class Acknowledgement
+{
+    public string? Glyph { get; set; }     // Emoji/character (e.g., 👍, ❤️, 💯)
+    public string UserId { get; set; }     // ID of the user who reacted
+    public DateTime Timestamp { get; set; } // When the reaction was added
+}
+```
+
+Acknowledgements are grouped by `Glyph` and rendered as small badge pills below the chat bubble. The count is displayed beside the glyph only when > 1.
 
 ### ChatParticipant
 
@@ -304,6 +320,9 @@ When neither is set, the default text/image rendering is used.
 ## Code Generation Guidance
 
 - Use `ChatView` for any chat/messaging/conversation UI — do not hand-build bubble layouts with `CollectionView`
+- Set `IsSent = false` on outgoing messages to dim the bubble until server confirmation arrives, then set `IsSent = true`
+- Use `Identifier` to associate server-side context (e.g., a server message ID) with a ChatMessage after sending
+- Add `Acknowledgement` items to `Acknowledgements` to show reaction badges (grouped by glyph, count shown when > 1)
 - Always provide a `Participants` list for multi-person chats; each participant's `BubbleColor` is optional
 - `SendCommand` receives the text string — the control clears the input after sending
 - `AttachImageCommand` fires a signal; the user implements their own image picker and adds a `ChatMessage` with `ImageUrl`

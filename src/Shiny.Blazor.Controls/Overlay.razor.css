@@ -1,0 +1,40 @@
+.shiny-overlay {
+    position: relative;
+    display: contents;
+}
+
+.shiny-overlay-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: all;
+}
+
+.shiny-overlay-backdrop--visible {
+    opacity: 1;
+}
+
+.shiny-overlay-content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.shiny-overlay-content--visible {
+    opacity: 1;
+    pointer-events: all;
+}

@@ -1,6 +1,6 @@
 # Shiny Controls
 
-A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, AutoCompleteEntry, CountryPicker, AddressEntry, and TextEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
+A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, GradientSlider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, and TextEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
 
 [![MAUI NuGet](https://img.shields.io/nuget/v/Shiny.Maui.Controls.svg?label=Shiny.Maui.Controls)](https://www.nuget.org/packages/Shiny.Maui.Controls)
 [![Blazor NuGet](https://img.shields.io/nuget/v/Shiny.Blazor.Controls.svg?label=Shiny.Blazor.Controls)](https://www.nuget.org/packages/Shiny.Blazor.Controls)
@@ -88,6 +88,9 @@ No DI registration is required — drop the components into any `.razor` page.
 | `ItemTemplate` as `DataTemplate` | `ItemTemplate` as `RenderFragment<object>` |
 | `IToaster.ShowAsync(text, cfg => {})` (DI) | `IToastService.ShowAsync(text, cfg => {})` (DI + `<ToastHost />`) |
 | `<shiny:TextEntry>` | `<TextEntry>` |
+| `<shiny:Overlay>` | `<Overlay>` (wraps ChildContent; custom content in `<OverlayContent>` slot) |
+| `<shiny:LoadingOverlay>` | `<LoadingOverlay>` (wraps ChildContent) |
+| `<shiny:ProgressBar>` | `<ProgressBar>` |
 
 `ISchedulerEventProvider` is identical across both hosts.
 
@@ -392,6 +395,30 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 | ToolsFabBackgroundColor | Color | #007AFF | Background color of the tools FabMenu button (MAUI only) |
 | UseFeedback | bool | true | Feedback on send |
 
+**ChatMessage properties:**
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| Id | string | Auto GUID | Unique message identifier |
+| Text | string? | null | Message text |
+| ImageUrl | string? | null | Image URL |
+| SenderId | string | "" | Sender participant ID |
+| Timestamp | DateTimeOffset | Now | When the message was sent |
+| IsFromMe | bool | false | Whether from the local user |
+| Identifier | string? | null | Optional user-defined identifier for post-send context |
+| IsSent | bool | false | Send confirmation flag; when false, bubble renders dimmed (user messages only) |
+| Acknowledgements | List&lt;Acknowledgement&gt;? | null | Reactions displayed as grouped badges below the bubble |
+
+**Acknowledgement:**
+
+| Property | Type | Description |
+|---|---|---|
+| Glyph | string? | Emoji/character for the reaction (e.g., thumbs up, heart) |
+| UserId | string | ID of the user who reacted |
+| Timestamp | DateTime | When the reaction was added |
+
+Acknowledgements are grouped by `Glyph` and displayed as small badge pills below the bubble. Count is shown when > 1.
+
 **Commands:** `SendCommand` (ICommand, receives text string), `AttachImageCommand` (ICommand), `LoadMoreCommand` (ICommand), `MessageTappedCommand` (ICommand, receives ChatMessage)
 
 **Methods:** `ScrollToEnd(bool animate)`, `ScrollToMessage(string messageId, bool animate)`
@@ -503,7 +530,7 @@ These controls are also integrated into the **ImageEditor** toolbar when `AllowF
 
 ### TextEntry
 
-A Material Design-inspired text entry control with animated floating placeholder, customizable border, left/right tool slots, hint text for validation errors, and character count display.
+A Material Design-inspired text entry control with animated floating placeholder, customizable border, left/right tool slots, hint text for validation errors, character count display, and input masking for formatted data entry.
 
 ```xml
 <shiny:TextEntry Placeholder="Email"
@@ -517,7 +544,7 @@ A Material Design-inspired text entry control with animated floating placeholder
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| Text | string | "" | Current text value (TwoWay) |
+| Text | string | "" | Current text value (TwoWay). When Mask is set, contains raw digits only |
 | Placeholder | string | "" | Animated floating placeholder |
 | PlaceholderColor | Color | Grey | Placeholder color unfocused |
 | FocusedPlaceholderColor | Color | #007AFF | Placeholder color focused |
@@ -529,8 +556,10 @@ A Material Design-inspired text entry control with animated floating placeholder
 | EntryBackgroundColor | Color | Transparent | Background fill |
 | IsReadOnly | bool | false | Read-only mode |
 | IsPassword | bool | false | Password masking |
-| Keyboard | Keyboard | Default | Keyboard type |
+| Keyboard | Keyboard | Default | Keyboard type (auto-set to Numeric when Mask is active) |
 | MaxLength | int | unlimited | Character limit |
+| Mask | string? | null | Input mask pattern (`#` = digit slot, other chars are auto-inserted literals) |
+| FormattedText | string | "" | Read-only display value with mask applied |
 | HintText | string? | null | Hint/error text below field |
 | HasError | bool | false | Error state |
 | ErrorColor | Color | #DC3545 | Error color |
@@ -538,7 +567,164 @@ A Material Design-inspired text entry control with animated floating placeholder
 | LeftTools | IList&lt;TextEntryTool&gt; | empty | Left tool slot |
 | RightTools | IList&lt;TextEntryTool&gt; | empty | Right tool slot (ContentProperty) |
 
-**Built-in tools:** `ClearButtonTool` (auto-shows ✕ when text present), `TextEntrySpeechToTextTool` (voice input, in SpeechAddins package).
+**Input Masking:**
+
+```xml
+<shiny:TextEntry Placeholder="Phone Number" Mask="(###) ###-####" Text="{Binding Phone}" />
+<shiny:TextEntry Placeholder="Credit Card" Mask="#### #### #### ####" Text="{Binding Card}" />
+<shiny:TextEntry Placeholder="Date" Mask="##/##/####" Text="{Binding DateStr}" />
+```
+
+When `Mask` is set, `Text` always contains raw digits (e.g., `"5551234567"`), while the user sees formatted text (e.g., `"(555) 123-4567"`). Keyboard auto-sets to Numeric and literal characters are inserted automatically as the user types.
+
+**Built-in tools:** `ClearButtonTool` (auto-shows ✕ when text present), `TextEntryStepperTool` (increment/decrement numeric values), `TextEntrySpeechToTextTool` (voice input, in SpeechAddins package).
+
+**Stepper Tool:**
+
+```xml
+<shiny:TextEntry Placeholder="Quantity"
+                 Text="{Binding Quantity, Mode=TwoWay}"
+                 Keyboard="Numeric">
+    <shiny:TextEntry.LeftTools>
+        <shiny:TextEntryStepperTool Step="-1" />
+    </shiny:TextEntry.LeftTools>
+    <shiny:TextEntryStepperTool Step="1" />
+</shiny:TextEntry>
+```
+
+`TextEntryStepperTool` increments or decrements the numeric text value by `Step` on each tap. If `Text` is not set, it auto-displays the step value with sign (e.g. "+1", "-5").
+
+### GradientSlider
+
+A slider control with a two-color gradient track, blended thumb border, tooltip, and full drag/tap interaction.
+
+```xml
+<shiny:GradientSlider Value="{Binding Temperature}"
+                      Minimum="0"
+                      Maximum="100"
+                      ColdColor="#3B82F6"
+                      HotColor="#EF4444"
+                      ShowTooltip="True" />
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| Value | double | 0 | Current value (TwoWay) |
+| Minimum | double | 0 | Minimum value |
+| Maximum | double | 100 | Maximum value |
+| Step | double | 1 | Snap increment |
+| ColdColor | Color/string | #3B82F6 | Left gradient color |
+| HotColor | Color/string | #EF4444 | Right gradient color |
+| TrackHeight | double | 8 | Track height |
+| ThumbSize | double | 24 | Thumb diameter |
+| ThumbColor | Color/string | White | Thumb fill color |
+| ShowTooltip | bool | true | Show value tooltip |
+| TooltipTemplate | DataTemplate/RenderFragment | null | Custom tooltip content |
+| ValueFormat | string? | null | Format string for tooltip value |
+
+### ProgressBar
+
+A progress bar control with gradient fill and a configurable Vista-style shimmer pulse that sweeps left-to-right across the bar. Supports determinate, indeterminate, text overlay, and timed/value-triggered pulse animations.
+
+```xml
+<shiny:ProgressBar Value="{Binding Progress}"
+                   TrackHeight="12"
+                   CornerRadius="6"
+                   UseGradient="True"
+                   GradientStartColor="#3B82F6"
+                   GradientEndColor="#8B5CF6"
+                   PulseEnabled="True"
+                   PulseOnValueChange="True"
+                   PulseLength="0.4"
+                   PulseSpeed="800" />
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| Value | double | 0 | Current value (TwoWay) |
+| Minimum | double | 0 | Minimum value |
+| Maximum | double | 100 | Maximum value |
+| TrackColor | Color/string | #E5E7EB | Background track color |
+| BarColor | Color/string | #3B82F6 | Fill bar color (when gradient disabled) |
+| TrackHeight | double | 8 | Track height in px |
+| CornerRadius | double/string | 4 | Corner radius |
+| UseGradient | bool | false | Enable gradient fill |
+| GradientStartColor | Color/string | #3B82F6 | Left gradient color |
+| GradientEndColor | Color/string | #8B5CF6 | Right gradient color |
+| PulseEnabled | bool | false | Enable Vista-style shimmer pulse |
+| PulseOnValueChange | bool | true | Trigger pulse on value change |
+| PulseInterval | TimeSpan | 0 | Trigger pulse on a timer (e.g. every 2s) |
+| PulseColor | Color/string | White | Shimmer highlight color |
+| PulseOpacity | double | 0.4 | Peak shimmer opacity (MAUI) |
+| PulseLength | double | 0.4 | Width of shimmer as fraction of fill (0.05–1.0) |
+| PulseSpeed | int | 800 | Milliseconds for one left-to-right sweep |
+| ShowText | bool | false | Show percentage text overlay |
+| TextFormat | string | "{0:0}%" | Text format string |
+| TextColor | Color/string | White | Text color |
+| FontSize | double | 11 | Text font size |
+| IsIndeterminate | bool | false | Indeterminate sliding animation |
+
+Events: `ValueChangedEvent`. Commands: `ValueChangedCommand`.
+
+### Overlay & LoadingOverlay
+
+A full-screen overlay control with configurable background color and transparency. The base `Overlay` supports any custom content via `DataTemplate` (MAUI) or `RenderFragment` (Blazor). The `LoadingOverlay` subclass provides a built-in loading template with indeterminate spinner or determinate progress bar.
+
+**Overlay (Custom Content):**
+
+```xml
+<shiny:Overlay IsShown="{Binding IsOverlayVisible}"
+               OverlayColor="Black"
+               OverlayOpacity="0.6">
+    <shiny:Overlay.OverlayContentTemplate>
+        <DataTemplate>
+            <Label Text="Custom content here" TextColor="White" />
+        </DataTemplate>
+    </shiny:Overlay.OverlayContentTemplate>
+</shiny:Overlay>
+```
+
+**LoadingOverlay (Indeterminate — spinner):**
+
+```xml
+<shiny:LoadingOverlay IsShown="{Binding IsBusy}"
+                      Message="Loading..." />
+```
+
+**LoadingOverlay (Determinate — progress bar):**
+
+```xml
+<shiny:LoadingOverlay IsShown="{Binding IsBusy}"
+                      IsIndeterminate="False"
+                      Progress="{Binding DownloadProgress}"
+                      Message="Downloading..." />
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| IsShown | bool | false | Show/hide overlay (TwoWay) |
+| OverlayColor | Color/string | Black/rgba(0,0,0,0.5) | Backdrop color |
+| OverlayOpacity | double | 0.5 (MAUI) / 1.0 (Blazor) | Backdrop opacity (MAUI uses separate opacity; Blazor bakes it into rgba color) |
+| AnimationDuration | uint | 250 | Fade animation duration in ms (MAUI) |
+| OverlayContentTemplate | DataTemplate | null | Custom overlay content (MAUI) |
+| OverlayContent | RenderFragment | null | Custom overlay content (Blazor) |
+
+**LoadingOverlay additional properties:**
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| IsIndeterminate | bool | true | Spinner mode (true) or progress bar mode (false) |
+| Progress | double | 0 | Progress value 0–100 (when determinate) |
+| Message | string? | null | Text displayed below spinner/progress bar |
+| SpinnerColor | Color/string | White | Spinner color |
+
+**Blazor (wrapper pattern):**
+
+```razor
+<LoadingOverlay IsShown="@isBusy" IsIndeterminate="false" Progress="@progress" Message="Loading...">
+    <p>Your page content here — gets overlaid when IsShown=true</p>
+</LoadingOverlay>
+```
 
 ### AutoCompleteEntry
 

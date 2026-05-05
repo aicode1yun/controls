@@ -1,14 +1,23 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace Shiny.Blazor.Controls;
 
 public partial class TextEntry : IDisposable
 {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
     ElementReference inputRef;
     bool IsFocused;
     TextEntryContext? context;
+    bool needsCursorUpdate;
+    int pendingCursorPosition;
     bool IsPlaceholderUp => IsFocused || !string.IsNullOrEmpty(Text);
+
+    string DisplayText => !string.IsNullOrEmpty(Mask)
+        ? TextEntryMaskHelper.ApplyMask(Text, Mask)
+        : Text;
 
     // Parameters
     [Parameter] public string Text { get; set; } = "";
@@ -33,6 +42,9 @@ public partial class TextEntry : IDisposable
     [Parameter] public bool HasError { get; set; }
     [Parameter] public string ErrorColor { get; set; } = "#DC3545";
     [Parameter] public bool ShowCharacterCount { get; set; }
+    [Parameter] public string? Mask { get; set; }
+    [Parameter] public string FormattedText { get; set; } = "";
+    [Parameter] public EventCallback<string> FormattedTextChanged { get; set; }
     [Parameter] public List<TextEntryTool>? LeftTools { get; set; }
     [Parameter] public List<TextEntryTool>? RightTools { get; set; }
     [Parameter] public string? CssClass { get; set; }
@@ -41,6 +53,8 @@ public partial class TextEntry : IDisposable
     public IDictionary<string, object>? AdditionalAttributes { get; set; }
 
     string InputType => IsPassword ? "password" : "text";
+    string? InputMode => !string.IsNullOrEmpty(Mask) ? "numeric" : null;
+    int? InputMaxLength => !string.IsNullOrEmpty(Mask) ? Mask.Length : (MaxLength > 0 ? MaxLength : null);
 
     string HintDisplay
     {
@@ -104,9 +118,43 @@ public partial class TextEntry : IDisposable
 
     async Task OnInput(ChangeEventArgs e)
     {
-        Text = e.Value?.ToString() ?? "";
+        var input = e.Value?.ToString() ?? "";
+
+        if (!string.IsNullOrEmpty(Mask))
+        {
+            var rawText = TextEntryMaskHelper.StripMask(input, Mask);
+            var maxRaw = TextEntryMaskHelper.CalculateRawMaxLength(Mask);
+            if (rawText.Length > maxRaw)
+                rawText = rawText[..maxRaw];
+
+            Text = rawText;
+            FormattedText = DisplayText;
+            await FormattedTextChanged.InvokeAsync(FormattedText);
+
+            // Schedule cursor position update
+            pendingCursorPosition = TextEntryMaskHelper.CalculateCursorPosition(rawText.Length, Mask);
+            needsCursorUpdate = true;
+        }
+        else
+        {
+            Text = input;
+        }
+
         await TextChanged.InvokeAsync(Text);
         NotifyToolsTextChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (needsCursorUpdate)
+        {
+            needsCursorUpdate = false;
+            try
+            {
+                await JS.InvokeVoidAsync("shinyControls.setCursorPosition", inputRef, pendingCursorPosition);
+            }
+            catch { /* element may not be available */ }
+        }
     }
 
     void OnFocusIn()

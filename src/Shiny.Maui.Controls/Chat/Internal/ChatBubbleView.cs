@@ -21,6 +21,7 @@ partial class ChatBubbleView : ContentView
     readonly Label textLabel;
     readonly Image imageView;
     readonly Label timestampLabel;
+    readonly HorizontalStackLayout acknowledgementLayout;
     readonly Button toolsButton;
     View? customTemplateView;
 
@@ -144,10 +145,18 @@ partial class ChatBubbleView : ContentView
             Margin = new Thickness(4, 2, 4, 0)
         };
 
+        acknowledgementLayout = new HorizontalStackLayout
+        {
+            Spacing = 4,
+            Margin = new Thickness(4, 2, 4, 0),
+            IsVisible = false
+        };
+
         rootLayout = new Grid
         {
             RowDefinitions =
             {
+                new RowDefinition(GridLength.Auto),
                 new RowDefinition(GridLength.Auto),
                 new RowDefinition(GridLength.Auto),
                 new RowDefinition(GridLength.Auto)
@@ -156,7 +165,8 @@ partial class ChatBubbleView : ContentView
         };
         rootLayout.Add(avatarNameRow, 0, 0);
         rootLayout.Add(bubbleRow, 0, 1);
-        rootLayout.Add(timestampLabel, 0, 2);
+        rootLayout.Add(acknowledgementLayout, 0, 2);
+        rootLayout.Add(timestampLabel, 0, 3);
 
         Content = rootLayout;
     }
@@ -288,13 +298,78 @@ partial class ChatBubbleView : ContentView
             bubbleBorder.Padding = new Thickness(12, 8);
         }
 
+        // Acknowledgements
+        ConfigureAcknowledgements(message);
+
         // Timestamp
         timestampLabel.IsVisible = isLast;
         if (isLast)
             timestampLabel.Text = ChatGroupHelper.FormatTimestamp(message.Timestamp);
 
+        // Dim unsent user messages
+        bubbleBorder.Opacity = (message.IsFromMe && !message.IsSent) ? 0.5 : 1.0;
+
         // Spacing
         Margin = new Thickness(0, isFirst ? 12 : 2, 0, 0);
+    }
+
+    void ConfigureAcknowledgements(ChatMessage message)
+    {
+        acknowledgementLayout.Children.Clear();
+
+        if (message.Acknowledgements is not { Count: > 0 })
+        {
+            acknowledgementLayout.IsVisible = false;
+            return;
+        }
+
+        // Group by glyph
+        var groups = message.Acknowledgements
+            .Where(a => !string.IsNullOrEmpty(a.Glyph))
+            .GroupBy(a => a.Glyph)
+            .ToList();
+
+        if (groups.Count == 0)
+        {
+            acknowledgementLayout.IsVisible = false;
+            return;
+        }
+
+        foreach (var group in groups)
+        {
+            var count = group.Count();
+            var badge = new Border
+            {
+                StrokeThickness = 0,
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
+                BackgroundColor = Color.FromArgb("#E5E7EB"),
+                Padding = new Thickness(6, 2),
+                Content = new HorizontalStackLayout
+                {
+                    Spacing = 2,
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = group.Key,
+                            FontSize = 12,
+                            VerticalTextAlignment = TextAlignment.Center
+                        },
+                        new Label
+                        {
+                            Text = count > 1 ? count.ToString() : "",
+                            FontSize = 11,
+                            TextColor = Colors.Grey,
+                            VerticalTextAlignment = TextAlignment.Center,
+                            IsVisible = count > 1
+                        }
+                    }
+                }
+            };
+            acknowledgementLayout.Children.Add(badge);
+        }
+
+        acknowledgementLayout.IsVisible = true;
     }
 
     bool ShouldShowAvatar(ChatMessage message, bool isFirstInGroup)

@@ -12,6 +12,11 @@ public partial class TextEntryViewModel : ObservableObject
     [ObservableProperty] string customText = "";
     [ObservableProperty] string phone = "";
     [ObservableProperty] string amount = "";
+    [ObservableProperty] string maskedPhone = "";
+    [ObservableProperty] string maskedCard = "";
+    [ObservableProperty] string maskedDate = "";
+    [ObservableProperty] string quantity = "0";
+    [ObservableProperty] string score = "50";
 
     [ObservableProperty] string email = "";
     [ObservableProperty] bool hasEmailError;

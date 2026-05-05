@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:shiny="http://shiny.net/maui/controls"
+    xmlns:local="clr-namespace:Sample.Features.GradientSlider"
+    x:Class="Sample.Features.GradientSlider.GradientSliderPage"
+    x:DataType="local:GradientSliderViewModel"
+    Title="Gradient Slider">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="24">
+
+            <!-- Basic Temperature -->
+            <Label Text="Temperature" FontSize="18" FontAttributes="Bold" />
+            <shiny:GradientSlider Value="{Binding Temperature}"
+                                  Minimum="0"
+                                  Maximum="100"
+                                  ValueFormat="0°" />
+            <Label Text="{Binding Temperature, StringFormat='{0:0}°'}" />
+
+            <!-- Custom Colors -->
+            <Label Text="Custom Colors (Green → Yellow)" FontSize="18" FontAttributes="Bold" />
+            <shiny:GradientSlider Value="{Binding Intensity}"
+                                  Minimum="0"
+                                  Maximum="10"
+                                  Step="0.5"
+                                  ColdColor="#10B981"
+                                  HotColor="#F59E0B"
+                                  ValueFormat="0.#" />
+            <Label Text="{Binding Intensity, StringFormat='Intensity: {0:0.#}'}" />
+
+            <!-- Large Track & Thumb -->
+            <Label Text="Large Track &amp; Thumb" FontSize="18" FontAttributes="Bold" />
+            <shiny:GradientSlider Value="{Binding Volume}"
+                                  Minimum="0"
+                                  Maximum="100"
+                                  TrackHeight="12"
+                                  ThumbSize="32"
+                                  ColdColor="#6366F1"
+                                  HotColor="#EC4899" />
+            <Label Text="{Binding Volume, StringFormat='Volume: {0:0}'}" />
+
+            <!-- No Tooltip -->
+            <Label Text="No Tooltip" FontSize="18" FontAttributes="Bold" />
+            <shiny:GradientSlider Value="{Binding Opacity}"
+                                  Minimum="0"
+                                  Maximum="1"
+                                  Step="0.01"
+                                  ShowTooltip="False"
+                                  ColdColor="#94A3B8"
+                                  HotColor="#1E293B" />
+            <Label Text="{Binding Opacity, StringFormat='Opacity: {0:P0}'}" />
+
+            <!-- Fine Step -->
+            <Label Text="Fine Step (0.1)" FontSize="18" FontAttributes="Bold" />
+            <shiny:GradientSlider Value="{Binding FineValue}"
+                                  Minimum="0"
+                                  Maximum="5"
+                                  Step="0.1"
+                                  ColdColor="#06B6D4"
+                                  HotColor="#F97316"
+                                  ValueFormat="0.0" />
+            <Label Text="{Binding FineValue, StringFormat='Value: {0:0.0}'}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

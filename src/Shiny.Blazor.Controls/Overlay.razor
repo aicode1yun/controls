@@ -1,0 +1,18 @@
+@namespace Shiny.Blazor.Controls
+
+<div class="shiny-overlay @CssClass" @attributes="AdditionalAttributes">
+    @ChildContent
+
+    @if (IsShown)
+    {
+        <div class="shiny-overlay-backdrop @(isVisible ? "shiny-overlay-backdrop--visible" : "")"
+             style="background: @OverlayColor; opacity: @OverlayOpacity;">
+        </div>
+        <div class="shiny-overlay-content @(isVisible ? "shiny-overlay-content--visible" : "")">
+            @if (OverlayContent != null)
+            {
+                @OverlayContent
+            }
+        </div>
+    }
+</div>

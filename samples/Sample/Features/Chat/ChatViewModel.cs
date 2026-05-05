@@ -51,13 +51,19 @@ public partial class ChatViewModel : ObservableObject
     [RelayCommand]
     void Send(string text)
     {
-        Messages.Add(new ChatMessage
+        var msg = new ChatMessage
         {
             Text = text,
             SenderId = myId,
             IsFromMe = true,
-            Timestamp = DateTimeOffset.Now
-        });
+            Identifier = Guid.NewGuid().ToString(),
+            Timestamp = DateTimeOffset.Now,
+            IsSent = false // Dimmed until confirmed
+        };
+        Messages.Add(msg);
+
+        // Simulate server confirmation after a short delay
+        _ = SimulateSendConfirmationAsync(msg);
 
         // Simulate a reply after a short delay
         _ = SimulateReplyAsync();
@@ -213,7 +219,14 @@ public partial class ChatViewModel : ObservableObject
             Text = "I agree, the styling system is great.",
             SenderId = myId,
             IsFromMe = true,
+            IsSent = true,
             Timestamp = yesterday.AddHours(-1).AddMinutes(30),
+            Acknowledgements =
+            [
+                new() { Glyph = "\ud83d\udc4d", UserId = alice.Id, Timestamp = DateTime.Now },
+                new() { Glyph = "\ud83d\udc4d", UserId = bob.Id, Timestamp = DateTime.Now },
+                new() { Glyph = "\u2764\ufe0f", UserId = alice.Id, Timestamp = DateTime.Now }
+            ]
         });
 
         Messages.Add(new ChatMessage
@@ -227,7 +240,12 @@ public partial class ChatViewModel : ObservableObject
         {
             Text = "The scheduler component is my favorite so far.",
             SenderId = alice.Id,
+            IsSent = true,
             Timestamp = now.AddMinutes(-30),
+            Acknowledgements =
+            [
+                new() { Glyph = "\ud83d\udcaf", UserId = myId, Timestamp = DateTime.Now }
+            ]
         });
 
         Messages.Add(new ChatMessage
@@ -254,6 +272,20 @@ public partial class ChatViewModel : ObservableObject
         });
     }
 
+    async Task SimulateSendConfirmationAsync(ChatMessage msg)
+    {
+        await Task.Delay(800);
+        msg.IsSent = true;
+
+        // Force UI refresh by notifying collection
+        var idx = Messages.IndexOf(msg);
+        if (idx >= 0)
+        {
+            Messages.RemoveAt(idx);
+            Messages.Insert(idx, msg);
+        }
+    }
+
     async Task SimulateReplyAsync()
     {
         TypingParticipants.Add(alice);
@@ -264,6 +296,7 @@ public partial class ChatViewModel : ObservableObject
         {
             Text = "That's great! Thanks for sharing.",
             SenderId = alice.Id,
+            IsSent = true,
             Timestamp = DateTimeOffset.Now,
         });
     }

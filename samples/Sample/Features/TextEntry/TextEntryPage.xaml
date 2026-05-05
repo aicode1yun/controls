@@ -86,6 +86,42 @@
                 <shiny:TextEntryTool Text="$" ToolColor="#059669" />
             </shiny:TextEntry>
 
+            <!-- Masked Input -->
+            <Label Text="Masked Input" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Phone Number"
+                             Mask="(###) ###-####"
+                             Text="{Binding MaskedPhone, Mode=TwoWay}"
+                             HintText="(555) 123-4567" />
+
+            <shiny:TextEntry Placeholder="Credit Card"
+                             Mask="#### #### #### ####"
+                             Text="{Binding MaskedCard, Mode=TwoWay}"
+                             HintText="1234 5678 9012 3456" />
+
+            <shiny:TextEntry Placeholder="Date (MM/DD/YYYY)"
+                             Mask="##/##/####"
+                             Text="{Binding MaskedDate, Mode=TwoWay}" />
+
+            <!-- Stepper Tool -->
+            <Label Text="Stepper Tool" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Quantity"
+                             Text="{Binding Quantity, Mode=TwoWay}"
+                             Keyboard="Numeric">
+                <shiny:TextEntry.LeftTools>
+                    <shiny:TextEntryStepperTool Step="-1" />
+                </shiny:TextEntry.LeftTools>
+                <shiny:TextEntryStepperTool Step="1" />
+            </shiny:TextEntry>
+
+            <shiny:TextEntry Placeholder="Score"
+                             Text="{Binding Score, Mode=TwoWay}"
+                             Keyboard="Numeric">
+                <shiny:TextEntry.LeftTools>
+                    <shiny:TextEntryStepperTool Step="-5" />
+                </shiny:TextEntry.LeftTools>
+                <shiny:TextEntryStepperTool Step="5" />
+            </shiny:TextEntry>
+
         </VerticalStackLayout>
     </ScrollView>
 

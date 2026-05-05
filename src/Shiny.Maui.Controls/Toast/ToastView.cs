@@ -9,7 +9,7 @@ sealed class ToastView : ContentView
     readonly ToastConfig config;
     readonly Border border;
     readonly Label label;
-    readonly ProgressBar? progressBar;
+    readonly Microsoft.Maui.Controls.ProgressBar? progressBar;
     readonly ActivityIndicator? spinner;
     readonly Image? icon;
     CancellationTokenSource? autoDismissCts;
@@ -130,7 +130,7 @@ sealed class ToastView : ContentView
         View innerContent;
         if (config.ShowProgressBar && config.Duration > TimeSpan.Zero)
         {
-            progressBar = new ProgressBar
+            progressBar = new Microsoft.Maui.Controls.ProgressBar
             {
                 Progress = 1.0,
                 ProgressColor = ProgressBarColor,

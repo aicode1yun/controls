@@ -12,16 +12,25 @@ public partial class TextEntry
         {
             var te = (TextEntry)b;
             if (te.suppressTextChanged) return;
-            te.suppressTextChanged = true;
-            te.entry.Text = (string)n;
-            te.suppressTextChanged = false;
-            te.InternalTextChanged?.Invoke(te, EventArgs.Empty);
 
-            // If text was set programmatically and is non-empty, ensure placeholder is up
-            if (!string.IsNullOrEmpty((string)n) && !te.isPlaceholderUp)
-                te.AnimatePlaceholder(true);
-            else if (string.IsNullOrEmpty((string)n) && !te.entry.IsFocused && te.isPlaceholderUp)
-                te.AnimatePlaceholder(false);
+            if (!string.IsNullOrEmpty(te.Mask))
+            {
+                te.ApplyMaskToEntry();
+            }
+            else
+            {
+                te.suppressTextChanged = true;
+                te.entry.Text = (string)n;
+                te.suppressTextChanged = false;
+
+                // If text was set programmatically and is non-empty, ensure placeholder is up
+                if (!string.IsNullOrEmpty((string)n) && !te.isPlaceholderUp)
+                    te.AnimatePlaceholder(true);
+                else if (string.IsNullOrEmpty((string)n) && !te.entry.IsFocused && te.isPlaceholderUp)
+                    te.AnimatePlaceholder(false);
+            }
+
+            te.InternalTextChanged?.Invoke(te, EventArgs.Empty);
         });
     public string Text { get => (string)GetValue(TextProperty); set => SetValue(TextProperty, value); }
 
@@ -197,6 +206,16 @@ public partial class TextEntry
             n as IList<TextEntryTool>,
             ((TextEntry)b).rightToolsLayout));
     public IList<TextEntryTool>? RightTools { get => (IList<TextEntryTool>?)GetValue(RightToolsProperty); set => SetValue(RightToolsProperty, value); }
+
+    // Mask
+    public static readonly BindableProperty MaskProperty = BindableProperty.Create(
+        nameof(Mask), typeof(string), typeof(TextEntry), null,
+        propertyChanged: (b, _, _) => ((TextEntry)b).OnMaskChanged());
+    public string? Mask { get => (string?)GetValue(MaskProperty); set => SetValue(MaskProperty, value); }
+
+    public static readonly BindableProperty FormattedTextProperty = BindableProperty.Create(
+        nameof(FormattedText), typeof(string), typeof(TextEntry), string.Empty);
+    public string FormattedText { get => (string)GetValue(FormattedTextProperty); private set => SetValue(FormattedTextProperty, value); }
 
     // Commands
     public static readonly BindableProperty TextChangedCommandProperty = BindableProperty.Create(

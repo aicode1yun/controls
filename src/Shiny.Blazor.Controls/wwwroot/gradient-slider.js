@@ -1,0 +1,46 @@
+const instances = new Map();
+
+export function init(trackEl, dotNetRef) {
+    const state = { trackEl, dotNetRef, dragging: false };
+
+    const onPointerMove = (e) => {
+        if (!state.dragging) return;
+        e.preventDefault();
+        const rect = trackEl.getBoundingClientRect();
+        const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        dotNetRef.invokeMethodAsync('OnDragUpdate', percent);
+    };
+
+    const onPointerUp = () => {
+        state.dragging = false;
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+    };
+
+    trackEl.addEventListener('pointerdown', (e) => {
+        if (e.target.classList.contains('shiny-gs-thumb')) {
+            state.dragging = true;
+            e.preventDefault();
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+        }
+    });
+
+    state.onPointerMove = onPointerMove;
+    state.onPointerUp = onPointerUp;
+    instances.set(trackEl, state);
+}
+
+export function getClickPercent(trackEl, clientX) {
+    const rect = trackEl.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+}
+
+export function dispose(trackEl) {
+    const state = instances.get(trackEl);
+    if (state) {
+        document.removeEventListener('pointermove', state.onPointerMove);
+        document.removeEventListener('pointerup', state.onPointerUp);
+        instances.delete(trackEl);
+    }
+}

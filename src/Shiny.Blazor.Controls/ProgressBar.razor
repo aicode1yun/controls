@@ -1,0 +1,14 @@
+@namespace Shiny.Blazor.Controls
+
+<div class="shiny-pb @CssClass @IndeterminateClass"
+     style="@RootStyle"
+     @attributes="AdditionalAttributes">
+
+    <div class="shiny-pb-track" style="@TrackStyle">
+        <div class="shiny-pb-fill @PulseClass" style="@FillStyle"></div>
+        @if (ShowText && !IsIndeterminate)
+        {
+            <span class="shiny-pb-text" style="@TextStyle">@FormattedText</span>
+        }
+    </div>
+</div>

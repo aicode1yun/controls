@@ -127,13 +127,34 @@ public partial class TextEntry : ContentView
         if (suppressTextChanged) return;
 
         suppressTextChanged = true;
-        Text = entry.Text ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(Mask))
+        {
+            var rawText = TextEntryMaskHelper.StripMask(entry.Text, Mask);
+            var maxRaw = TextEntryMaskHelper.CalculateRawMaxLength(Mask);
+            if (rawText.Length > maxRaw)
+                rawText = rawText[..maxRaw];
+
+            Text = rawText;
+            var formatted = TextEntryMaskHelper.ApplyMask(rawText, Mask);
+            FormattedText = formatted;
+            entry.Text = formatted;
+
+            // Set cursor position after formatting
+            var cursorPos = TextEntryMaskHelper.CalculateCursorPosition(rawText.Length, Mask);
+            Dispatcher.Dispatch(() => entry.CursorPosition = Math.Min(cursorPos, formatted.Length));
+        }
+        else
+        {
+            Text = entry.Text ?? string.Empty;
+        }
+
         suppressTextChanged = false;
 
         InternalTextChanged?.Invoke(this, EventArgs.Empty);
-        TextChanged?.Invoke(this, e);
-        if (TextChangedCommand?.CanExecute(e.NewTextValue) == true)
-            TextChangedCommand.Execute(e.NewTextValue);
+        TextChanged?.Invoke(this, new TextChangedEventArgs(e.OldTextValue, Text));
+        if (TextChangedCommand?.CanExecute(Text) == true)
+            TextChangedCommand.Execute(Text);
 
         UpdateCharacterCount();
     }
@@ -276,6 +297,51 @@ public partial class TextEntry : ContentView
             if (tool is ITextEntryAwareTool aware)
                 aware.Detach();
         }
+    }
+
+    void OnMaskChanged()
+    {
+        if (!string.IsNullOrEmpty(Mask))
+        {
+            entry.Keyboard = Keyboard.Numeric;
+            entry.MaxLength = Mask.Length;
+
+            // Reformat existing text
+            if (!string.IsNullOrEmpty(Text))
+            {
+                suppressTextChanged = true;
+                var formatted = TextEntryMaskHelper.ApplyMask(Text, Mask);
+                FormattedText = formatted;
+                entry.Text = formatted;
+                suppressTextChanged = false;
+            }
+        }
+        else
+        {
+            // Mask removed - restore raw text to entry
+            entry.MaxLength = MaxLength;
+            suppressTextChanged = true;
+            entry.Text = Text;
+            FormattedText = string.Empty;
+            suppressTextChanged = false;
+        }
+    }
+
+    void ApplyMaskToEntry()
+    {
+        if (string.IsNullOrEmpty(Mask)) return;
+
+        var formatted = TextEntryMaskHelper.ApplyMask(Text, Mask);
+        FormattedText = formatted;
+
+        suppressTextChanged = true;
+        entry.Text = formatted;
+        suppressTextChanged = false;
+
+        if (!string.IsNullOrEmpty(formatted) && !isPlaceholderUp)
+            AnimatePlaceholder(true);
+        else if (string.IsNullOrEmpty(formatted) && !entry.IsFocused && isPlaceholderUp)
+            AnimatePlaceholder(false);
     }
 
     // Public API

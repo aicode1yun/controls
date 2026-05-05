@@ -25,6 +25,9 @@
                   xmlns:toast="clr-namespace:Sample.Features.Toast"
                   xmlns:feedback="clr-namespace:Sample.Features.Feedback"
                   xmlns:textentry="clr-namespace:Sample.Features.TextEntry"
+                  xmlns:overlay="clr-namespace:Sample.Features.Overlay"
+                  xmlns:progressbar="clr-namespace:Sample.Features.ProgressBar"
+                  xmlns:gradientslider="clr-namespace:Sample.Features.GradientSlider"
                   Title="Shiny Controls"
                   FlyoutBackgroundColor="{AppThemeBinding Light=#F5F3FF, Dark=#0F0D1A}"
                   FlyoutWidth="310"
@@ -376,6 +379,30 @@
                              Color="{AppThemeBinding Light=#059669, Dark=#34D399}" />
         </FlyoutItem.FlyoutIcon>
         <ShellContent ContentTemplate="{DataTemplate textentry:TextEntryPage}" Route="textentry" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Overlay">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource Glyph="&#x25A8;" Size="20"
+                             Color="{AppThemeBinding Light=#059669, Dark=#34D399}" />
+        </FlyoutItem.FlyoutIcon>
+        <ShellContent ContentTemplate="{DataTemplate overlay:OverlayPage}" Route="overlay" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Progress Bar">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource Glyph="&#x25A3;" Size="20"
+                             Color="{AppThemeBinding Light=#059669, Dark=#34D399}" />
+        </FlyoutItem.FlyoutIcon>
+        <ShellContent ContentTemplate="{DataTemplate progressbar:ProgressBarPage}" Route="progressbar" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Gradient Slider">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource Glyph="&#x2501;" Size="20"
+                             Color="{AppThemeBinding Light=#059669, Dark=#34D399}" />
+        </FlyoutItem.FlyoutIcon>
+        <ShellContent ContentTemplate="{DataTemplate gradientslider:GradientSliderPage}" Route="gradientslider" />
     </FlyoutItem>
 
     <!-- ============================================================ -->

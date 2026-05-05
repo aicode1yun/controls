@@ -1,0 +1,31 @@
+@namespace Shiny.Blazor.Controls
+
+<Overlay IsShown="@IsShown"
+         IsShownChanged="@IsShownChanged"
+         OverlayColor="@OverlayColor"
+         CssClass="@CssClass">
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
+    <OverlayContent>
+        <div class="shiny-loading-overlay">
+            @if (IsIndeterminate)
+            {
+                <div class="shiny-loading-spinner" style="@SpinnerStyle"></div>
+            }
+            else
+            {
+                <ProgressBar Value="@Progress"
+                             BarColor="@ProgressBarColor"
+                             TrackColor="@ProgressTrackColor"
+                             TrackHeight="6"
+                             ShowText="true"
+                             CssClass="shiny-loading-progress" />
+            }
+            @if (!string.IsNullOrWhiteSpace(Message))
+            {
+                <p class="shiny-loading-message" style="color: @MessageColor;">@Message</p>
+            }
+        </div>
+    </OverlayContent>
+</Overlay>
