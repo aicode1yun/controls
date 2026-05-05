@@ -390,7 +390,8 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 | ScrollToFirstUnread | bool | false | Scroll to first unread instead of end |
 | FirstUnreadMessageId | string? | null | ID of the first unread message |
 | ToolItems | IList\<ChatEntryTool\> | null | Input bar tools FAB menu (MAUI only) |
-| BubbleToolItems | IList\<FabMenuItem\> | null | Per-message bubble tool actions (MAUI only) |
+| BubbleToolItems | IList\<ChatBubbleTool\> | null | Bubble tools for received (other user) messages (MAUI only) |
+| MyBubbleToolItems | IList\<ChatBubbleTool\> | null | Bubble tools for the local user's own messages (MAUI only) |
 | MessageTemplate | DataTemplate? | null | Single template for all message content (MAUI only) |
 | MessageTemplateSelector | DataTemplateSelector? | null | Per-type template selector (MAUI only) |
 | UseFeedback | bool | true | Haptic feedback on interactions (MAUI only) |
@@ -408,6 +409,8 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 | `CopyBubbleTool` | Built-in: copies message text to clipboard |
 | `TextToSpeechBubbleTool` | Built-in: reads message aloud (requires `Shiny.Maui.Controls.SpeechAddins`) |
 | `SpeechToTextTool` | Built-in: voice input for chat entry (requires `Shiny.Maui.Controls.SpeechAddins`) |
+| `PhotoGalleryEntryTool` | Built-in: opens device photo gallery via MediaPicker, fires `AttachImageCommand` with file path |
+| `TakePhotoEntryTool` | Built-in: opens device camera via MediaPicker, fires `AttachImageCommand` with file path |
 | `AcknowledgementBubbleTool` | Built-in: single-tap toggle for a specific reaction emoji (e.g. 👍, 👎). Set `Glyph` property. |
 | `AcknowledgementSelectorBubbleTool` | Built-in: opens action sheet with 12 common emoji reactions to choose from |
 

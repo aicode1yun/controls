@@ -5,11 +5,12 @@ class ChatInputBar : ContentView
     readonly BorderlessEntry entry;
     readonly Button sendButton;
     readonly Button attachButton;
-    readonly BoxView toolsSpacer;
+    readonly Button toolsButton;
     readonly Grid rootGrid;
 
     public event Action<string>? SendRequested;
     public event Action? AttachRequested;
+    public event Action? ToolsRequested;
 
     public ChatInputBar()
     {
@@ -51,12 +52,20 @@ class ChatInputBar : ContentView
         };
         attachButton.Clicked += OnAttachClicked;
 
-        toolsSpacer = new BoxView
+        toolsButton = new Button
         {
-            WidthRequest = 44,
-            Color = Colors.Transparent,
+            WidthRequest = 40,
+            HeightRequest = 40,
+            CornerRadius = 20,
+            BackgroundColor = Color.FromArgb("#007AFF"),
+            TextColor = Colors.White,
+            Text = "\u2026",
+            FontSize = 18,
+            Padding = 0,
+            VerticalOptions = LayoutOptions.Center,
             IsVisible = false
         };
+        toolsButton.Clicked += OnToolsClicked;
 
         rootGrid = new Grid
         {
@@ -90,7 +99,7 @@ class ChatInputBar : ContentView
             }
         };
 
-        rootGrid.Add(toolsSpacer, 0, 0);
+        rootGrid.Add(toolsButton, 0, 0);
         rootGrid.Add(attachButton, 1, 0);
         rootGrid.Add(entry, 2, 0);
         rootGrid.Add(sendButton, 3, 0);
@@ -119,10 +128,28 @@ class ChatInputBar : ContentView
         set => attachButton.IsVisible = value;
     }
 
-    public bool ShowToolsSpacer
+    public bool ShowToolsButton
     {
-        get => toolsSpacer.IsVisible;
-        set => toolsSpacer.IsVisible = value;
+        get => toolsButton.IsVisible;
+        set => toolsButton.IsVisible = value;
+    }
+
+    public Color ToolsButtonBackgroundColor
+    {
+        get => toolsButton.BackgroundColor;
+        set => toolsButton.BackgroundColor = value;
+    }
+
+    public string? ToolsButtonText
+    {
+        get => toolsButton.Text;
+        set => toolsButton.Text = value;
+    }
+
+    public ImageSource? ToolsButtonIcon
+    {
+        get => toolsButton.ImageSource;
+        set => toolsButton.ImageSource = value;
     }
 
     public string EntryText
@@ -146,6 +173,11 @@ class ChatInputBar : ContentView
     void OnAttachClicked(object? sender, EventArgs e)
     {
         AttachRequested?.Invoke();
+    }
+
+    void OnToolsClicked(object? sender, EventArgs e)
+    {
+        ToolsRequested?.Invoke();
     }
 
     void TrySend()

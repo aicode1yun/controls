@@ -94,7 +94,8 @@ public class ChatParticipant
 | `ToolsIcon` | `ImageSource` | `null` | Icon for the tools FabMenu button (MAUI only) |
 | `ToolsText` | `string?` | `null` | Text label for the tools FabMenu button (MAUI only) |
 | `ToolsFabBackgroundColor` | `Color` | `#007AFF` | Background color of the tools FabMenu button (MAUI only) |
-| `BubbleToolItems` | `IList<FabMenuItem>` | `null` | Per-message bubble tools shown in ⋮ menu (MAUI only) |
+| `BubbleToolItems` | `IList<ChatBubbleTool>` | `null` | Bubble tools for received (other user) messages (MAUI only) |
+| `MyBubbleToolItems` | `IList<ChatBubbleTool>` | `null` | Bubble tools for the local user's own messages (MAUI only) |
 | `MessageTappedCommand` | `ICommand` | `null` | Fired when a message bubble is tapped (MAUI only) |
 | `MessageTemplate` | `DataTemplate?` | `null` | Single template for all message content (MAUI only) |
 | `MessageTemplateSelector` | `DataTemplateSelector?` | `null` | Per-type template selector (MAUI only) |
@@ -205,16 +206,23 @@ public class MyBubbleTool : ChatBubbleTool
 | `CopyBubbleTool` | `ChatBubbleTool` | `Shiny.Maui.Controls` | Copies message text/ImageUrl to clipboard |
 | `TextToSpeechBubbleTool` | `ChatBubbleTool` | `Shiny.Maui.Controls.SpeechAddins` | Reads message text aloud |
 | `SpeechToTextTool` | `ChatEntryTool` | `Shiny.Maui.Controls.SpeechAddins` | Voice input for chat entry |
+| `PhotoGalleryEntryTool` | `ChatEntryTool` | `Shiny.Maui.Controls` | Opens device photo gallery via MAUI MediaPicker, fires `AttachImageCommand` with file path |
+| `TakePhotoEntryTool` | `ChatEntryTool` | `Shiny.Maui.Controls` | Opens device camera via MAUI MediaPicker, fires `AttachImageCommand` with file path |
 | `AcknowledgementBubbleTool` | `ChatBubbleTool` | `Shiny.Maui.Controls` | Single-tap toggle for a specific reaction emoji. Set `Glyph` and optionally `UserId`. Bind `Command` to notify server (receives `AcknowledgementChangedContext`). |
 | `AcknowledgementSelectorBubbleTool` | `ChatBubbleTool` | `Shiny.Maui.Controls` | Opens action sheet with 12 default emoji reactions. Customizable via `Glyphs` property. Bind `Command` to notify server (receives `AcknowledgementChangedContext`). |
 
 ## Bubble Tools (MAUI only)
 
-Add per-message action menus. The ⋮ button appears on each bubble:
+Bubble tools are split by message ownership:
+- `BubbleToolItems` — shown on received (other user) messages
+- `MyBubbleToolItems` — shown on the local user's own messages
+
+The ⋮ button appears on each bubble that has applicable tools:
 
 ```xml
 <shiny:ChatView Messages="{Binding Messages}"
                 SendCommand="{Binding SendCommand}">
+    <!-- Tools for received messages -->
     <shiny:ChatView.BubbleToolItems>
         <shiny:CopyBubbleTool />
         <shiny:AcknowledgementBubbleTool Glyph="👍" Command="{Binding AckCommand}" />
@@ -223,6 +231,11 @@ Add per-message action menus. The ⋮ button appears on each bubble:
         <shiny:ChatBubbleTool Text="Reply" FabBackgroundColor="#2196F3"
                               Command="{Binding ReplyCommand}" />
     </shiny:ChatView.BubbleToolItems>
+
+    <!-- Tools for my own messages -->
+    <shiny:ChatView.MyBubbleToolItems>
+        <shiny:CopyBubbleTool />
+    </shiny:ChatView.MyBubbleToolItems>
 </shiny:ChatView>
 ```
 

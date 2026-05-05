@@ -97,6 +97,7 @@ public partial class ChatView : ContentView
         inputBar = new ChatInputBar();
         inputBar.SendRequested += OnSendRequested;
         inputBar.AttachRequested += OnAttachRequested;
+        inputBar.ToolsRequested += OnToolsButtonRequested;
 
         // Tools FabMenu overlay — spans full chat area for proper backdrop/item expansion
         toolsMenu = new FabMenu
@@ -112,6 +113,7 @@ public partial class ChatView : ContentView
             Margin = new Thickness(8, 0, 0, 6)
         };
         toolsMenu.ItemTapped += OnToolItemTapped;
+        toolsMenu.PropertyChanged += OnToolsMenuPropertyChanged;
 
         // Bubble tools FabMenu overlay — shared across all bubbles, populated dynamically
         bubbleToolsMenu = new FabMenu
@@ -126,6 +128,7 @@ public partial class ChatView : ContentView
             Text = "\u22ee"
         };
         bubbleToolsMenu.ItemTapped += OnBubbleToolItemTapped;
+        bubbleToolsMenu.PropertyChanged += OnBubbleToolsMenuPropertyChanged;
 
         // Root: messages fill space, typing bubbles below, input bar at bottom
         var rootGrid = new Grid
@@ -153,7 +156,8 @@ public partial class ChatView : ContentView
 
         // Initialize collections so XAML source generator can Add() items directly
         ToolItems = new System.Collections.ObjectModel.ObservableCollection<ChatEntryTool>();
-        BubbleToolItems = new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>();
+        BubbleToolItems = new System.Collections.ObjectModel.ObservableCollection<ChatBubbleTool>();
+        MyBubbleToolItems = new System.Collections.ObjectModel.ObservableCollection<ChatBubbleTool>();
     }
 
     /// <summary>

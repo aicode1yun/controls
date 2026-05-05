@@ -63,42 +63,8 @@ public partial class ChatViewModel : ObservableObject
     }
 
     [RelayCommand]
-    async Task TakePhoto()
+    void AttachImage(string filePath)
     {
-        try
-        {
-            var photo = await MediaPicker.Default.CapturePhotoAsync();
-            if (photo is not null)
-                await AttachFileResult(photo);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"TakePhoto failed: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    async Task PickImage()
-    {
-        try
-        {
-            var photo = await MediaPicker.Default.PickPhotoAsync();
-            if (photo is not null)
-                await AttachFileResult(photo);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"PickImage failed: {ex.Message}");
-        }
-    }
-
-    async Task AttachFileResult(FileResult file)
-    {
-        var stream = await file.OpenReadAsync();
-        var filePath = Path.Combine(FileSystem.CacheDirectory, file.FileName);
-        using (var fileStream = File.OpenWrite(filePath))
-            await stream.CopyToAsync(fileStream);
-
         Messages.Add(new ChatMessage
         {
             ImageUrl = filePath,

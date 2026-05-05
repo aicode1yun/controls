@@ -288,7 +288,12 @@ public partial class ChatView
         typeof(ImageSource),
         typeof(ChatView),
         null,
-        propertyChanged: (b, _, n) => ((ChatView)b).toolsMenu.Icon = n as ImageSource);
+        propertyChanged: (b, _, n) =>
+        {
+            var cv = (ChatView)b;
+            cv.toolsMenu.Icon = n as ImageSource;
+            cv.inputBar.ToolsButtonIcon = n as ImageSource;
+        });
 
     public ImageSource? ToolsIcon
     {
@@ -301,7 +306,12 @@ public partial class ChatView
         typeof(string),
         typeof(ChatView),
         null,
-        propertyChanged: (b, _, n) => ((ChatView)b).toolsMenu.Text = n as string);
+        propertyChanged: (b, _, n) =>
+        {
+            var cv = (ChatView)b;
+            cv.toolsMenu.Text = n as string;
+            cv.inputBar.ToolsButtonText = n as string;
+        });
 
     public string? ToolsText
     {
@@ -317,7 +327,11 @@ public partial class ChatView
         propertyChanged: (b, _, n) =>
         {
             if (n is Color c)
-                ((ChatView)b).toolsMenu.FabBackgroundColor = c;
+            {
+                var cv = (ChatView)b;
+                cv.toolsMenu.FabBackgroundColor = c;
+                cv.inputBar.ToolsButtonBackgroundColor = c;
+            }
         });
 
     public Color? ToolsFabBackgroundColor
@@ -329,15 +343,34 @@ public partial class ChatView
     // Bubble Tools
     public static readonly BindableProperty BubbleToolItemsProperty = BindableProperty.Create(
         nameof(BubbleToolItems),
-        typeof(IList<FabMenuItem>),
+        typeof(IList<ChatBubbleTool>),
         typeof(ChatView),
         null,
         propertyChanged: (b, _, _) => ((ChatView)b).SyncBubbleToolsButtonVisibility());
 
-    public IList<FabMenuItem>? BubbleToolItems
+    /// <summary>
+    /// Bubble tools shown on received (other user) messages.
+    /// </summary>
+    public IList<ChatBubbleTool>? BubbleToolItems
     {
-        get => (IList<FabMenuItem>?)GetValue(BubbleToolItemsProperty);
+        get => (IList<ChatBubbleTool>?)GetValue(BubbleToolItemsProperty);
         set => SetValue(BubbleToolItemsProperty, value);
+    }
+
+    public static readonly BindableProperty MyBubbleToolItemsProperty = BindableProperty.Create(
+        nameof(MyBubbleToolItems),
+        typeof(IList<ChatBubbleTool>),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, _, _) => ((ChatView)b).SyncBubbleToolsButtonVisibility());
+
+    /// <summary>
+    /// Bubble tools shown on the local user's own messages.
+    /// </summary>
+    public IList<ChatBubbleTool>? MyBubbleToolItems
+    {
+        get => (IList<ChatBubbleTool>?)GetValue(MyBubbleToolItemsProperty);
+        set => SetValue(MyBubbleToolItemsProperty, value);
     }
 
     // Haptic

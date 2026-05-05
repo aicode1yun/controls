@@ -334,8 +334,16 @@ public partial class ChatView
     void SyncToolsVisibility()
     {
         var hasTools = ToolItems is { Count: > 0 };
-        toolsMenu.IsVisible = hasTools;
-        inputBar.ShowToolsSpacer = hasTools;
+        inputBar.ShowToolsButton = hasTools;
+    }
+
+    void OnToolsButtonRequested()
+    {
+        if (ToolItems is not { Count: > 0 })
+            return;
+
+        toolsMenu.IsVisible = true;
+        toolsMenu.Open();
     }
 
     void OnToolItemTapped(object? sender, FabMenuItem item)
@@ -344,20 +352,36 @@ public partial class ChatView
             FeedbackHelper.Execute(this, "ToolItemTapped", item);
     }
 
+    void OnToolsMenuPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(FabMenu.IsOpen) && !toolsMenu.IsOpen)
+            toolsMenu.IsVisible = false;
+    }
+
     // ------- Bubble Tools -------
 
     internal bool HasBubbleTools(ChatMessage message)
-        => message.ToolItems is { Count: > 0 } || BubbleToolItems is { Count: > 0 };
+    {
+        if (message.ToolItems is { Count: > 0 })
+            return true;
+
+        var defaultTools = message.IsFromMe ? MyBubbleToolItems : BubbleToolItems;
+        return defaultTools is { Count: > 0 };
+    }
 
     internal void ShowBubbleTools(ChatMessage message)
     {
-        // Per-message tools take priority, fall back to ChatView-level defaults
-        var tools = message.ToolItems is { Count: > 0 }
-            ? message.ToolItems
-            : BubbleToolItems;
-
-        if (tools is not { Count: > 0 })
-            return;
+        // Per-message tools take priority, then pick the right default list based on ownership
+        IEnumerable<FabMenuItem> tools;
+        if (message.ToolItems is { Count: > 0 })
+            tools = message.ToolItems;
+        else
+        {
+            var defaultTools = message.IsFromMe ? MyBubbleToolItems : BubbleToolItems;
+            if (defaultTools is not { Count: > 0 })
+                return;
+            tools = defaultTools;
+        }
 
         activeBubbleToolMessage = message;
 
@@ -379,7 +403,15 @@ public partial class ChatView
     void OnBubbleToolItemTapped(object? sender, FabMenuItem item)
     {
         activeBubbleToolMessage = null;
-        bubbleToolsMenu.IsVisible = false;
+    }
+
+    void OnBubbleToolsMenuPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(FabMenu.IsOpen) && !bubbleToolsMenu.IsOpen)
+        {
+            activeBubbleToolMessage = null;
+            bubbleToolsMenu.IsVisible = false;
+        }
     }
 
     // ------- ChatEntryTool -------
