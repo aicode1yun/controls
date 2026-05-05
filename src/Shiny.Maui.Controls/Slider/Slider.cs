@@ -40,7 +40,7 @@ public partial class Slider : ContentView
         tooltipContainer = new ContentView
         {
             Content = tooltipBadge,
-            HorizontalOptions = LayoutOptions.Start,
+            HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.End,
             Margin = new Thickness(0, 0, 0, 4),
             IsVisible = true
@@ -227,14 +227,7 @@ public partial class Slider : ContentView
         tooltipContainer.IsVisible = ShowTooltip;
         if (!ShowTooltip) return;
 
-        // Position tooltip, clamped so it doesn't overflow left or right edges
-        var tooltipWidth = tooltipBadge.Width > 0 ? tooltipBadge.Width : 40;
-        var tooltipX = percent * trackWidth;
-        var halfTooltip = tooltipWidth / 2;
-        var clampedX = Math.Clamp(tooltipX - halfTooltip, 0, trackWidth - tooltipWidth);
-        tooltipContainer.Margin = new Thickness(clampedX, 0, 0, 4);
-
-        // Update tooltip content
+        // Update tooltip content first so we can measure
         if (TooltipTemplate is not null)
         {
             tooltipContainer.Content = CreateTooltipFromTemplate();
@@ -246,6 +239,15 @@ public partial class Slider : ContentView
             tooltipLabel.FontSize = TooltipFontSize;
             tooltipBadge.BackgroundColor = TooltipBackgroundColor;
         }
+
+        // Position tooltip centered on thumb, clamped to track bounds.
+        // Use TranslationX on the badge to avoid layout squeeze at edges.
+        var tooltipWidth = tooltipBadge.Width > 0 ? tooltipBadge.Width : 50;
+        var thumbCenter = percent * (trackWidth - ThumbSize) + (ThumbSize / 2);
+        var halfTooltip = tooltipWidth / 2;
+        var tooltipX = Math.Clamp(thumbCenter - halfTooltip, 0, Math.Max(0, trackWidth - tooltipWidth));
+        tooltipBadge.TranslationX = tooltipX;
+        tooltipBadge.HorizontalOptions = LayoutOptions.Start;
     }
 
     View? CreateTooltipFromTemplate()
