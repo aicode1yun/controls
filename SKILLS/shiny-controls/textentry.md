@@ -1,6 +1,6 @@
 # TextEntry
 
-A Material Design-inspired text entry control with animated floating placeholder, customizable border, left/right tool slots, hint text for validation errors, and character count display. Available on both MAUI and Blazor.
+A text entry control with animated floating placeholder, customizable border, Bootstrap input-group style left/right tool slots (flush addon segments with background, shared borders, outer-only corner radius), hint text for validation errors, and character count display. Available on both MAUI and Blazor.
 
 ## MAUI
 

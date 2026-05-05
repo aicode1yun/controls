@@ -4,8 +4,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Shiny.Maui.Controls;
 
+using Shiny;
+
 namespace Sample.Features.FloatingPanel;
 
+[ShellMap<SheetPage>(registerRoute: false)]
 public partial class SheetViewModel : ObservableObject
 {
     [ObservableProperty]

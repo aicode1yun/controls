@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Shiny;
 
 namespace Sample.Features.ProgressBar;
 
+[ShellMap<ProgressBarPage>(registerRoute: false)]
 public partial class ProgressBarViewModel : ObservableObject
 {
     [ObservableProperty] double basicValue = 45;

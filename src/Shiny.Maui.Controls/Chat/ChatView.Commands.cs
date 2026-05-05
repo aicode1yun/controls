@@ -1,5 +1,4 @@
 using System.Collections.Specialized;
-using System.Windows.Input;
 using Shiny.Maui.Controls.Chat.Internal;
 using Shiny.Maui.Controls.Infrastructure;
 
@@ -225,7 +224,7 @@ public partial class ChatView
         ScrollToEnd(animate);
     }
 
-    void RefreshBubbles()
+    internal void RefreshBubbles()
     {
         collectionView.ItemsSource = null;
         Dispatcher.Dispatch(() => collectionView.ItemsSource = Messages);
@@ -297,7 +296,7 @@ public partial class ChatView
 
     // ------- Tools -------
 
-    void OnToolItemsChanged(IList<FabMenuItem>? oldItems, IList<FabMenuItem>? newItems)
+    void OnToolItemsChanged(IList<ChatEntryTool>? oldItems, IList<ChatEntryTool>? newItems)
     {
         if (observedToolItems is not null)
         {
@@ -306,7 +305,9 @@ public partial class ChatView
         }
 
         DetachChatEntryTools(oldItems);
-        toolsMenu.Items = newItems ?? new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>();
+        toolsMenu.Items = newItems is not null
+            ? new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>(newItems)
+            : new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>();
         AttachChatEntryTools(newItems);
 
         if (newItems is INotifyCollectionChanged ncc)
@@ -319,7 +320,16 @@ public partial class ChatView
     }
 
     void OnToolItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        => SyncToolsVisibility();
+    {
+        // Rebuild FabMenu items since it holds a separate copy (IList<FabMenuItem> vs IList<ChatEntryTool>)
+        if (ToolItems is not null)
+        {
+            toolsMenu.Items = new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>(ToolItems);
+            ScanChatEntryTools(ToolItems, true);
+        }
+
+        SyncToolsVisibility();
+    }
 
     void SyncToolsVisibility()
     {
@@ -353,7 +363,11 @@ public partial class ChatView
 
         // Set CommandParameter to the ChatMessage so individual item Commands get context
         foreach (var tool in tools)
+        {
             tool.CommandParameter = message;
+            if (tool is ChatBubbleTool bubbleTool)
+                bubbleTool.ParentChatView = this;
+        }
 
         bubbleToolsMenu.Items = new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>(tools);
         bubbleToolsMenu.IsVisible = true;
@@ -364,41 +378,24 @@ public partial class ChatView
 
     void OnBubbleToolItemTapped(object? sender, FabMenuItem item)
     {
-        var message = activeBubbleToolMessage;
         activeBubbleToolMessage = null;
         bubbleToolsMenu.IsVisible = false;
-
-        if (message is null)
-            return;
-
-        var context = new ChatBubbleToolContext(message, item);
-
-        if (UseFeedback)
-            FeedbackHelper.Execute(this, "BubbleToolItemTapped", context);
-
-        BubbleToolItemTapped?.Invoke(this, context);
-
-        if (BubbleToolItemTappedCommand?.CanExecute(context) == true)
-            BubbleToolItemTappedCommand.Execute(context);
     }
 
-    // ------- IChatEntryTool -------
+    // ------- ChatEntryTool -------
 
-    void ScanChatEntryTools(IList<FabMenuItem>? items, bool attach)
+    void ScanChatEntryTools(IList<ChatEntryTool>? items, bool attach)
     {
         if (items is null) return;
-        foreach (var item in items)
+        foreach (var tool in items)
         {
-            if (item is IChatEntryTool tool)
-            {
-                if (attach)
-                    tool.Attach(this);
-                else
-                    tool.Detach();
-            }
+            if (attach)
+                tool.Attach(this);
+            else
+                tool.Detach();
         }
     }
 
-    void DetachChatEntryTools(IList<FabMenuItem>? items) => ScanChatEntryTools(items, false);
-    void AttachChatEntryTools(IList<FabMenuItem>? items) => ScanChatEntryTools(items, true);
+    void DetachChatEntryTools(IList<ChatEntryTool>? items) => ScanChatEntryTools(items, false);
+    void AttachChatEntryTools(IList<ChatEntryTool>? items) => ScanChatEntryTools(items, true);
 }

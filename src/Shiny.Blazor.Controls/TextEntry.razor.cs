@@ -70,15 +70,17 @@ public partial class TextEntry : IDisposable
         }
     }
 
+    string CurrentBorderColor => HasError ? ErrorColor : (IsFocused ? FocusedBorderColor : BorderColor);
+
     string RootStyle => "";
 
     string BorderStyle
     {
         get
         {
-            var color = HasError ? ErrorColor : (IsFocused ? FocusedBorderColor : BorderColor);
+            var color = CurrentBorderColor;
             var thickness = IsFocused ? FocusedBorderThickness : BorderThickness;
-            return $"border: {thickness}px solid {color}; border-radius: {CornerRadius}; background: {EntryBackgroundColor};";
+            return $"border: {thickness}px solid {color}; border-radius: {CornerRadius}; background: {EntryBackgroundColor}; --shiny-te-border-color: {color};";
         }
     }
 

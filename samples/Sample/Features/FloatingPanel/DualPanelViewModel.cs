@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.FloatingPanel;
 
+[ShellMap<DualPanelPage>(registerRoute: false)]
 public partial class DualPanelViewModel : ObservableObject
 {
     [ObservableProperty]

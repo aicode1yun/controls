@@ -7,6 +7,7 @@ using Shiny.Maui.Controls.Chat;
 
 namespace Sample.Features.KitchenSink;
 
+[ShellMap<KitchenSinkPage>(registerRoute: false)]
 public partial class KitchenSinkViewModel(INavigator navigator) : ObservableObject
 {
     public ObservableCollection<DetentValue> SheetDetents { get; } = [DetentValue.Half, DetentValue.Full];
@@ -148,14 +149,14 @@ public partial class KitchenSinkViewModel(INavigator navigator) : ObservableObje
     }
 
     [RelayCommand]
-    async Task EditImage(string? imageUrl)
+    async Task MessageTapped(ChatMessage message)
     {
-        if (imageUrl is null)
+        if (string.IsNullOrEmpty(message.ImageUrl))
             return;
 
         await navigator.NavigateTo<ImageEditor.ImageEditorViewModel>(vm =>
         {
-            vm.ImageSource = ImageSource.FromUri(new Uri(imageUrl));
+            vm.ImageSource = ImageSource.FromUri(new Uri(message.ImageUrl));
             vm.OnImageSaved = filePath =>
             {
                 Messages.Add(new ChatMessage

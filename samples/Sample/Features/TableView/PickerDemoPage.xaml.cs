@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Shiny;
 
 namespace Sample.Features.TableView;
 
@@ -13,6 +14,7 @@ public partial class PickerDemoPage : Shiny.Maui.Controls.FloatingPanel.ShinyCon
     }
 }
 
+[ShellMap<PickerDemoPage>(registerRoute: false)]
 public class PickerDemoViewModel : INotifyPropertyChanged
 {
     int selectedColorIndex;

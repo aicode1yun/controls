@@ -4,7 +4,7 @@ namespace Shiny.Maui.Controls.Chat;
 /// A pre-built bubble tool that copies the message text (or image URL) to the clipboard.
 /// Drop into BubbleToolItems without needing a ViewModel command.
 /// </summary>
-public class CopyBubbleTool : FabMenuItem
+public class CopyBubbleTool : ChatBubbleTool
 {
     public CopyBubbleTool()
     {
@@ -15,12 +15,12 @@ public class CopyBubbleTool : FabMenuItem
 
     void OnClicked(object? sender, EventArgs e)
     {
-        if (CommandParameter is not ChatMessage message)
+        if (Message is null)
             return;
 
-        var text = !string.IsNullOrEmpty(message.Text)
-            ? message.Text
-            : message.ImageUrl;
+        var text = !string.IsNullOrEmpty(Message.Text)
+            ? Message.Text
+            : Message.ImageUrl;
 
         if (!string.IsNullOrEmpty(text))
             Clipboard.Default.SetTextAsync(text).FireAndForget();

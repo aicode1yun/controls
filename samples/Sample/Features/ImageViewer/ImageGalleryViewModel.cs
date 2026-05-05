@@ -11,6 +11,7 @@ public partial class GalleryImage : ObservableObject
     bool isOpen;
 }
 
+[Shiny.ShellMap<ImageGalleryPage>(registerRoute: false)]
 public partial class ImageGalleryViewModel : ObservableObject
 {
     public List<GalleryImage> Images { get; } = new()

@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.Fab;
 
+[ShellMap<FabPage>(registerRoute: false)]
 public partial class FabViewModel : ObservableObject
 {
     [ObservableProperty]

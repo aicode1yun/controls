@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Shiny;
 
-namespace Sample.Features.GradientSlider;
+namespace Sample.Features.Slider;
 
-public partial class GradientSliderViewModel : ObservableObject
+[ShellMap<SliderPage>(registerRoute: false)]
+public partial class SliderViewModel : ObservableObject
 {
     [ObservableProperty] double temperature = 50;
     [ObservableProperty] double intensity = 5;

@@ -6,7 +6,6 @@ namespace Shiny.Maui.Controls.Chat;
 public partial class ChatView : ContentView
 {
     public event EventHandler<ChatMessage>? MessageTapped;
-    public event EventHandler<ChatBubbleToolContext>? BubbleToolItemTapped;
 
     readonly CollectionView collectionView;
     readonly ChatInputBar inputBar;
@@ -151,6 +150,10 @@ public partial class ChatView : ContentView
         Grid.SetRowSpan(bubbleToolsMenu, 3);
 
         Content = rootGrid;
+
+        // Initialize collections so XAML source generator can Add() items directly
+        ToolItems = new System.Collections.ObjectModel.ObservableCollection<ChatEntryTool>();
+        BubbleToolItems = new System.Collections.ObjectModel.ObservableCollection<FabMenuItem>();
     }
 
     /// <summary>

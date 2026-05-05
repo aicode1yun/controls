@@ -3,17 +3,17 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:shiny="http://shiny.net/maui/controls"
-    xmlns:local="clr-namespace:Sample.Features.GradientSlider"
-    x:Class="Sample.Features.GradientSlider.GradientSliderPage"
-    x:DataType="local:GradientSliderViewModel"
-    Title="Gradient Slider">
+    xmlns:local="clr-namespace:Sample.Features.Slider"
+    x:Class="Sample.Features.Slider.SliderPage"
+    x:DataType="local:SliderViewModel"
+    Title="Slider">
 
     <ScrollView Padding="16">
         <VerticalStackLayout Spacing="24">
 
             <!-- Basic Temperature -->
             <Label Text="Temperature" FontSize="18" FontAttributes="Bold" />
-            <shiny:GradientSlider Value="{Binding Temperature}"
+            <shiny:Slider Value="{Binding Temperature}"
                                   Minimum="0"
                                   Maximum="100"
                                   ValueFormat="0°" />
@@ -21,7 +21,7 @@
 
             <!-- Custom Colors -->
             <Label Text="Custom Colors (Green → Yellow)" FontSize="18" FontAttributes="Bold" />
-            <shiny:GradientSlider Value="{Binding Intensity}"
+            <shiny:Slider Value="{Binding Intensity}"
                                   Minimum="0"
                                   Maximum="10"
                                   Step="0.5"
@@ -32,7 +32,7 @@
 
             <!-- Large Track & Thumb -->
             <Label Text="Large Track &amp; Thumb" FontSize="18" FontAttributes="Bold" />
-            <shiny:GradientSlider Value="{Binding Volume}"
+            <shiny:Slider Value="{Binding Volume}"
                                   Minimum="0"
                                   Maximum="100"
                                   TrackHeight="12"
@@ -43,7 +43,7 @@
 
             <!-- No Tooltip -->
             <Label Text="No Tooltip" FontSize="18" FontAttributes="Bold" />
-            <shiny:GradientSlider Value="{Binding Opacity}"
+            <shiny:Slider Value="{Binding Opacity}"
                                   Minimum="0"
                                   Maximum="1"
                                   Step="0.01"
@@ -54,7 +54,7 @@
 
             <!-- Fine Step -->
             <Label Text="Fine Step (0.1)" FontSize="18" FontAttributes="Bold" />
-            <shiny:GradientSlider Value="{Binding FineValue}"
+            <shiny:Slider Value="{Binding FineValue}"
                                   Minimum="0"
                                   Maximum="5"
                                   Step="0.1"

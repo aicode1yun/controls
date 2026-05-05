@@ -6,7 +6,7 @@
 
     @if (ShowTooltip)
     {
-        <div class="shiny-gs-tooltip" style="left: @(Percentage)%;">
+        <div class="shiny-gs-tooltip" style="left: clamp(0%, @(Percentage)% , 100%); @TooltipTransformStyle">
             @if (TooltipTemplate is not null)
             {
                 @TooltipTemplate(Value)

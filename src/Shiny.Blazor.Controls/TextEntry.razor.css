@@ -6,19 +6,18 @@
 
 .shiny-te-border {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px;
-    min-height: 56px;
-    transition: border-color 0.15s ease, border-width 0.15s ease;
+    align-items: stretch;
+    min-height: 48px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
     cursor: text;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .shiny-te-field {
     flex: 1;
     position: relative;
-    padding: 8px 0;
+    padding: 8px 12px;
     min-height: 40px;
     display: flex;
     align-items: center;
@@ -26,7 +25,7 @@
 
 .shiny-te-placeholder {
     position: absolute;
-    left: 0;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     transform-origin: left center;
@@ -59,11 +58,48 @@
     opacity: 0.7;
 }
 
+/* Tool addon segments - Bootstrap input-group style */
 .shiny-te-tools {
     display: flex;
-    align-items: center;
-    gap: 4px;
+    align-items: stretch;
     flex-shrink: 0;
+}
+
+.shiny-te-tools--left {
+    border-right: 1px solid var(--shiny-te-border-color, #CCCCCC);
+}
+
+.shiny-te-tools--right {
+    border-left: 1px solid var(--shiny-te-border-color, #CCCCCC);
+}
+
+.shiny-te-tool-btn {
+    border: none;
+    background: var(--shiny-te-addon-bg, #f8f9fa);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 12px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 0;
+    min-width: 40px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.shiny-te-tool-btn + .shiny-te-tool-btn {
+    border-left: 1px solid var(--shiny-te-border-color, #CCCCCC);
+}
+
+.shiny-te-tool-btn:hover {
+    background: var(--shiny-te-addon-hover-bg, #e9ecef);
+}
+
+.shiny-te-tool-btn:active {
+    background: var(--shiny-te-addon-active-bg, #dee2e6);
 }
 
 .shiny-te-hint {
@@ -72,34 +108,13 @@
     min-height: 18px;
 }
 
-/* Focus state adds a subtle elevation feel */
+/* Focus state */
 .shiny-te--focused .shiny-te-border {
-    box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.15);
 }
 
 .shiny-te--error .shiny-te-border {
-    box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.1);
-}
-
-.shiny-te-tool-btn {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 4px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    border-radius: 50%;
-    min-width: 24px;
-    height: 24px;
-    transition: background 0.15s, color 0.15s;
-}
-
-.shiny-te-tool-btn:hover {
-    background: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.15);
 }
 
 .shiny-te-tool-icon {
@@ -110,4 +125,5 @@
 .shiny-te-tool-text {
     font-size: 13px;
     line-height: 1;
+    font-weight: 500;
 }

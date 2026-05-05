@@ -1,4 +1,5 @@
 using Shiny.Maui.Controls.ColorPicker.Internal;
+using MauiSlider = Microsoft.Maui.Controls.Slider;
 
 namespace Shiny.Maui.Controls.ColorPicker;
 
@@ -6,7 +7,7 @@ public partial class ColorPicker : ContentView
 {
     readonly ColorSpectrumView spectrumView;
     readonly HueBarView hueBar;
-    readonly Slider opacitySlider;
+    readonly MauiSlider opacitySlider;
     readonly BoxView opacityTrack;
     readonly Border previewSwatch;
     readonly Entry hexEntry;
@@ -49,7 +50,7 @@ public partial class ColorPicker : ContentView
             }
         };
 
-        opacitySlider = new Slider
+        opacitySlider = new MauiSlider
         {
             Minimum = 0,
             Maximum = 1,

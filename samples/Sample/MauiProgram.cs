@@ -2,26 +2,10 @@ using CommunityToolkit.Maui;
 using MauiDevFlow.Agent;
 using Microsoft.Extensions.Logging;
 using Plugin.Maui.Audio;
-using Sample.Features.FloatingPanel;
 using Sample.Features.Diagrams;
-using Sample.Features.Fab;
-using Sample.Features.Home;
-using Sample.Features.Chat;
-using Sample.Features.ColorPicker;
-using Sample.Features.KitchenSink;
-using Sample.Features.ImageEditor;
-using Sample.Features.ImageViewer;
-using Sample.Features.Markdown;
-using Sample.Features.Pills;
+using Sample.Features.FloatingPanel;
 using Sample.Features.Scheduler;
-using Sample.Features.SecurityPin;
-using Sample.Features.AutoComplete;
-using Sample.Features.CountryAddress;
 using Sample.Features.TableView;
-using Sample.Features.SignaturePad;
-using Sample.Features.Toast;
-using Sample.Features.Feedback;
-using Sample.Features.TextEntry;
 using Shiny;
 using Shiny.Maui.Controls.Scheduler;
 
@@ -42,37 +26,8 @@ public static class MauiProgram
                 cfg.AddDefaultMauiControlFeedback();
             })
             .UseShinyShell(x => x
-                .Add<HomePage, HomeViewModel>(registerRoute: false)
-                .Add<SheetPage, SheetViewModel>(registerRoute: false)
-                .Add<MinimizedSheetPage, MinimizedSheetViewModel>(registerRoute: false)
+                .AddGeneratedMaps()
                 .Add<MinimizedSheetStandalonePage, MinimizedSheetViewModel>(registerRoute: false)
-                .Add<TopSheetPage, TopSheetViewModel>(registerRoute: false)
-                .Add<DualPanelPage, DualPanelViewModel>(registerRoute: false)
-                .Add<PillPage, PillViewModel>(registerRoute: false)
-                .Add<SecurityPinPage, SecurityPinViewModel>(registerRoute: false)
-                .Add<FabPage, FabViewModel>(registerRoute: false)
-                .Add<BasicSettingsPage, BasicSettingsViewModel>(registerRoute: false)
-                .Add<DragSortPage, DragSortViewModel>(registerRoute: false)
-                .Add<DynamicSectionsPage, DynamicSectionsViewModel>(registerRoute: false)
-                .Add<PickerDemoPage, PickerDemoViewModel>(registerRoute: false)
-                .Add<CalendarPage, CalendarViewModel>(registerRoute: false)
-                .Add<AgendaPage, AgendaViewModel>(registerRoute: false)
-                .Add<AgendaCalendarPickerPage, AgendaCalendarPickerViewModel>(registerRoute: false)
-                .Add<CalendarListPage, CalendarListViewModel>(registerRoute: false)
-                .Add<ImageViewerPage, ImageViewerViewModel>(registerRoute: false)
-                .Add<ImageGalleryPage, ImageGalleryViewModel>(registerRoute: false)
-                .Add<ImageEditorPage, ImageEditorViewModel>()
-                .Add<ChatPage, ChatViewModel>(registerRoute: false)
-                .Add<KitchenSinkPage, KitchenSinkViewModel>(registerRoute: false)
-                .Add<ColorPickerPage, ColorPickerViewModel>(registerRoute: false)
-                .Add<MarkdownViewPage, MarkdownViewViewModel>(registerRoute: false)
-                .Add<MarkdownEditorPage, MarkdownEditorViewModel>(registerRoute: false)
-                .Add<AutoCompletePage, AutoCompleteViewModel>(registerRoute: false)
-                .Add<CountryAddressPage, CountryAddressViewModel>(registerRoute: false)
-                .Add<SignaturePadPage, SignaturePadViewModel>(registerRoute: false)
-                .Add<FeedbackPage, FeedbackViewModel>(registerRoute: false)
-                .Add<ToastPage, ToastViewModel>(registerRoute: false)
-                .Add<TextEntryPage, TextEntryViewModel>(registerRoute: false)
             )
             .ConfigureFonts(fonts =>
             {

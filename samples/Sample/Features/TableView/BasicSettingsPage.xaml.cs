@@ -13,6 +13,7 @@ public partial class BasicSettingsPage : ContentPage
     }
 }
 
+[ShellMap<BasicSettingsPage>(registerRoute: false)]
 public class BasicSettingsViewModel(IDialogs dialogs) : INotifyPropertyChanged
 {
     bool wifiEnabled = true;

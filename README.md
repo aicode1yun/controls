@@ -1,6 +1,6 @@
 # Shiny Controls
 
-A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, GradientSlider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, and TextEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
+A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, Slider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, and TextEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
 
 [![MAUI NuGet](https://img.shields.io/nuget/v/Shiny.Maui.Controls.svg?label=Shiny.Maui.Controls)](https://www.nuget.org/packages/Shiny.Maui.Controls)
 [![Blazor NuGet](https://img.shields.io/nuget/v/Shiny.Blazor.Controls.svg?label=Shiny.Blazor.Controls)](https://www.nuget.org/packages/Shiny.Blazor.Controls)
@@ -355,7 +355,7 @@ An inline image editor with cropping, rotation, freehand drawing, line and arrow
 
 ### ChatView
 
-A modern chat UI control with message bubbles, typing indicators, load-more pagination, and a bottom input bar. Supports single-person and multi-person conversations with per-participant colors and avatars.
+A modern chat UI control with message bubbles, typing indicators, load-more pagination, acknowledgement reactions, bubble tools, custom message templates, and a configurable input bar. Supports single-person and multi-person conversations with per-participant colors and avatars.
 
 ![ChatView](assets/chat1.png)
 
@@ -389,83 +389,67 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 | TypingParticipants | IList\<ChatParticipant\> | null | Currently typing participants |
 | ScrollToFirstUnread | bool | false | Scroll to first unread instead of end |
 | FirstUnreadMessageId | string? | null | ID of the first unread message |
-| ToolItems | IList\<FabMenuItem\> | null | Tool actions in a FabMenu on the left of the input bar (MAUI only) |
-| ToolsIcon | ImageSource | null | Icon for the tools FabMenu button (MAUI only) |
-| ToolsText | string? | null | Text for the tools FabMenu button (MAUI only) |
-| ToolsFabBackgroundColor | Color | #007AFF | Background color of the tools FabMenu button (MAUI only) |
-| UseFeedback | bool | true | Feedback on send |
+| ToolItems | IList\<ChatEntryTool\> | null | Input bar tools FAB menu (MAUI only) |
+| BubbleToolItems | IList\<FabMenuItem\> | null | Per-message bubble tool actions (MAUI only) |
+| MessageTemplate | DataTemplate? | null | Single template for all message content (MAUI only) |
+| MessageTemplateSelector | DataTemplateSelector? | null | Per-type template selector (MAUI only) |
+| UseFeedback | bool | true | Haptic feedback on interactions (MAUI only) |
 
-**ChatMessage properties:**
+**Commands:** `SendCommand` (text string), `AttachImageCommand`, `LoadMoreCommand`, `MessageTappedCommand` (ChatMessage)
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| Id | string | Auto GUID | Unique message identifier |
-| Text | string? | null | Message text |
-| ImageUrl | string? | null | Image URL |
-| SenderId | string | "" | Sender participant ID |
-| Timestamp | DateTimeOffset | Now | When the message was sent |
-| IsFromMe | bool | false | Whether from the local user |
-| Identifier | string? | null | Optional user-defined identifier for post-send context |
-| IsSent | bool | false | Send confirmation flag; when false, bubble renders dimmed (user messages only) |
-| Acknowledgements | List&lt;Acknowledgement&gt;? | null | Reactions displayed as grouped badges below the bubble |
+**Methods (MAUI):** `ScrollToEnd(bool animate)`, `ScrollToMessage(string messageId, bool animate)`, `SubmitEntry()`, `EntryText` (get/set)
 
-**Acknowledgement:**
+**Tool Base Classes (MAUI only):**
 
-| Property | Type | Description |
-|---|---|---|
-| Glyph | string? | Emoji/character for the reaction (e.g., thumbs up, heart) |
-| UserId | string | ID of the user who reacted |
-| Timestamp | DateTime | When the reaction was added |
+| Class | Purpose |
+|---|---|
+| `ChatEntryTool` | Base for input bar tools needing ChatView access (`ChatView` property auto-populated). Non-abstract — use directly with `Command` binding or subclass for self-contained tools. |
+| `ChatBubbleTool` | Base for bubble tools acting on a message (`Message` property auto-populated). Non-abstract — use directly with `Command` binding or subclass. |
+| `CopyBubbleTool` | Built-in: copies message text to clipboard |
+| `TextToSpeechBubbleTool` | Built-in: reads message aloud (requires `Shiny.Maui.Controls.SpeechAddins`) |
+| `SpeechToTextTool` | Built-in: voice input for chat entry (requires `Shiny.Maui.Controls.SpeechAddins`) |
+| `AcknowledgementBubbleTool` | Built-in: single-tap toggle for a specific reaction emoji (e.g. 👍, 👎). Set `Glyph` property. |
+| `AcknowledgementSelectorBubbleTool` | Built-in: opens action sheet with 12 common emoji reactions to choose from |
 
-Acknowledgements are grouped by `Glyph` and displayed as small badge pills below the bubble. Count is shown when > 1.
+```csharp
+// Use ChatEntryTool directly with a Command binding
+// <shiny:ChatEntryTool Text="Camera" Command="{Binding TakePhotoCommand}" />
 
-**Commands:** `SendCommand` (ICommand, receives text string), `AttachImageCommand` (ICommand), `LoadMoreCommand` (ICommand), `MessageTappedCommand` (ICommand, receives ChatMessage)
+// Or subclass for self-contained tools
+public class QuickReplyTool : ChatEntryTool
+{
+    public QuickReplyTool() { Text = "Quick Reply"; Clicked += (s, e) => { ChatView?.EntryText = "Thanks!"; ChatView?.SubmitEntry(); }; }
+}
 
-**Methods:** `ScrollToEnd(bool animate)`, `ScrollToMessage(string messageId, bool animate)`
+// Use ChatBubbleTool directly — Command receives AcknowledgementChangedContext or ChatMessage via CommandParameter
+// <shiny:ChatBubbleTool Text="Translate" Command="{Binding TranslateCommand}" />
 
-**Custom Message Templates:** Control how each bubble's content renders using `MessageTemplate` (single DataTemplate for all messages) or `MessageTemplateSelector` (per-message-type selection). The bubble chrome (avatar, name, timestamp, colors, alignment) is still managed by ChatView.
+// Or subclass for self-contained tools
+public class TranslateTool : ChatBubbleTool
+{
+    public TranslateTool() { Text = "Translate"; Clicked += async (s, e) => { if (Message != null) { /* translate Message.Text */ } }; }
+}
 
-```xml
-<shiny:ChatView Messages="{Binding Messages}">
-    <shiny:ChatView.MessageTemplateSelector>
-        <local:MyTemplateSelector>
-            <local:MyTemplateSelector.TextTemplate>
-                <DataTemplate x:DataType="shiny:ChatMessage">
-                    <Label Text="{Binding Text}" />
-                </DataTemplate>
-            </local:MyTemplateSelector.TextTemplate>
-            <local:MyTemplateSelector.ActionTemplate>
-                <DataTemplate x:DataType="local:ActionMessage">
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="{Binding Text}" />
-                        <Button Text="{Binding ActionText}" />
-                    </VerticalStackLayout>
-                </DataTemplate>
-            </local:MyTemplateSelector.ActionTemplate>
-        </local:MyTemplateSelector>
-    </shiny:ChatView.MessageTemplateSelector>
-</shiny:ChatView>
+// Built-in acknowledgement tools
+// <shiny:AcknowledgementBubbleTool Glyph="👍" Command="{Binding AckCommand}" />
+// <shiny:AcknowledgementSelectorBubbleTool Command="{Binding AckCommand}" />
 ```
-
-| Property | Type | Default | Description |
-|---|---|---|---|
-| MessageTemplate | DataTemplate? | null | Single template for all message content |
-| MessageTemplateSelector | DataTemplateSelector? | null | Per-message-type template (takes priority) |
 
 **Features:**
 - Chat bubbles with left/right alignment and customizable colors per participant
-- Visual grouping by sender and minute (tight spacing within group, wider between groups)
-- Today timestamps show time only; previous days show full date
-- Multi-person: avatar (initials or image) and name shown above first message in each group
-- Single-person: avatars/names hidden by default
-- Typing indicators ("{Name} is typing…", "{Name1}, {Name2} are typing", "Multiple users are typing")
-- Virtualized via CollectionView with `RemainingItemsThreshold` for load-more
+- Visual grouping by sender and minute; timestamps on last message in each group
+- Multi-person: avatar (initials or image) and name on first message in each group
+- Typing indicators with animated dots, scroll-aware toast pill
+- Acknowledgement reactions (emoji badges grouped by glyph with count)
+- Bubble tools: per-message ⋮ menu with built-in and custom actions
+- Input bar tools: FAB menu for camera, voice, custom actions
 - Auto-link detection in text messages
-- Image messages (text and image are mutually exclusive per message)
-- Bottom input bar with Enter key and Send button; optional attach button
-- Tools menu: set `ToolItems` with `FabMenuItem` instances to show a FabMenu on the left of the input bar (MAUI only)
+- Image messages (text and image are mutually exclusive)
+- IsSent pending state (50% opacity until server confirmation)
+- Smart scrolling with unread message pill
+- Load-more pagination (auto-trigger on MAUI, button on Blazor)
+- Custom message templates for action buttons, cards, or rich content
 - Entire input bar can be hidden for read-only use
-- Custom message templates for action buttons, cards, or any custom content
 
 ### ColorPicker
 
@@ -594,12 +578,12 @@ When `Mask` is set, `Text` always contains raw digits (e.g., `"5551234567"`), wh
 
 `TextEntryStepperTool` increments or decrements the numeric text value by `Step` on each tap. If `Text` is not set, it auto-displays the step value with sign (e.g. "+1", "-5").
 
-### GradientSlider
+### Slider
 
 A slider control with a two-color gradient track, blended thumb border, tooltip, and full drag/tap interaction.
 
 ```xml
-<shiny:GradientSlider Value="{Binding Temperature}"
+<shiny:Slider Value="{Binding Temperature}"
                       Minimum="0"
                       Maximum="100"
                       ColdColor="#3B82F6"

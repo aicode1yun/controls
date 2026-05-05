@@ -43,7 +43,6 @@
 .shiny-gs-tooltip {
     position: absolute;
     top: 0;
-    transform: translateX(-50%);
     pointer-events: none;
     z-index: 3;
 }

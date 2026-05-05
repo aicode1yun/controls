@@ -7,7 +7,7 @@ namespace Shiny.Maui.Controls.SpeechAddins.Chat;
 /// <summary>
 /// A reusable bubble tool that reads the chat message text aloud using ITextToSpeechService.
 /// </summary>
-public class TextToSpeechBubbleTool : FabMenuItem
+public class TextToSpeechBubbleTool : ChatBubbleTool
 {
     CancellationTokenSource? cts;
 
@@ -71,10 +71,10 @@ public class TextToSpeechBubbleTool : FabMenuItem
 
     async void OnClicked(object? sender, EventArgs e)
     {
-        if (CommandParameter is not ChatMessage message)
+        if (Message is null)
             return;
 
-        if (string.IsNullOrEmpty(message.Text))
+        if (string.IsNullOrEmpty(Message.Text))
             return;
 
         var tts = ResolveService<ITextToSpeechService>();
@@ -96,7 +96,7 @@ public class TextToSpeechBubbleTool : FabMenuItem
                 Voice = await ResolveVoiceAsync(tts)
             };
 
-            await tts.SpeakAsync(message.Text, options, cts.Token);
+            await tts.SpeakAsync(Message.Text, options, cts.Token);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

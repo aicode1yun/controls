@@ -1,4 +1,4 @@
-@page "/gradientslider"
+@page "/slider"
 
 <PageTitle>Gradient Slider</PageTitle>
 
@@ -6,7 +6,7 @@
 
 <div class="demo-section">
     <h2>Basic (Temperature)</h2>
-    <GradientSlider @bind-Value="temperature"
+    <Slider @bind-Value="temperature"
                     Minimum="0"
                     Maximum="100"
                     ValueFormat="0°" />
@@ -15,7 +15,7 @@
 
 <div class="demo-section">
     <h2>Custom Colors (Green to Yellow)</h2>
-    <GradientSlider @bind-Value="intensity"
+    <Slider @bind-Value="intensity"
                     Minimum="0"
                     Maximum="10"
                     Step="0.5"
@@ -27,7 +27,7 @@
 
 <div class="demo-section">
     <h2>Large Thumb, Tall Track</h2>
-    <GradientSlider @bind-Value="volume"
+    <Slider @bind-Value="volume"
                     Minimum="0"
                     Maximum="100"
                     TrackHeight="12"
@@ -39,7 +39,7 @@
 
 <div class="demo-section">
     <h2>No Tooltip</h2>
-    <GradientSlider @bind-Value="opacity"
+    <Slider @bind-Value="opacity"
                     Minimum="0"
                     Maximum="1"
                     Step="0.01"
@@ -52,19 +52,19 @@
 
 <div class="demo-section">
     <h2>Custom Tooltip Template</h2>
-    <GradientSlider @bind-Value="rating" Minimum="1" Maximum="5" Step="1">
+    <Slider @bind-Value="rating" Minimum="1" Maximum="5" Step="1">
         <TooltipTemplate Context="val">
             <div style="background: #7C3AED; color: white; padding: 6px 14px; border-radius: 8px; font-weight: bold;">
                 @GetStars((int)val)
             </div>
         </TooltipTemplate>
-    </GradientSlider>
+    </Slider>
     <div class="state">Rating: <code>@GetStars((int)rating)</code></div>
 </div>
 
 <div class="demo-section">
     <h2>Disabled</h2>
-    <GradientSlider Value="65" IsEnabled="false" />
+    <Slider Value="65" IsEnabled="false" />
 </div>
 
 @code {

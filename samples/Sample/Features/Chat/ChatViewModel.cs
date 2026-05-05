@@ -3,8 +3,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Shiny.Maui.Controls.Chat;
 
+using Shiny;
+
 namespace Sample.Features.Chat;
 
+[ShellMap<ChatPage>(registerRoute: false)]
 public partial class ChatViewModel : ObservableObject
 {
     readonly AppSettings appSettings;
@@ -31,16 +34,6 @@ public partial class ChatViewModel : ObservableObject
         participants.Add(alice);
         participants.Add(bob);
         LoadSampleMessages();
-    }
-
-    public bool IsChatSpeakingEnabled
-    {
-        get => appSettings.IsChatSpeakingEnabled;
-        set
-        {
-            appSettings.IsChatSpeakingEnabled = value;
-            OnPropertyChanged();
-        }
     }
 
     [ObservableProperty] ObservableCollection<ChatMessage> messages = [];
@@ -165,20 +158,6 @@ public partial class ChatViewModel : ObservableObject
     }
 
     [RelayCommand]
-    async Task BubbleToolTapped(ChatBubbleToolContext context)
-    {
-        var action = context.Item.Text ?? "Unknown";
-        var preview = context.Message.Text?.Length > 30
-            ? context.Message.Text[..30] + "…"
-            : context.Message.Text ?? "(image)";
-
-        await Shell.Current.DisplayAlert(
-            action,
-            $"Action: {action}\nMessage: {preview}",
-            "OK");
-    }
-
-[RelayCommand]
     async Task Translate(ChatMessage message)
     {
         await Shell.Current.DisplayAlert("Translate", $"Translating: {message.Text}", "OK");

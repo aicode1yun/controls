@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.SignaturePad;
 
+[ShellMap<SignaturePadPage>(registerRoute: false)]
 public partial class SignaturePadViewModel : ObservableObject
 {
     [ObservableProperty]

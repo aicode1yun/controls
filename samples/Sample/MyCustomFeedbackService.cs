@@ -18,12 +18,13 @@ public class MyCustomFeedbackService(
         // let haptic do its thing first
         base.OnRequested(control, eventName, args);
 
-        if (control is ChatView && appSettings.IsChatSpeakingEnabled && args is ChatMessage { IsFromMe: false } msg)
-        {
-            var say = $"Message from {msg.SenderId}. {msg.Text}";
-            await textToSpeech.SpeakAsync(say);
-        }
-        else if (control is SecurityPin && appSettings.IsSecurityBeepEnabled)
+        // we have chat bubble tools now that take care of this
+        // if (control is ChatView && appSettings.IsChatSpeakingEnabled && args is ChatMessage { IsFromMe: false } msg)
+        // {
+        //     var say = $"Message from {msg.SenderId}. {msg.Text}";
+        //     await textToSpeech.SpeakAsync(say);
+        // }
+        if (control is SecurityPin && appSettings.IsSecurityBeepEnabled)
         {
             var sound = eventName.Equals("completed", StringComparison.OrdinalIgnoreCase)
                 ? "pin_success.wav"

@@ -8,9 +8,8 @@ namespace Shiny.Maui.Controls.SpeechAddins.Chat;
 /// A reusable input bar tool that listens for speech and backfills the chat entry.
 /// Shows a listening icon while recording. Optionally auto-sends on completion.
 /// </summary>
-public class SpeechToTextTool : FabMenuItem, IChatEntryTool
+public class SpeechToTextTool : ChatEntryTool
 {
-    ChatView? chatView;
     CancellationTokenSource? cts;
     bool isListening;
     string? originalText;
@@ -110,11 +109,6 @@ public class SpeechToTextTool : FabMenuItem, IChatEntryTool
         set => SetValue(ListeningFabBackgroundColorProperty, value);
     }
 
-    // ------- IChatEntryTool -------
-
-    void IChatEntryTool.Attach(ChatView view) => chatView = view;
-    void IChatEntryTool.Detach() => chatView = null;
-
     // ------- Core Logic -------
 
     async void OnClicked(object? sender, EventArgs e)
@@ -125,7 +119,7 @@ public class SpeechToTextTool : FabMenuItem, IChatEntryTool
             return;
         }
 
-        if (chatView is null)
+        if (ChatView is null)
             return;
 
         var stt = ResolveService<ISpeechToTextService>();
@@ -154,13 +148,13 @@ public class SpeechToTextTool : FabMenuItem, IChatEntryTool
             if (!string.IsNullOrEmpty(result))
             {
                 // Append to existing text with a space if needed
-                var existing = chatView.EntryText?.Trim();
-                chatView.EntryText = string.IsNullOrEmpty(existing)
+                var existing = ChatView.EntryText?.Trim();
+                ChatView.EntryText = string.IsNullOrEmpty(existing)
                     ? result
                     : $"{existing} {result}";
 
                 if (AutoSend)
-                    chatView.SubmitEntry();
+                    ChatView.SubmitEntry();
             }
         }
         catch (OperationCanceledException) { }

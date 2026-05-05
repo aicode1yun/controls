@@ -1,6 +1,6 @@
 namespace Shiny.Maui.Controls;
 
-public partial class GradientSlider : ContentView
+public partial class Slider : ContentView
 {
     readonly BoxView trackBackground;
     readonly BoxView trackFill;
@@ -13,8 +13,9 @@ public partial class GradientSlider : ContentView
 
     double trackWidth;
     bool isDragging;
+    double dragStartThumbX;
 
-    public GradientSlider()
+    public Slider()
     {
         // Tooltip label (default)
         tooltipLabel = new Label
@@ -41,7 +42,8 @@ public partial class GradientSlider : ContentView
             Content = tooltipBadge,
             HorizontalOptions = LayoutOptions.Start,
             VerticalOptions = LayoutOptions.End,
-            Margin = new Thickness(0, 0, 0, 4)
+            Margin = new Thickness(0, 0, 0, 4),
+            IsVisible = true
         };
 
         // Track background (full gradient)
@@ -110,6 +112,9 @@ public partial class GradientSlider : ContentView
 
         Content = rootGrid;
 
+        // Set initial tooltip text
+        tooltipLabel.Text = FormatValue(Value);
+
         // Gesture recognizers
         var panGesture = new PanGestureRecognizer();
         panGesture.PanUpdated += OnPanUpdated;
@@ -140,12 +145,13 @@ public partial class GradientSlider : ContentView
         {
             case GestureStatus.Started:
                 isDragging = true;
+                dragStartThumbX = AbsoluteLayout.GetLayoutBounds(thumb).X;
                 break;
 
             case GestureStatus.Running:
                 if (isDragging && trackWidth > 0)
                 {
-                    var currentX = AbsoluteLayout.GetLayoutBounds(thumb).X + e.TotalX;
+                    var currentX = dragStartThumbX + e.TotalX;
                     var percent = Math.Clamp(currentX / (trackWidth - ThumbSize), 0, 1);
                     SetValueFromPercent(percent);
                 }
@@ -196,32 +202,13 @@ public partial class GradientSlider : ContentView
 
         var blended = BlendColors(ColdColor, HotColor, percent);
 
-        // Update track background gradient
-        trackBackground.Background = new LinearGradientBrush
-        {
-            StartPoint = new Point(0, 0.5),
-            EndPoint = new Point(1, 0.5),
-            GradientStops =
-            {
-                new GradientStop(ColdColor, 0),
-                new GradientStop(HotColor, 1)
-            }
-        };
+        // Update track background - solid blended color
+        trackBackground.Background = new SolidColorBrush(blended);
+        trackBackground.HeightRequest = TrackHeight;
+        trackBackground.CornerRadius = new CornerRadius(TrackHeight / 2);
 
-        // Update track fill
-        var fillWidth = percent * trackWidth;
-        AbsoluteLayout.SetLayoutBounds(trackFill, new Rect(0, 0.5, fillWidth, TrackHeight));
-        trackFill.Background = new LinearGradientBrush
-        {
-            StartPoint = new Point(0, 0.5),
-            EndPoint = new Point(1, 0.5),
-            GradientStops =
-            {
-                new GradientStop(ColdColor, 0),
-                new GradientStop(blended, 1)
-            }
-        };
-        trackFill.CornerRadius = new CornerRadius(TrackHeight / 2);
+        // Hide track fill - not needed with solid color approach
+        AbsoluteLayout.SetLayoutBounds(trackFill, new Rect(0, 0.5, 0, TrackHeight));
 
         // Update thumb position and color
         var thumbX = percent * (trackWidth - ThumbSize);
@@ -230,10 +217,6 @@ public partial class GradientSlider : ContentView
         thumb.CornerRadius = (float)(ThumbSize / 2);
         thumb.WidthRequest = ThumbSize;
         thumb.HeightRequest = ThumbSize;
-
-        // Update track height
-        trackBackground.HeightRequest = TrackHeight;
-        trackBackground.CornerRadius = new CornerRadius(TrackHeight / 2);
 
         // Update tooltip
         UpdateTooltip(percent, blended);
@@ -244,9 +227,12 @@ public partial class GradientSlider : ContentView
         tooltipContainer.IsVisible = ShowTooltip;
         if (!ShowTooltip) return;
 
-        // Position tooltip
+        // Position tooltip, clamped so it doesn't overflow left or right edges
+        var tooltipWidth = tooltipBadge.Width > 0 ? tooltipBadge.Width : 40;
         var tooltipX = percent * trackWidth;
-        tooltipContainer.Margin = new Thickness(tooltipX - 20, 0, 0, 4);
+        var halfTooltip = tooltipWidth / 2;
+        var clampedX = Math.Clamp(tooltipX - halfTooltip, 0, trackWidth - tooltipWidth);
+        tooltipContainer.Margin = new Thickness(clampedX, 0, 0, 4);
 
         // Update tooltip content
         if (TooltipTemplate is not null)

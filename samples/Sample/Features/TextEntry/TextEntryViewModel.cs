@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Shiny;
 
 namespace Sample.Features.TextEntry;
 
+[ShellMap<TextEntryPage>(registerRoute: false)]
 public partial class TextEntryViewModel : ObservableObject
 {
     [ObservableProperty] string firstName = "";

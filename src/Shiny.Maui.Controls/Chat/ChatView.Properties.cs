@@ -272,14 +272,14 @@ public partial class ChatView
     // Tools
     public static readonly BindableProperty ToolItemsProperty = BindableProperty.Create(
         nameof(ToolItems),
-        typeof(IList<FabMenuItem>),
+        typeof(IList<ChatEntryTool>),
         typeof(ChatView),
         null,
-        propertyChanged: (b, o, n) => ((ChatView)b).OnToolItemsChanged(o as IList<FabMenuItem>, n as IList<FabMenuItem>));
+        propertyChanged: (b, o, n) => ((ChatView)b).OnToolItemsChanged(o as IList<ChatEntryTool>, n as IList<ChatEntryTool>));
 
-    public IList<FabMenuItem>? ToolItems
+    public IList<ChatEntryTool>? ToolItems
     {
-        get => (IList<FabMenuItem>?)GetValue(ToolItemsProperty);
+        get => (IList<ChatEntryTool>?)GetValue(ToolItemsProperty);
         set => SetValue(ToolItemsProperty, value);
     }
 
@@ -338,17 +338,6 @@ public partial class ChatView
     {
         get => (IList<FabMenuItem>?)GetValue(BubbleToolItemsProperty);
         set => SetValue(BubbleToolItemsProperty, value);
-    }
-
-    public static readonly BindableProperty BubbleToolItemTappedCommandProperty = BindableProperty.Create(
-        nameof(BubbleToolItemTappedCommand),
-        typeof(ICommand),
-        typeof(ChatView));
-
-    public ICommand? BubbleToolItemTappedCommand
-    {
-        get => (ICommand?)GetValue(BubbleToolItemTappedCommandProperty);
-        set => SetValue(BubbleToolItemTappedCommandProperty, value);
     }
 
     // Haptic

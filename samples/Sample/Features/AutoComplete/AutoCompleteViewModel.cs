@@ -2,10 +2,13 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.AutoComplete;
 
 public record ProgrammingLanguage(string Name, int Year, string Paradigm);
 
+[ShellMap<AutoCompletePage>(registerRoute: false)]
 public partial class AutoCompleteViewModel : ObservableObject
 {
     public List<string> Fruits { get; } =

@@ -2,8 +2,11 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Shiny.Maui.Controls.Scheduler;
 
+using Shiny;
+
 namespace Sample.Features.Scheduler;
 
+[ShellMap<CalendarListPage>(registerRoute: false)]
 public class CalendarListViewModel(ISchedulerEventProvider provider) : INotifyPropertyChanged
 {
     DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);

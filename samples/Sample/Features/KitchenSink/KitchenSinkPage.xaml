@@ -6,43 +6,7 @@
     xmlns:local="clr-namespace:Sample.Features.KitchenSink"
     x:Class="Sample.Features.KitchenSink.KitchenSinkPage"
     x:DataType="local:KitchenSinkViewModel"
-    x:Name="thisPage"
     Title="Kitchen Sink">
-
-  <shiny:ShinyContentPage.Resources>
-    <local:KitchenSinkMessageTemplateSelector x:Key="MessageTemplateSelector">
-        <local:KitchenSinkMessageTemplateSelector.TextTemplate>
-            <DataTemplate x:DataType="shiny:ChatMessage">
-                <Label Text="{Binding Text}" />
-            </DataTemplate>
-        </local:KitchenSinkMessageTemplateSelector.TextTemplate>
-        <local:KitchenSinkMessageTemplateSelector.ImageTemplate>
-            <DataTemplate x:DataType="shiny:ChatMessage">
-                <shiny:ImageViewer Source="{Binding ImageUrl}"
-                                   HeightRequest="200"
-                                   WidthRequest="280"
-                                   Aspect="AspectFill">
-                    <shiny:ImageViewer.FooterTemplate>
-                        <DataTemplate>
-                            <HorizontalStackLayout HorizontalOptions="Center"
-                                                   Spacing="12"
-                                                   Padding="16">
-                                <Button Text="Edit"
-                                        BackgroundColor="#6C63FF"
-                                        TextColor="White"
-                                        CornerRadius="20"
-                                        Padding="24,10"
-                                        FontAttributes="Bold"
-                                        Command="{Binding BindingContext.EditImageCommand, Source={x:Reference thisPage}}"
-                                        CommandParameter="{Binding ImageUrl}" />
-                            </HorizontalStackLayout>
-                        </DataTemplate>
-                    </shiny:ImageViewer.FooterTemplate>
-                </shiny:ImageViewer>
-            </DataTemplate>
-        </local:KitchenSinkMessageTemplateSelector.ImageTemplate>
-    </local:KitchenSinkMessageTemplateSelector>
-  </shiny:ShinyContentPage.Resources>
 
   <shiny:ShinyContentPage.PageContent>
     <Grid>
@@ -111,21 +75,38 @@
                         IsMultiPerson="False"
                         ShowAvatarsInSingleChat="True"
                         SendCommand="{Binding SendCommand}"
-                        MessageTemplateSelector="{StaticResource MessageTemplateSelector}"
+                        MessageTappedCommand="{Binding MessageTappedCommand}"
                         ToolsIcon="dotnet_bot.png"
                         MyBubbleColor="#DCF8C6"
                         OtherBubbleColor="White"
                         PlaceholderText="Type a message..."
                         HeightRequest="500">
+            <shiny:ChatView.MessageTemplateSelector>
+                <local:KitchenSinkMessageTemplateSelector>
+                    <local:KitchenSinkMessageTemplateSelector.TextTemplate>
+                        <DataTemplate x:DataType="shiny:ChatMessage">
+                            <Label Text="{Binding Text}" />
+                        </DataTemplate>
+                    </local:KitchenSinkMessageTemplateSelector.TextTemplate>
+                    <local:KitchenSinkMessageTemplateSelector.ImageTemplate>
+                        <DataTemplate x:DataType="shiny:ChatMessage">
+                            <shiny:ImageViewer Source="{Binding ImageUrl}"
+                                               HeightRequest="200"
+                                               WidthRequest="280"
+                                               Aspect="AspectFill" />
+                        </DataTemplate>
+                    </local:KitchenSinkMessageTemplateSelector.ImageTemplate>
+                </local:KitchenSinkMessageTemplateSelector>
+            </shiny:ChatView.MessageTemplateSelector>
             <shiny:ChatView.ToolItems>
-                <shiny:FabMenuItem Text="Take Photo"
-                                   Icon="dotnet_bot.png"
-                                   FabBackgroundColor="#4CAF50"
-                                   Command="{Binding TakePhotoCommand}" />
-                <shiny:FabMenuItem Text="Pick Image"
-                                   Icon="dotnet_bot.png"
-                                   FabBackgroundColor="#FF9800"
-                                   Command="{Binding PickImageCommand}" />
+                <shiny:ChatEntryTool Text="Take Photo"
+                                     Icon="dotnet_bot.png"
+                                     FabBackgroundColor="#4CAF50"
+                                     Command="{Binding TakePhotoCommand}" />
+                <shiny:ChatEntryTool Text="Pick Image"
+                                     Icon="dotnet_bot.png"
+                                     FabBackgroundColor="#FF9800"
+                                     Command="{Binding PickImageCommand}" />
             </shiny:ChatView.ToolItems>
         </shiny:ChatView>
     </shiny:FloatingPanel>

@@ -5,6 +5,7 @@ using Shiny.Maui.Controls.ImageEditor;
 
 namespace Sample.Features.ImageEditor;
 
+[ShellMap<ImageEditorPage>]
 public partial class ImageEditorViewModel(IDialogs dialogs) : ObservableObject
 {
     [ObservableProperty]

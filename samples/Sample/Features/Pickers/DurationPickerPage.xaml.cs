@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Shiny;
 
 namespace Sample.Features.Pickers;
 
@@ -8,10 +9,10 @@ public partial class DurationPickerPage : Shiny.Maui.Controls.FloatingPanel.Shin
     public DurationPickerPage()
     {
         InitializeComponent();
-        BindingContext = new DurationPickerViewModel();
     }
 }
 
+[ShellMap<DurationPickerPage>(registerRoute: false)]
 public class DurationPickerViewModel : INotifyPropertyChanged
 {
     TimeSpan? selectedDuration;

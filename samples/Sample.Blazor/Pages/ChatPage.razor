@@ -3,7 +3,8 @@
 
 <h3>Chat</h3>
 
-<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+    <button @onclick="SimulateIncoming">Simulate Incoming</button>
     <button @onclick="ToggleTyping">Toggle Typing</button>
     <label>
         <input type="checkbox" @bind="isMultiPerson" />
@@ -19,6 +20,7 @@
               SendCommand="OnSend"
               AttachImageCommand="OnAttachImage"
               LoadMoreCommand="OnLoadMore"
+              MessageTappedCommand="OnMessageTapped"
               MyBubbleColor="#DCF8C6"
               OtherBubbleColor="#FFFFFF"
               PlaceholderText="Type a message..." />
@@ -34,7 +36,8 @@
     {
         Id = "alice",
         DisplayName = "Alice Johnson",
-        BubbleColor = "#E3F2FD"
+        BubbleColor = "#E3F2FD",
+        AvatarUrl = "_content/Shiny.Blazor.Controls/shiny_logo.png"
     };
 
     readonly ChatParticipant bob = new()
@@ -53,16 +56,34 @@
 
     async Task OnSend(string text)
     {
-        messages.Add(new ChatMessage
+        var msg = new ChatMessage
         {
             Text = text,
             SenderId = "me",
             IsFromMe = true,
-            Timestamp = DateTimeOffset.Now
-        });
+            Identifier = Guid.NewGuid().ToString(),
+            Timestamp = DateTimeOffset.Now,
+            IsSent = false
+        };
+        messages.Add(msg);
         StateHasChanged();
 
+        // Simulate server confirmation
+        _ = SimulateSendConfirmationAsync(msg);
+
         // Simulate typing + reply
+        _ = SimulateReplyAsync();
+    }
+
+    async Task SimulateSendConfirmationAsync(ChatMessage msg)
+    {
+        await Task.Delay(800);
+        msg.IsSent = true;
+        StateHasChanged();
+    }
+
+    async Task SimulateReplyAsync()
+    {
         typingParticipants.Add(alice);
         StateHasChanged();
         await Task.Delay(2000);
@@ -72,6 +93,23 @@
         {
             Text = "That's great! Thanks for sharing.",
             SenderId = alice.Id,
+            IsSent = true,
+            Timestamp = DateTimeOffset.Now
+        });
+        StateHasChanged();
+    }
+
+    async Task SimulateIncoming()
+    {
+        typingParticipants.Add(bob);
+        StateHasChanged();
+        await Task.Delay(3000);
+        typingParticipants.Remove(bob);
+
+        messages.Add(new ChatMessage
+        {
+            Text = "Hey, just checking in! Did you see the latest build?",
+            SenderId = bob.Id,
             Timestamp = DateTimeOffset.Now
         });
         StateHasChanged();
@@ -122,6 +160,12 @@
         return Task.CompletedTask;
     }
 
+    Task OnMessageTapped(ChatMessage msg)
+    {
+        // Could open image viewer, show details, etc.
+        return Task.CompletedTask;
+    }
+
     void ToggleTyping()
     {
         if (typingParticipants.Count == 0)
@@ -156,7 +200,14 @@
                 Text = "I agree, the styling system is great.",
                 SenderId = "me",
                 IsFromMe = true,
-                Timestamp = yesterday.AddHours(-1).AddMinutes(30)
+                IsSent = true,
+                Timestamp = yesterday.AddHours(-1).AddMinutes(30),
+                Acknowledgements =
+                [
+                    new() { Glyph = "\ud83d\udc4d", UserId = alice.Id, Timestamp = DateTime.Now },
+                    new() { Glyph = "\ud83d\udc4d", UserId = bob.Id, Timestamp = DateTime.Now },
+                    new() { Glyph = "\u2764\ufe0f", UserId = alice.Id, Timestamp = DateTime.Now }
+                ]
             },
             new ChatMessage
             {
@@ -168,7 +219,12 @@
             {
                 Text = "The scheduler component is my favorite so far.",
                 SenderId = alice.Id,
-                Timestamp = now.AddMinutes(-30)
+                IsSent = true,
+                Timestamp = now.AddMinutes(-30),
+                Acknowledgements =
+                [
+                    new() { Glyph = "\ud83d\udcaf", UserId = "me", Timestamp = DateTime.Now }
+                ]
             },
             new ChatMessage
             {

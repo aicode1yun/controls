@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows.Input;
+using Shiny;
 using Shiny.Maui.Controls;
 
 namespace Sample.Features.TableView;
@@ -12,6 +13,7 @@ public partial class DragSortPage : ContentPage
     }
 }
 
+[ShellMap<DragSortPage>(registerRoute: false)]
 public class DragSortViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;

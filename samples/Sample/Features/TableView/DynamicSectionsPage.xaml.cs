@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
+using Shiny;
 
 namespace Sample.Features.TableView;
 
@@ -12,6 +13,7 @@ public partial class DynamicSectionsPage : ContentPage
     }
 }
 
+[ShellMap<DynamicSectionsPage>(registerRoute: false)]
 public class DynamicSectionsViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;

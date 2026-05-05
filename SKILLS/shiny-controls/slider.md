@@ -1,6 +1,6 @@
-# GradientSlider
+# Slider
 
-A slider control with a left-to-right cold-to-hot gradient track. The track fill blends the two colors at the current thumb position. A configurable tooltip floats above the thumb displaying the current value. Available on both MAUI and Blazor.
+A slider control where the entire track displays a single solid color that is the interpolated blend between ColdColor and HotColor based on the current value position. At minimum, the track is fully ColdColor; at maximum, fully HotColor; at midpoints, the color is the proportional mix (e.g. blue→red produces purple/orange in between). A configurable tooltip floats above the thumb displaying the current value. Available on both MAUI and Blazor.
 
 ## MAUI
 
@@ -10,7 +10,7 @@ A slider control with a left-to-right cold-to-hot gradient track. The track fill
 ### Basic Usage
 
 ```xml
-<shiny:GradientSlider Value="{Binding Temperature}"
+<shiny:Slider Value="{Binding Temperature}"
                       Minimum="0"
                       Maximum="100"
                       ColdColor="#3B82F6"
@@ -58,15 +58,15 @@ A slider control with a left-to-right cold-to-hot gradient track. The track fill
 ### Custom Tooltip Template
 
 ```xml
-<shiny:GradientSlider Value="{Binding Temp}" Minimum="0" Maximum="100">
-    <shiny:GradientSlider.TooltipTemplate>
+<shiny:Slider Value="{Binding Temp}" Minimum="0" Maximum="100">
+    <shiny:Slider.TooltipTemplate>
         <DataTemplate>
             <Border BackgroundColor="#7C3AED" StrokeShape="{RoundRectangle CornerRadius=8}" Padding="8,4">
                 <Label Text="{Binding StringFormat='{0:0}°F'}" TextColor="White" FontSize="14" />
             </Border>
         </DataTemplate>
-    </shiny:GradientSlider.TooltipTemplate>
-</shiny:GradientSlider>
+    </shiny:Slider.TooltipTemplate>
+</shiny:Slider>
 ```
 
 ## Blazor
@@ -76,7 +76,7 @@ A slider control with a left-to-right cold-to-hot gradient track. The track fill
 ### Basic Usage
 
 ```razor
-<GradientSlider @bind-Value="temperature"
+<Slider @bind-Value="temperature"
                 Minimum="0"
                 Maximum="100"
                 ColdColor="#3B82F6"
@@ -115,13 +115,13 @@ A slider control with a left-to-right cold-to-hot gradient track. The track fill
 ### Custom Tooltip
 
 ```razor
-<GradientSlider @bind-Value="temp" Minimum="0" Maximum="100">
+<Slider @bind-Value="temp" Minimum="0" Maximum="100">
     <TooltipTemplate Context="val">
         <div style="background: #7C3AED; color: white; padding: 4px 12px; border-radius: 8px;">
             @val.ToString("0")°F
         </div>
     </TooltipTemplate>
-</GradientSlider>
+</Slider>
 ```
 
 ### Code Generation Guidance

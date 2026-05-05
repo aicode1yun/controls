@@ -16,6 +16,8 @@ public partial class TextEntry : ContentView
     readonly Grid contentGrid;
     readonly HorizontalStackLayout leftToolsLayout;
     readonly HorizontalStackLayout rightToolsLayout;
+    readonly BoxView leftSeparator;
+    readonly BoxView rightSeparator;
     readonly Label placeholderLabel;
     readonly BorderlessEntry entry;
     readonly Label hintLabel;
@@ -53,36 +55,58 @@ public partial class TextEntry : ContentView
 
         var entryArea = new Grid
         {
-            Padding = new Thickness(0, 8),
+            Padding = new Thickness(12, 8),
             Children = { placeholderLabel, entry }
         };
 
         leftToolsLayout = new HorizontalStackLayout
         {
-            Spacing = 2,
-            VerticalOptions = LayoutOptions.Center
+            Spacing = 0,
+            VerticalOptions = LayoutOptions.Fill,
+            BackgroundColor = Color.FromArgb("#F8F9FA")
         };
 
         rightToolsLayout = new HorizontalStackLayout
         {
-            Spacing = 2,
-            VerticalOptions = LayoutOptions.Center
+            Spacing = 0,
+            VerticalOptions = LayoutOptions.Fill,
+            BackgroundColor = Color.FromArgb("#F8F9FA")
+        };
+
+        leftSeparator = new BoxView
+        {
+            WidthRequest = 1,
+            VerticalOptions = LayoutOptions.Fill,
+            Color = Color.FromArgb("#CCCCCC"),
+            IsVisible = false
+        };
+
+        rightSeparator = new BoxView
+        {
+            WidthRequest = 1,
+            VerticalOptions = LayoutOptions.Fill,
+            Color = Color.FromArgb("#CCCCCC"),
+            IsVisible = false
         };
 
         contentGrid = new Grid
         {
             ColumnDefinitions =
             {
-                new ColumnDefinition(GridLength.Auto),
-                new ColumnDefinition(GridLength.Star),
-                new ColumnDefinition(GridLength.Auto)
+                new ColumnDefinition(GridLength.Auto),  // left tools
+                new ColumnDefinition(GridLength.Auto),  // left separator
+                new ColumnDefinition(GridLength.Star),  // entry area
+                new ColumnDefinition(GridLength.Auto),  // right separator
+                new ColumnDefinition(GridLength.Auto)   // right tools
             },
-            ColumnSpacing = 4,
-            Padding = new Thickness(12, 0)
+            ColumnSpacing = 0,
+            Padding = 0
         };
         contentGrid.Add(leftToolsLayout, 0, 0);
-        contentGrid.Add(entryArea, 1, 0);
-        contentGrid.Add(rightToolsLayout, 2, 0);
+        contentGrid.Add(leftSeparator, 1, 0);
+        contentGrid.Add(entryArea, 2, 0);
+        contentGrid.Add(rightSeparator, 3, 0);
+        contentGrid.Add(rightToolsLayout, 4, 0);
 
         borderShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 };
         outerBorder = new Border
@@ -162,11 +186,10 @@ public partial class TextEntry : ContentView
     void OnEntryFocused(object? sender, FocusEventArgs e)
     {
         AnimatePlaceholder(true);
-        outerBorder.Stroke = FocusedBorderColor;
+        var color = HasError ? ErrorColor : FocusedBorderColor;
+        outerBorder.Stroke = color;
         outerBorder.StrokeThickness = FocusedBorderThickness;
-
-        if (HasError)
-            outerBorder.Stroke = ErrorColor;
+        UpdateSeparatorColors(color);
     }
 
     void OnEntryUnfocused(object? sender, FocusEventArgs e)
@@ -174,8 +197,16 @@ public partial class TextEntry : ContentView
         if (string.IsNullOrEmpty(entry.Text))
             AnimatePlaceholder(false);
 
-        outerBorder.Stroke = HasError ? ErrorColor : BorderColor;
+        var color = HasError ? ErrorColor : BorderColor;
+        outerBorder.Stroke = color;
         outerBorder.StrokeThickness = BorderThickness;
+        UpdateSeparatorColors(color);
+    }
+
+    void UpdateSeparatorColors(Color color)
+    {
+        leftSeparator.Color = color;
+        rightSeparator.Color = color;
     }
 
     void OnEntryCompleted(object? sender, EventArgs e)
@@ -223,30 +254,34 @@ public partial class TextEntry : ContentView
 
     void SyncHint()
     {
+        Color borderColor;
         if (HasError && !string.IsNullOrEmpty(HintText))
         {
             hintLabel.Text = HintText;
             hintLabel.TextColor = ErrorColor;
             hintLabel.IsVisible = true;
-            outerBorder.Stroke = ErrorColor;
+            borderColor = ErrorColor;
         }
         else if (!string.IsNullOrEmpty(HintText))
         {
             hintLabel.Text = HintText;
             hintLabel.TextColor = HintColor;
             hintLabel.IsVisible = true;
-            outerBorder.Stroke = entry.IsFocused ? FocusedBorderColor : BorderColor;
+            borderColor = entry.IsFocused ? FocusedBorderColor : BorderColor;
         }
         else if (ShowCharacterCount && MaxLength > 0)
         {
             UpdateCharacterCount();
-            outerBorder.Stroke = entry.IsFocused ? FocusedBorderColor : BorderColor;
+            borderColor = entry.IsFocused ? FocusedBorderColor : BorderColor;
         }
         else
         {
             hintLabel.IsVisible = false;
-            outerBorder.Stroke = entry.IsFocused ? FocusedBorderColor : BorderColor;
+            borderColor = entry.IsFocused ? FocusedBorderColor : BorderColor;
         }
+
+        outerBorder.Stroke = borderColor;
+        UpdateSeparatorColors(borderColor);
     }
 
     // Tool collection management
@@ -271,7 +306,22 @@ public partial class TextEntry : ContentView
     void RebuildTools(IList<TextEntryTool>? tools, HorizontalStackLayout layout)
     {
         layout.Children.Clear();
-        if (tools is null) return;
+        if (tools is null || tools.Count == 0)
+        {
+            layout.IsVisible = false;
+            if (layout == leftToolsLayout)
+                leftSeparator.IsVisible = false;
+            else
+                rightSeparator.IsVisible = false;
+            return;
+        }
+
+        layout.IsVisible = true;
+        if (layout == leftToolsLayout)
+            leftSeparator.IsVisible = true;
+        else
+            rightSeparator.IsVisible = true;
+
         foreach (var tool in tools)
         {
             tool.ParentEntry = this;

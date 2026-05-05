@@ -3,8 +3,11 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Shiny.Maui.Controls.Scheduler;
 
+using Shiny;
+
 namespace Sample.Features.Scheduler;
 
+[ShellMap<AgendaCalendarPickerPage>(registerRoute: false)]
 public class AgendaCalendarPickerViewModel(ISchedulerEventProvider provider) : INotifyPropertyChanged
 {
     DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Shiny;
 using Shiny.Maui.Controls.Chat;
 
 namespace Sample.Features.Chat;
@@ -10,7 +11,6 @@ public partial class ChatTemplatePage : ContentPage
     public ChatTemplatePage()
     {
         InitializeComponent();
-        BindingContext = new ChatTemplateViewModel();
     }
 }
 
@@ -41,6 +41,7 @@ public class ChatMessageTemplateSelector : DataTemplateSelector
     }
 }
 
+[ShellMap<ChatTemplatePage>(registerRoute: false)]
 public partial class ChatTemplateViewModel : ObservableObject
 {
     readonly string myId = "me";

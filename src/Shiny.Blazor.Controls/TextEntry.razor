@@ -10,7 +10,7 @@
 
         @if (LeftTools is { Count: > 0 })
         {
-            <div class="shiny-te-tools shiny-te-tools--left">
+            <div class="shiny-te-tools shiny-te-tools--left" style="--shiny-te-border-color: @CurrentBorderColor;">
                 @foreach (var tool in LeftTools)
                 {
                     if (tool.IsVisible)
@@ -55,7 +55,7 @@
 
         @if (RightTools is { Count: > 0 })
         {
-            <div class="shiny-te-tools shiny-te-tools--right">
+            <div class="shiny-te-tools shiny-te-tools--right" style="--shiny-te-border-color: @CurrentBorderColor;">
                 @foreach (var tool in RightTools)
                 {
                     if (tool.IsVisible)

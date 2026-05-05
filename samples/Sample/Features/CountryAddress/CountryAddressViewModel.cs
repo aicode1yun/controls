@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Shiny.Maui.Controls;
 
+using Shiny;
+
 namespace Sample.Features.CountryAddress;
 
+[ShellMap<CountryAddressPage>(registerRoute: false)]
 public partial class CountryAddressViewModel : ObservableObject
 {
     [ObservableProperty]

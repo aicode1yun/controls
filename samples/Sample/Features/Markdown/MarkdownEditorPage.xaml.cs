@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Shiny;
 
 namespace Sample.Features.Markdown;
 
@@ -10,6 +11,7 @@ public partial class MarkdownEditorPage : ContentPage
     }
 }
 
+[ShellMap<MarkdownEditorPage>(registerRoute: false)]
 public partial class MarkdownEditorViewModel : ObservableObject
 {
     [ObservableProperty]

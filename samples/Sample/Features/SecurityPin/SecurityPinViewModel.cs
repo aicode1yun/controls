@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.SecurityPin;
 
+[ShellMap<SecurityPinPage>(registerRoute: false)]
 public partial class SecurityPinViewModel(AppSettings appSettings) : ObservableObject
 {
     public bool IsSecurityBeepEnabled

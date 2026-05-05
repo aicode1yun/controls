@@ -4,13 +4,13 @@ using Microsoft.JSInterop;
 
 namespace Shiny.Blazor.Controls;
 
-public partial class GradientSlider : IAsyncDisposable
+public partial class Slider : IAsyncDisposable
 {
     [Inject] IJSRuntime JS { get; set; } = default!;
 
     ElementReference trackRef;
     IJSObjectReference? module;
-    DotNetObjectReference<GradientSlider>? selfRef;
+    DotNetObjectReference<Slider>? selfRef;
 
     // Parameters
     [Parameter] public double Value { get; set; }
@@ -44,11 +44,23 @@ public partial class GradientSlider : IAsyncDisposable
 
     string RootStyle => IsEnabled ? "" : "opacity: 0.5; pointer-events: none;";
 
-    string TrackStyle => $"height: {TrackHeight}px; border-radius: {CornerRadius}; background: linear-gradient(to right, {ColdColor}, {HotColor});";
+    string TrackStyle => $"height: {TrackHeight}px; border-radius: {CornerRadius}; background: {BlendedColor};";
 
-    string TrackFillStyle => $"width: {Percentage}%; height: 100%; border-radius: {CornerRadius}; background: linear-gradient(to right, {ColdColor}, {BlendedColor});";
+    string TrackFillStyle => $"width: {Percentage}%; height: 100%; border-radius: {CornerRadius}; background: transparent;";
 
     string ThumbStyle => $"left: {Percentage}%; width: {ThumbSize}px; height: {ThumbSize}px; border: {ThumbBorderWidth}px solid {BlendedColor}; background: {ThumbColor};";
+
+    // Shift transform from -50% toward 0% at left edge and -100% at right edge to prevent overflow
+    string TooltipTransformStyle
+    {
+        get
+        {
+            var pct = Percentage / 100.0;
+            // At 0% → translateX(0%), at 50% → translateX(-50%), at 100% → translateX(-100%)
+            var translatePct = -pct * 100;
+            return $"transform: translateX({translatePct:0.#}%);";
+        }
+    }
 
     string TooltipBadgeStyle => $"background: {TooltipBackgroundColor}; color: {TooltipTextColor}; font-size: {TooltipFontSize}px;";
 
@@ -66,7 +78,7 @@ public partial class GradientSlider : IAsyncDisposable
         if (firstRender)
         {
             module = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/Shiny.Blazor.Controls/gradient-slider.js");
+                "import", "./_content/Shiny.Blazor.Controls/slider.js");
             selfRef = DotNetObjectReference.Create(this);
             await module.InvokeVoidAsync("init", trackRef, selfRef);
         }

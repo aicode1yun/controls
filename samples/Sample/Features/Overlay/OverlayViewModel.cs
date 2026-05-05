@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.Overlay;
 
+[ShellMap<OverlayPage>(registerRoute: false)]
 public partial class OverlayViewModel : ObservableObject
 {
     [ObservableProperty] bool isCustomOverlayShown;

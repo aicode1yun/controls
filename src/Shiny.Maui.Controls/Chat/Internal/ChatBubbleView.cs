@@ -209,11 +209,13 @@ partial class ChatBubbleView : ContentView
         {
             rootLayout.HorizontalOptions = LayoutOptions.End;
             timestampLabel.HorizontalTextAlignment = TextAlignment.End;
+            acknowledgementLayout.HorizontalOptions = LayoutOptions.End;
         }
         else
         {
             rootLayout.HorizontalOptions = LayoutOptions.Start;
             timestampLabel.HorizontalTextAlignment = TextAlignment.Start;
+            acknowledgementLayout.HorizontalOptions = LayoutOptions.Start;
         }
 
         // Tools button: position relative to bubble

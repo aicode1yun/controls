@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Shiny;
 
 namespace Sample.Features.ColorPicker;
 
+[ShellMap<ColorPickerPage>(registerRoute: false)]
 public partial class ColorPickerViewModel : ObservableObject
 {
     [ObservableProperty]

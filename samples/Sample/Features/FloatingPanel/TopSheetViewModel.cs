@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Shiny;
+
 namespace Sample.Features.FloatingPanel;
 
+[ShellMap<TopSheetPage>(registerRoute: false)]
 public partial class TopSheetViewModel : ObservableObject
 {
     [ObservableProperty]

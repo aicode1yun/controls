@@ -10,6 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
+		<ShinyMauiShell_GenerateNavExtensions>true</ShinyMauiShell_GenerateNavExtensions>
 
 		<ApplicationTitle>Shiny Controls</ApplicationTitle>
 		<ApplicationId>org.shiny.controlsample</ApplicationId>

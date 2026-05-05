@@ -2,8 +2,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Shiny.Maui.Controls.Toast;
 
+using Shiny;
+
 namespace Sample.Features.Toast;
 
+[ShellMap<ToastPage>(registerRoute: false)]
 public partial class ToastViewModel(IToaster toaster) : ObservableObject
 {
     IDisposable? manualToast;

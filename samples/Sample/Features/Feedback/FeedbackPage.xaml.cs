@@ -2,9 +2,8 @@ namespace Sample.Features.Feedback;
 
 public partial class FeedbackPage : ContentPage
 {
-    public FeedbackPage(FeedbackViewModel vm)
+    public FeedbackPage()
     {
         InitializeComponent();
-        BindingContext = vm;
     }
 }

@@ -27,7 +27,9 @@ public class TextEntryTool : ContentView
         textLabel = new Label
         {
             FontSize = 13,
+            FontAttributes = FontAttributes.Bold,
             VerticalTextAlignment = TextAlignment.Center,
+            VerticalOptions = LayoutOptions.Center,
             IsVisible = false
         };
 
@@ -43,7 +45,8 @@ public class TextEntryTool : ContentView
         layout.GestureRecognizers.Add(tap);
 
         Content = layout;
-        Padding = new Thickness(4, 0);
+        Padding = new Thickness(12, 0);
+        VerticalOptions = LayoutOptions.Fill;
     }
 
     public static readonly BindableProperty IconProperty = BindableProperty.Create(

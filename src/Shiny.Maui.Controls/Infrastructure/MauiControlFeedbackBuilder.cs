@@ -1,3 +1,5 @@
+using MauiSlider = Microsoft.Maui.Controls.Slider;
+
 namespace Shiny.Maui.Controls.Infrastructure;
 
 public class MauiControlFeedbackBuilder
@@ -35,7 +37,7 @@ public class MauiControlFeedbackBuilder
             (e, h) => e.TextChanged += h,
             (e, h) => e.TextChanged -= h);
 
-        Hook<Slider, ValueChangedEventArgs>(nameof(Slider.ValueChanged),
+        Hook<MauiSlider, ValueChangedEventArgs>(nameof(MauiSlider.ValueChanged),
             (s, h) => s.ValueChanged += h,
             (s, h) => s.ValueChanged -= h);
 
