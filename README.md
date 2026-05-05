@@ -88,8 +88,8 @@ No DI registration is required — drop the components into any `.razor` page.
 | `ItemTemplate` as `DataTemplate` | `ItemTemplate` as `RenderFragment<object>` |
 | `IToaster.ShowAsync(text, cfg => {})` (DI) | `IToastService.ShowAsync(text, cfg => {})` (DI + `<ToastHost />`) |
 | `<shiny:TextEntry>` | `<TextEntry>` |
-| `<shiny:Overlay>` | `<Overlay>` (wraps ChildContent; custom content in `<OverlayContent>` slot) |
-| `<shiny:LoadingOverlay>` | `<LoadingOverlay>` (wraps ChildContent) |
+| `<shiny:Overlay>` in `<shiny:ShinyContentPage.Panels>` | `<Overlay>` (wraps ChildContent; custom content in `<OverlayContent>` slot) |
+| `<shiny:LoadingOverlay>` in `<shiny:ShinyContentPage.Panels>` | `<LoadingOverlay>` (wraps ChildContent) |
 | `<shiny:ProgressBar>` | `<ProgressBar>` |
 
 `ISchedulerEventProvider` is identical across both hosts.
@@ -152,7 +152,7 @@ public class MyEventProvider : ISchedulerEventProvider
 
 A floating panel overlay system for MAUI. Panels slide in from the bottom or top of the screen with configurable snap positions (detents), optional header peek when closed, backdrop dimming, and feedback. Multiple panels can coexist on the same page without blocking touches on content underneath.
 
-**OverlayHost** is a transparent Grid layer that manages backdrop and touch passthrough. **FloatingPanel** is a panel that lives inside an OverlayHost. **ShinyContentPage** is a convenience ContentPage with a built-in OverlayHost.
+**OverlayHost** is a transparent Grid layer that manages backdrop and touch passthrough for overlay clients (`FloatingPanel`, `Overlay`, `LoadingOverlay`). **ShinyContentPage** is a convenience ContentPage with a built-in OverlayHost.
 
 | Closed | Open | Header (Closed) | Header (Open) | Top (Closed) | Top (Open) |
 |:---:|:---:|:---:|:---:|:---:|:---:|
@@ -216,7 +216,7 @@ A floating panel overlay system for MAUI. Panels slide in from the bottom or top
 | Property | Type | Description |
 |---|---|---|
 | PageContent | View | Main page content |
-| Panels | IList\<IView\> | Collection of FloatingPanels |
+| Panels | IList\<IView\> | Collection of FloatingPanel, Overlay, and LoadingOverlay instances |
 | BackdropColor | Color | Forwarded to internal OverlayHost |
 | BackdropMaxOpacity | double | Forwarded to internal OverlayHost |
 
@@ -655,47 +655,38 @@ Events: `ValueChangedEvent`. Commands: `ValueChangedCommand`.
 
 ### Overlay & LoadingOverlay
 
-A full-screen overlay control with configurable background color and transparency. The base `Overlay` supports any custom content via `DataTemplate` (MAUI) or `RenderFragment` (Blazor). The `LoadingOverlay` subclass provides a built-in loading template with indeterminate spinner or determinate progress bar.
+Full-screen overlay controls. On MAUI, integrates with `OverlayHost`/`ShinyContentPage` (same backdrop system as FloatingPanel). On Blazor, wraps content with a CSS-based overlay. Supports optional frosted glass blur effect.
 
-**Overlay (Custom Content):**
-
-```xml
-<shiny:Overlay IsShown="{Binding IsOverlayVisible}"
-               OverlayColor="Black"
-               OverlayOpacity="0.6">
-    <shiny:Overlay.OverlayContentTemplate>
-        <DataTemplate>
-            <Label Text="Custom content here" TextColor="White" />
-        </DataTemplate>
-    </shiny:Overlay.OverlayContentTemplate>
-</shiny:Overlay>
-```
-
-**LoadingOverlay (Indeterminate — spinner):**
+**MAUI (placed in ShinyContentPage.Panels):**
 
 ```xml
-<shiny:LoadingOverlay IsShown="{Binding IsBusy}"
-                      Message="Loading..." />
-```
+<shiny:ShinyContentPage ...>
+    <ScrollView>...</ScrollView>
 
-**LoadingOverlay (Determinate — progress bar):**
+    <shiny:ShinyContentPage.Panels>
+        <shiny:Overlay IsShown="{Binding IsOverlayVisible}" BlurRadius="10">
+            <shiny:Overlay.OverlayContentTemplate>
+                <DataTemplate>
+                    <Label Text="Custom content" TextColor="White" />
+                </DataTemplate>
+            </shiny:Overlay.OverlayContentTemplate>
+        </shiny:Overlay>
 
-```xml
-<shiny:LoadingOverlay IsShown="{Binding IsBusy}"
-                      IsIndeterminate="False"
-                      Progress="{Binding DownloadProgress}"
-                      Message="Downloading..." />
+        <shiny:LoadingOverlay IsShown="{Binding IsBusy}"
+                              Message="Loading..." />
+    </shiny:ShinyContentPage.Panels>
+</shiny:ShinyContentPage>
 ```
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | IsShown | bool | false | Show/hide overlay (TwoWay) |
-| OverlayColor | Color/string | Black/rgba(0,0,0,0.5) | Backdrop color |
-| OverlayOpacity | double | 0.5 (MAUI) / 1.0 (Blazor) | Backdrop opacity (MAUI uses separate opacity; Blazor bakes it into rgba color) |
 | AnimationDuration | uint | 250 | Fade animation duration in ms (MAUI) |
 | BlurRadius | double | 0 | When > 0, applies a frosted glass blur behind the backdrop (MAUI uses FrostedGlassView; Blazor uses CSS backdrop-filter) |
 | OverlayContentTemplate | DataTemplate | null | Custom overlay content (MAUI) |
 | OverlayContent | RenderFragment | null | Custom overlay content (Blazor) |
+
+MAUI backdrop color/opacity are controlled by `ShinyContentPage.BackdropColor` / `BackdropMaxOpacity`.
 
 **LoadingOverlay additional properties:**
 
@@ -709,7 +700,7 @@ A full-screen overlay control with configurable background color and transparenc
 **Blazor (wrapper pattern):**
 
 ```razor
-<LoadingOverlay IsShown="@isBusy" IsIndeterminate="false" Progress="@progress" Message="Loading...">
+<LoadingOverlay IsShown="@isBusy" BlurRadius="8" IsIndeterminate="false" Progress="@progress" Message="Loading...">
     <p>Your page content here — gets overlaid when IsShown=true</p>
 </LoadingOverlay>
 ```

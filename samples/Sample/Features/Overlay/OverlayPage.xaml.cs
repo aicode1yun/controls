@@ -1,6 +1,8 @@
+using Shiny.Maui.Controls.FloatingPanel;
+
 namespace Sample.Features.Overlay;
 
-public partial class OverlayPage : ContentPage
+public partial class OverlayPage : ShinyContentPage
 {
     public OverlayPage()
     {

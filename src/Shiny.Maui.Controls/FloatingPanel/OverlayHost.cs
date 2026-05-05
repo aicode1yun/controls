@@ -5,7 +5,7 @@ public class OverlayHost : Grid
     const double DefaultBackdropMaxOpacity = 0.5;
 
     readonly BoxView backdrop;
-    readonly List<FloatingPanel> activePanels = new();
+    readonly List<object> activeClients = new();
 
     public OverlayHost()
     {
@@ -50,21 +50,21 @@ public class OverlayHost : Grid
         set => SetValue(BackdropMaxOpacityProperty, value);
     }
 
-    internal async void ShowBackdrop(FloatingPanel panel, uint animationDuration)
+    internal async void ShowBackdrop(object client, uint animationDuration)
     {
-        if (!activePanels.Contains(panel))
-            activePanels.Add(panel);
+        if (!activeClients.Contains(client))
+            activeClients.Add(client);
 
         backdrop.InputTransparent = false;
         backdrop.IsVisible = true;
         await backdrop.FadeToAsync(BackdropMaxOpacity, animationDuration);
     }
 
-    internal async void HideBackdrop(FloatingPanel panel, uint animationDuration)
+    internal async void HideBackdrop(object client, uint animationDuration)
     {
-        activePanels.Remove(panel);
+        activeClients.Remove(client);
 
-        if (activePanels.Count > 0)
+        if (activeClients.Count > 0)
             return;
 
         await backdrop.FadeToAsync(0, animationDuration);
@@ -74,11 +74,17 @@ public class OverlayHost : Grid
 
     void OnBackdropTapped(object? sender, TappedEventArgs e)
     {
-        // Close all panels that allow backdrop tap close — locked panels are only dismissable via code
-        foreach (var panel in activePanels.ToList())
+        foreach (var client in activeClients.ToList())
         {
-            if (panel.CloseOnBackdropTap && !panel.IsLocked)
-                panel.IsOpen = false;
+            if (client is FloatingPanel panel)
+            {
+                if (panel.CloseOnBackdropTap && !panel.IsLocked)
+                    panel.IsOpen = false;
+            }
+            else if (client is Overlay overlay)
+            {
+                overlay.IsShown = false;
+            }
         }
     }
 }

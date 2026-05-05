@@ -1,54 +1,42 @@
+using Shiny.Maui.Controls.FloatingPanel;
+
 namespace Shiny.Maui.Controls;
 
+/// <summary>
+/// A full-screen overlay control that integrates with OverlayHost/ShinyContentPage.
+/// Place inside ShinyContentPage.Panels or an OverlayHost. When IsShown is true,
+/// the backdrop dims (with optional blur) and custom content is displayed centered.
+/// </summary>
 public partial class Overlay : ContentView
 {
-    readonly Grid rootGrid;
-    readonly BoxView backdrop;
     readonly ContentView overlayContainer;
     FrostedGlassView? blurBackdrop;
+    bool isAnimating;
 
     public Overlay()
     {
-        backdrop = new BoxView
-        {
-            Color = OverlayColor,
-            Opacity = 0,
-            IsVisible = false,
-            InputTransparent = true
-        };
+        IsVisible = false;
+        InputTransparent = false;
 
         overlayContainer = new ContentView
         {
-            IsVisible = false,
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Center
         };
 
-        rootGrid = new Grid();
-        Content = rootGrid;
+        Content = overlayContainer;
     }
 
-    protected override void OnChildAdded(Element child)
+    OverlayHost? GetOverlayHost()
     {
-        base.OnChildAdded(child);
-        RebuildLayout();
-    }
-
-    protected override void OnChildRemoved(Element child, int oldLogicalIndex)
-    {
-        base.OnChildRemoved(child, oldLogicalIndex);
-        RebuildLayout();
-    }
-
-    void RebuildLayout()
-    {
-        // Ensure backdrop and overlay container are always the last children (on top)
-        if (blurBackdrop != null && !rootGrid.Children.Contains(blurBackdrop))
-            rootGrid.Children.Add(blurBackdrop);
-        if (!rootGrid.Children.Contains(backdrop))
-            rootGrid.Children.Add(backdrop);
-        if (!rootGrid.Children.Contains(overlayContainer))
-            rootGrid.Children.Add(overlayContainer);
+        Element? current = Parent;
+        while (current is not null)
+        {
+            if (current is OverlayHost host)
+                return host;
+            current = current.Parent;
+        }
+        return null;
     }
 
     void OnBlurRadiusChanged()
@@ -62,25 +50,17 @@ public partial class Overlay : ContentView
                     BlurRadius = BlurRadius,
                     TintColor = Colors.Transparent,
                     TintOpacity = 0,
-                    Opacity = 0,
                     IsVisible = false,
                     InputTransparent = true
                 };
-                // Insert blur backdrop behind the color backdrop
-                var idx = rootGrid.Children.IndexOf(backdrop);
-                if (idx >= 0)
-                    rootGrid.Children.Insert(idx, blurBackdrop);
-                else
-                    rootGrid.Children.Add(blurBackdrop);
             }
             else
             {
                 blurBackdrop.BlurRadius = BlurRadius;
             }
         }
-        else if (blurBackdrop != null)
+        else
         {
-            rootGrid.Children.Remove(blurBackdrop);
             blurBackdrop = null;
         }
     }
@@ -99,36 +79,66 @@ public partial class Overlay : ContentView
 
     async void OnIsShownChanged(bool shown)
     {
+        if (isAnimating) return;
+
         if (shown)
-        {
-            backdrop.InputTransparent = false;
-            backdrop.IsVisible = true;
-            overlayContainer.IsVisible = true;
-
-            if (blurBackdrop != null)
-            {
-                blurBackdrop.InputTransparent = false;
-                blurBackdrop.IsVisible = true;
-                _ = blurBackdrop.FadeToAsync(1, AnimationDuration);
-            }
-
-            await backdrop.FadeToAsync(OverlayOpacity, AnimationDuration);
-        }
+            await ShowAsync();
         else
+            await HideAsync();
+    }
+
+    async Task ShowAsync()
+    {
+        isAnimating = true;
+
+        var overlayHost = GetOverlayHost();
+        if (overlayHost != null)
+            overlayHost.ShowBackdrop(this, AnimationDuration);
+
+        // Show blur layer in the overlay host (behind this view)
+        if (blurBackdrop != null && overlayHost != null)
         {
-            if (blurBackdrop != null)
-                _ = blurBackdrop.FadeToAsync(0, AnimationDuration);
-
-            await backdrop.FadeToAsync(0, AnimationDuration);
-            backdrop.IsVisible = false;
-            backdrop.InputTransparent = true;
-            overlayContainer.IsVisible = false;
-
-            if (blurBackdrop != null)
+            if (!overlayHost.Children.Contains(blurBackdrop))
             {
-                blurBackdrop.IsVisible = false;
-                blurBackdrop.InputTransparent = true;
+                var myIndex = overlayHost.Children.IndexOf(this);
+                if (myIndex >= 0)
+                    overlayHost.Children.Insert(myIndex, blurBackdrop);
+                else
+                    overlayHost.Children.Add(blurBackdrop);
             }
+            blurBackdrop.IsVisible = true;
+            _ = blurBackdrop.FadeToAsync(1, AnimationDuration);
         }
+
+        IsVisible = true;
+        Opacity = 0;
+        await this.FadeToAsync(1, AnimationDuration);
+
+        isAnimating = false;
+    }
+
+    async Task HideAsync()
+    {
+        isAnimating = true;
+
+        var overlayHost = GetOverlayHost();
+        if (overlayHost != null)
+            overlayHost.HideBackdrop(this, AnimationDuration);
+
+        if (blurBackdrop != null)
+            _ = blurBackdrop.FadeToAsync(0, AnimationDuration);
+
+        await this.FadeToAsync(0, AnimationDuration);
+        IsVisible = false;
+
+        if (blurBackdrop != null)
+        {
+            blurBackdrop.IsVisible = false;
+            var host = GetOverlayHost();
+            if (host != null && host.Children.Contains(blurBackdrop))
+                host.Children.Remove(blurBackdrop);
+        }
+
+        isAnimating = false;
     }
 }
