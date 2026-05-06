@@ -6,6 +6,11 @@ namespace Shiny.Maui.Controls.Chat;
 
 public partial class ChatView
 {
+    void OnChatBackgroundColorChanged(Color? color)
+    {
+        messageArea.BackgroundColor = color;
+    }
+
     void OnMessagesChanged()
     {
         if (observedCollection is not null)

@@ -13,6 +13,7 @@ public partial class ChatView : ContentView
     readonly Border toastPill;
     readonly Label toastNewMessagesLabel;
     readonly Label toastTypingLabel;
+    readonly Grid messageArea;
     readonly FabMenu toolsMenu;
     readonly FabMenu bubbleToolsMenu;
     ChatMessage? activeBubbleToolMessage;
@@ -80,7 +81,7 @@ public partial class ChatView : ContentView
         toastPill.GestureRecognizers.Add(pillTap);
 
         // Messages area: CollectionView + toast pill overlay
-        var messageArea = new Grid
+        messageArea = new Grid
         {
             IsClippedToBounds = true,
             Children = { collectionView, toastPill }

@@ -79,8 +79,7 @@ partial class ChatBubbleView : ContentView
 
         textLabel = new Label
         {
-            LineBreakMode = LineBreakMode.WordWrap,
-            FontSize = 15
+            LineBreakMode = LineBreakMode.WordWrap
         };
 
         imageView = new Image
@@ -100,8 +99,6 @@ partial class ChatBubbleView : ContentView
         {
             Padding = new Thickness(12, 8),
             StrokeThickness = 0,
-            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 18 },
-
             MaximumWidthRequest = 280,
             Content = defaultContentLayout
         };
@@ -258,10 +255,11 @@ partial class ChatBubbleView : ContentView
         bubbleBorder.BackgroundColor = bubbleColor;
 
         // Corner radius: rounded with smaller tail corner
-        var tailRadius = isLast ? 4 : 18;
+        var radius = chatView.BubbleCornerRadius;
+        var tailRadius = isLast ? 4 : radius;
         bubbleBorder.StrokeShape = isMe
-            ? new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(18, 18, 18, tailRadius) }
-            : new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(18, 18, tailRadius, 18) };
+            ? new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(radius, radius, radius, tailRadius) }
+            : new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = new CornerRadius(radius, radius, tailRadius, radius) };
 
         // Content: custom template, text, or image
         var template = chatView.MessageTemplateSelector?.SelectTemplate(message, this)
@@ -296,6 +294,8 @@ partial class ChatBubbleView : ContentView
             textLabel.IsVisible = true;
             imageView.IsVisible = false;
             textLabel.TextColor = textColor;
+            textLabel.FontSize = chatView.BubbleFontSize;
+            textLabel.FontFamily = chatView.BubbleFontFamily;
             SetTextWithLinks(textLabel, message.Text ?? string.Empty, textColor);
             bubbleBorder.Padding = new Thickness(12, 8);
         }
@@ -305,6 +305,7 @@ partial class ChatBubbleView : ContentView
 
         // Timestamp
         timestampLabel.IsVisible = isLast;
+        timestampLabel.FontSize = chatView.TimestampFontSize;
         if (isLast)
             timestampLabel.Text = ChatGroupHelper.FormatTimestamp(message.Timestamp);
 
@@ -414,7 +415,7 @@ partial class ChatBubbleView : ContentView
         return null;
     }
 
-    static void SetTextWithLinks(Label label, string text, Color textColor)
+    void SetTextWithLinks(Label label, string text, Color textColor)
     {
         var matches = UrlRegex.Matches(text);
         if (matches.Count == 0)

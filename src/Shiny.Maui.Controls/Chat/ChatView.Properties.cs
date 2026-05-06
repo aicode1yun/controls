@@ -373,6 +373,128 @@ public partial class ChatView
         set => SetValue(MyBubbleToolItemsProperty, value);
     }
 
+    // Chat background
+    public static readonly BindableProperty ChatBackgroundColorProperty = BindableProperty.Create(
+        nameof(ChatBackgroundColor),
+        typeof(Color),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, _, n) => ((ChatView)b).OnChatBackgroundColorChanged(n as Color));
+
+    public Color? ChatBackgroundColor
+    {
+        get => (Color?)GetValue(ChatBackgroundColorProperty);
+        set => SetValue(ChatBackgroundColorProperty, value);
+    }
+
+    // Send button styling
+    public static readonly BindableProperty SendButtonBackgroundColorProperty = BindableProperty.Create(
+        nameof(SendButtonBackgroundColor),
+        typeof(Color),
+        typeof(ChatView),
+        Color.FromArgb("#007AFF"),
+        propertyChanged: (b, _, n) => ((ChatView)b).inputBar.SendButtonBackgroundColor = (Color)n);
+
+    public Color SendButtonBackgroundColor
+    {
+        get => (Color)GetValue(SendButtonBackgroundColorProperty);
+        set => SetValue(SendButtonBackgroundColorProperty, value);
+    }
+
+    public static readonly BindableProperty SendButtonTextColorProperty = BindableProperty.Create(
+        nameof(SendButtonTextColor),
+        typeof(Color),
+        typeof(ChatView),
+        Colors.White,
+        propertyChanged: (b, _, n) => ((ChatView)b).inputBar.SendButtonTextColor = (Color)n);
+
+    public Color SendButtonTextColor
+    {
+        get => (Color)GetValue(SendButtonTextColorProperty);
+        set => SetValue(SendButtonTextColorProperty, value);
+    }
+
+    // Input bar styling
+    public static readonly BindableProperty InputBarBackgroundColorProperty = BindableProperty.Create(
+        nameof(InputBarBackgroundColor),
+        typeof(Color),
+        typeof(ChatView),
+        Color.FromArgb("#F5F5F5"),
+        propertyChanged: (b, _, n) => ((ChatView)b).inputBar.BarBackgroundColor = (Color)n);
+
+    public Color InputBarBackgroundColor
+    {
+        get => (Color)GetValue(InputBarBackgroundColorProperty);
+        set => SetValue(InputBarBackgroundColorProperty, value);
+    }
+
+    public static readonly BindableProperty InputBarBorderColorProperty = BindableProperty.Create(
+        nameof(InputBarBorderColor),
+        typeof(Color),
+        typeof(ChatView),
+        Color.FromArgb("#E0E0E0"),
+        propertyChanged: (b, _, n) => ((ChatView)b).inputBar.BarBorderColor = (Color)n);
+
+    public Color InputBarBorderColor
+    {
+        get => (Color)GetValue(InputBarBorderColorProperty);
+        set => SetValue(InputBarBorderColorProperty, value);
+    }
+
+    // Font properties
+    public static readonly BindableProperty BubbleFontSizeProperty = BindableProperty.Create(
+        nameof(BubbleFontSize),
+        typeof(double),
+        typeof(ChatView),
+        15.0,
+        propertyChanged: (b, _, _) => ((ChatView)b).RefreshBubbles());
+
+    public double BubbleFontSize
+    {
+        get => (double)GetValue(BubbleFontSizeProperty);
+        set => SetValue(BubbleFontSizeProperty, value);
+    }
+
+    public static readonly BindableProperty BubbleFontFamilyProperty = BindableProperty.Create(
+        nameof(BubbleFontFamily),
+        typeof(string),
+        typeof(ChatView),
+        null,
+        propertyChanged: (b, _, _) => ((ChatView)b).RefreshBubbles());
+
+    public string? BubbleFontFamily
+    {
+        get => (string?)GetValue(BubbleFontFamilyProperty);
+        set => SetValue(BubbleFontFamilyProperty, value);
+    }
+
+    public static readonly BindableProperty TimestampFontSizeProperty = BindableProperty.Create(
+        nameof(TimestampFontSize),
+        typeof(double),
+        typeof(ChatView),
+        11.0,
+        propertyChanged: (b, _, _) => ((ChatView)b).RefreshBubbles());
+
+    public double TimestampFontSize
+    {
+        get => (double)GetValue(TimestampFontSizeProperty);
+        set => SetValue(TimestampFontSizeProperty, value);
+    }
+
+    // Bubble corner radius
+    public static readonly BindableProperty BubbleCornerRadiusProperty = BindableProperty.Create(
+        nameof(BubbleCornerRadius),
+        typeof(double),
+        typeof(ChatView),
+        18.0,
+        propertyChanged: (b, _, _) => ((ChatView)b).RefreshBubbles());
+
+    public double BubbleCornerRadius
+    {
+        get => (double)GetValue(BubbleCornerRadiusProperty);
+        set => SetValue(BubbleCornerRadiusProperty, value);
+    }
+
     // Haptic
     public static readonly BindableProperty UseFeedbackProperty = BindableProperty.Create(
         nameof(UseFeedback),

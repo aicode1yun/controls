@@ -7,6 +7,7 @@ class ChatInputBar : ContentView
     readonly Button attachButton;
     readonly Button toolsButton;
     readonly Grid rootGrid;
+    readonly BoxView separator;
 
     public event Action<string>? SendRequested;
     public event Action? AttachRequested;
@@ -82,7 +83,7 @@ class ChatInputBar : ContentView
         };
 
         // Top border line
-        var separator = new BoxView
+        separator = new BoxView
         {
             HeightRequest = 0.5,
             Color = Color.FromArgb("#E0E0E0"),
@@ -120,6 +121,30 @@ class ChatInputBar : ContentView
     {
         get => sendButton.Text ?? string.Empty;
         set => sendButton.Text = value;
+    }
+
+    public Color SendButtonBackgroundColor
+    {
+        get => sendButton.BackgroundColor;
+        set => sendButton.BackgroundColor = value;
+    }
+
+    public Color SendButtonTextColor
+    {
+        get => sendButton.TextColor;
+        set => sendButton.TextColor = value;
+    }
+
+    public Color BarBackgroundColor
+    {
+        get => rootGrid.BackgroundColor;
+        set => rootGrid.BackgroundColor = value;
+    }
+
+    public Color BarBorderColor
+    {
+        get => separator.Color;
+        set => separator.Color = value;
     }
 
     public bool ShowAttachButton

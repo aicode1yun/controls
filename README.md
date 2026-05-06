@@ -382,8 +382,17 @@ A modern chat UI control with message bubbles, typing indicators, load-more pagi
 | MyTextColor | Color | Black | Local user text color |
 | OtherBubbleColor | Color | White | Default other-user bubble color |
 | OtherTextColor | Color | Black | Other-user text color |
+| ChatBackgroundColor | Color? | null | Background color for the messages area |
+| BubbleFontSize | double | 15 | Font size for bubble text |
+| BubbleFontFamily | string? | null | Font family for bubble text |
+| TimestampFontSize | double | 11 | Font size for timestamps |
+| BubbleCornerRadius | double | 18 | Corner radius for bubbles (tail stays at 4) |
 | PlaceholderText | string | "Type a message..." | Input placeholder |
 | SendButtonText | string | "Send" | Send button label |
+| SendButtonBackgroundColor | Color | #007AFF | Send button background color |
+| SendButtonTextColor | Color | White | Send button text color |
+| InputBarBackgroundColor | Color | #F5F5F5 | Input bar background color |
+| InputBarBorderColor | Color | #E0E0E0 | Input bar top border color |
 | IsInputBarVisible | bool | true | Show/hide the input bar |
 | ShowTypingIndicator | bool | true | Enable typing notifications |
 | TypingParticipants | IList\<ChatParticipant\> | null | Currently typing participants |
