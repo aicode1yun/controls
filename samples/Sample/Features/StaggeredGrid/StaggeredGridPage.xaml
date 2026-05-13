@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shiny="http://shiny.net/maui/controls"
+             xmlns:local="clr-namespace:Sample.Features.StaggeredGrid"
+             x:Class="Sample.Features.StaggeredGrid.StaggeredGridPage"
+             x:DataType="local:StaggeredGridViewModel"
+             Title="Staggered Grid"
+             AutomationId="StaggeredGridPage">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Controls -->
+        <VerticalStackLayout Padding="20,20,20,0" Spacing="12">
+            <Label Text="Staggered Grid (Pinterest)"
+                   FontSize="24"
+                   FontAttributes="Bold" />
+
+            <Label Text="{Binding StatusMessage}"
+                   FontSize="14"
+                   TextColor="Gray" />
+
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                <Label Text="Columns:" VerticalTextAlignment="Center" />
+                <Button Text="-" Command="{Binding DecrementColumnsCommand}" WidthRequest="40" />
+                <Label Text="{Binding ColumnCount}" VerticalTextAlignment="Center" FontAttributes="Bold" />
+                <Button Text="+" Command="{Binding IncrementColumnsCommand}" WidthRequest="40" />
+            </HorizontalStackLayout>
+
+            <BoxView HeightRequest="1" Color="LightGray" />
+        </VerticalStackLayout>
+
+        <!-- Grid -->
+        <ScrollView Grid.Row="1" Padding="20,12,20,20">
+            <shiny:StaggeredGrid ItemsSource="{Binding Items}"
+                                 ColumnCount="{Binding ColumnCount}"
+                                 ColumnSpacing="12"
+                                 RowSpacing="12"
+                                 ItemSelectedCommand="{Binding ItemSelectedCommand}">
+                <shiny:StaggeredGrid.ItemTemplate>
+                    <DataTemplate x:DataType="local:StaggeredItem">
+                        <Border StrokeThickness="0"
+                                BackgroundColor="{Binding Color}"
+                                HeightRequest="{Binding Height}"
+                                Padding="16">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Fill">
+                                <Label Text="{Binding Icon}"
+                                       FontSize="24" />
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Title}"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="{Binding Category}"
+                                           FontSize="12"
+                                           TextColor="White"
+                                           Opacity="0.8" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </shiny:StaggeredGrid.ItemTemplate>
+                <shiny:StaggeredGrid.EmptyViewTemplate>
+                    <DataTemplate>
+                        <Label Text="No items to display."
+                               HorizontalTextAlignment="Center"
+                               Padding="32"
+                               TextColor="Gray" />
+                    </DataTemplate>
+                </shiny:StaggeredGrid.EmptyViewTemplate>
+            </shiny:StaggeredGrid>
+        </ScrollView>
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,15 @@
+.shiny-staggered {
+    width: 100%;
+}
+
+.shiny-staggered-item {
+    break-inside: avoid;
+    margin-bottom: var(--staggered-row-spacing, 16px);
+    cursor: pointer;
+}
+
+.shiny-staggered-empty {
+    column-span: all;
+    text-align: center;
+    padding: 32px;
+}

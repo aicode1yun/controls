@@ -1,0 +1,60 @@
+.shiny-vgrid {
+    width: 100%;
+}
+
+.shiny-vgrid-header,
+.shiny-vgrid-footer {
+    width: 100%;
+}
+
+.shiny-vgrid-empty {
+    text-align: center;
+    padding: 32px;
+}
+
+.shiny-vgrid-group {
+    margin-bottom: var(--vgrid-spacing, 8px);
+}
+
+.shiny-vgrid-group-header {
+    padding: 8px 0;
+    font-weight: 600;
+    background: inherit;
+    z-index: 1;
+}
+
+.shiny-vgrid-group-header.shiny-vgrid-sticky {
+    position: sticky;
+    top: 0;
+    background: var(--vgrid-sticky-bg, white);
+}
+
+.shiny-vgrid-cell {
+    cursor: pointer;
+    min-width: 0;
+}
+
+.shiny-vgrid-loadmore {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+}
+
+.shiny-vgrid-loadmore-btn {
+    padding: 8px 24px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.shiny-vgrid-loadmore-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.shiny-vgrid-loading {
+    text-align: center;
+    padding: 16px 0;
+    opacity: 0.6;
+}

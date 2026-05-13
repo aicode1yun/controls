@@ -1,0 +1,123 @@
+@namespace Shiny.Blazor.Controls
+@typeparam TItem
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+
+<div class="shiny-vgrid" style="@ContainerStyle" @attributes="AdditionalAttributes">
+    @if (HeaderTemplate is not null)
+    {
+        <div class="shiny-vgrid-header">
+            @HeaderTemplate
+        </div>
+    }
+
+    @if (Items is null || !Items.Any())
+    {
+        @if (EmptyViewTemplate is not null)
+        {
+            <div class="shiny-vgrid-empty">
+                @EmptyViewTemplate
+            </div>
+        }
+    }
+    else if (IsGroupingEnabled && GroupedItems is not null)
+    {
+        @foreach (var group in GroupedItems)
+        {
+            <div class="shiny-vgrid-group">
+                @if (GroupHeaderTemplate is not null)
+                {
+                    <div class="shiny-vgrid-group-header @(HasStickyHeaders ? "shiny-vgrid-sticky" : "")">
+                        @GroupHeaderTemplate(group.Key)
+                    </div>
+                }
+
+                <div class="shiny-vgrid-grid" style="@GridStyle">
+                    @foreach (var item in group.Items)
+                    {
+                        var localItem = item;
+                        <div class="shiny-vgrid-cell" style="@CellStyle"
+                             @onclick="() => OnItemClicked(localItem)">
+                            @if (ItemTemplate is not null)
+                            {
+                                @ItemTemplate(localItem)
+                            }
+                            else
+                            {
+                                @localItem?.ToString()
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else if (EnableVirtualization)
+    {
+        <div class="shiny-vgrid-grid" style="@GridStyle">
+            <Virtualize Items="@Items.ToList()" Context="item" OverscanCount="@LoadMoreThreshold">
+                <div class="shiny-vgrid-cell" style="@CellStyle"
+                     @onclick="() => OnItemClicked(item)">
+                    @if (ItemTemplate is not null)
+                    {
+                        @ItemTemplate(item)
+                    }
+                    else
+                    {
+                        @item?.ToString()
+                    }
+                </div>
+            </Virtualize>
+        </div>
+    }
+    else
+    {
+        <div class="shiny-vgrid-grid" style="@GridStyle">
+            @foreach (var item in Items)
+            {
+                var localItem = item;
+                <div class="shiny-vgrid-cell" style="@CellStyle"
+                     @onclick="() => OnItemClicked(localItem)">
+                    @if (ItemTemplate is not null)
+                    {
+                        @ItemTemplate(localItem)
+                    }
+                    else
+                    {
+                        @localItem?.ToString()
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (ShowLoadMoreButton && !IsLoadingMore)
+    {
+        <div class="shiny-vgrid-loadmore">
+            @if (LoadMoreButtonTemplate is not null)
+            {
+                <div @onclick="OnLoadMoreClicked">
+                    @LoadMoreButtonTemplate
+                </div>
+            }
+            else
+            {
+                <button class="shiny-vgrid-loadmore-btn" @onclick="OnLoadMoreClicked">
+                    Load More
+                </button>
+            }
+        </div>
+    }
+    else if (IsLoadingMore)
+    {
+        <div class="shiny-vgrid-loading">
+            Loading...
+        </div>
+    }
+
+    @if (FooterTemplate is not null)
+    {
+        <div class="shiny-vgrid-footer">
+            @FooterTemplate
+        </div>
+    }
+</div>

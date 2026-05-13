@@ -1,0 +1,34 @@
+@namespace Shiny.Blazor.Controls
+@typeparam TItem
+
+<div class="shiny-staggered" style="@ContainerStyle" @attributes="AdditionalAttributes">
+    @if (Items is null || !Items.Any())
+    {
+        @if (EmptyTemplate is not null)
+        {
+            <div class="shiny-staggered-empty">
+                @EmptyTemplate
+            </div>
+        }
+    }
+    else
+    {
+        var index = 0;
+        @foreach (var item in Items)
+        {
+            var localIndex = index;
+            <div class="shiny-staggered-item"
+                 @onclick="() => OnItemClicked(localIndex)">
+                @if (ItemTemplate is not null)
+                {
+                    @ItemTemplate(item)
+                }
+                else
+                {
+                    @item?.ToString()
+                }
+            </div>
+            index++;
+        }
+    }
+</div>

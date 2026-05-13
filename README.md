@@ -1,6 +1,6 @@
 # Shiny Controls
 
-A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, Slider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, and TextEntry. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
+A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, Slider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, TextEntry, CarouselGallery, StaggeredGrid, and VirtualizedGrid. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
 
 [![MAUI NuGet](https://img.shields.io/nuget/v/Shiny.Maui.Controls.svg?label=Shiny.Maui.Controls)](https://www.nuget.org/packages/Shiny.Maui.Controls)
 [![Blazor NuGet](https://img.shields.io/nuget/v/Shiny.Blazor.Controls.svg?label=Shiny.Blazor.Controls)](https://www.nuget.org/packages/Shiny.Blazor.Controls)
@@ -85,6 +85,9 @@ No DI registration is required — drop the components into any `.razor` page.
 | `Command="{Binding DoCommand}"` | `OnClick="DoAsync"` / `Clicked="DoAsync"` |
 | `Color` type (e.g. `Colors.Blue`) | CSS color string (e.g. `"#2196F3"`) |
 | `Fab.Icon="add.png"` (ImageSource) | `<Fab Icon="+">` (inline text/SVG string) |
+| `shiny:CarouselGallery` | `<CarouselGallery>` — `PeekAreaInsets` → `PeekAmount`; adds `ShowIndicators` |
+| `shiny:StaggeredGrid` | `<StaggeredGrid>` — `ItemSelectedCommand` → `ItemSelected` EventCallback |
+| `shiny:VirtualizedGrid` | `<VirtualizedGrid>` — `CellPadding` → individual padding props; adds `EnableVirtualization`, `GroupedItems` |
 | `ItemTemplate` as `DataTemplate` | `ItemTemplate` as `RenderFragment<object>` |
 | `IToaster.ShowAsync(text, cfg => {})` (DI) | `IToastService.ShowAsync(text, cfg => {})` (DI + `<ToastHost />`) |
 | `<shiny:TextEntry>` | `<TextEntry>` |
@@ -1310,3 +1313,126 @@ xmlns:diagram="http://shiny.net/maui/diagrams"
 - 4 built-in themes: Default, Dark, Forest, Neutral
 - Pan and pinch-to-zoom gestures
 - Sugiyama layered graph layout algorithm
+
+### CarouselGallery
+
+A Netflix-style horizontal carousel with snap-to-center behavior, configurable scale transforms for focused/unfocused items, peek area insets, and position tracking. Uses native platform recycler views on MAUI (Android `RecyclerView`, iOS `UICollectionView`, Windows `ItemsRepeater`) and CSS `scroll-snap` on Blazor.
+
+```xml
+<shiny:CarouselGallery ItemsSource="{Binding Items}"
+                       ItemWidth="280"
+                       ItemHeight="160"
+                       ItemSpacing="16"
+                       PeekAreaInsets="40"
+                       FocusedItemScale="1.0"
+                       UnfocusedItemScale="0.85"
+                       CurrentPosition="{Binding Position}"
+                       ItemSelectedCommand="{Binding SelectCommand}"
+                       HeightRequest="180">
+    <shiny:CarouselGallery.ItemTemplate>
+        <DataTemplate>
+            <Border BackgroundColor="{Binding Color}" StrokeThickness="0">
+                <Label Text="{Binding Title}" TextColor="White" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+            </Border>
+        </DataTemplate>
+    </shiny:CarouselGallery.ItemTemplate>
+</shiny:CarouselGallery>
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `FocusedItemScale` | `double` | `1.0` | Scale of the centered item |
+| `UnfocusedItemScale` | `double` | `0.8` | Scale of off-center items |
+| `ItemWidth` | `double` | required | Width of each carousel item |
+| `ItemHeight` | `double` | required | Height of each carousel item |
+| `CurrentPosition` | `int` | `0` | Current centered item index (TwoWay) |
+| `PeekAreaInsets` | `Thickness` | `0` | Visible area of adjacent items |
+| `IsInfinite` | `bool` | `false` | Enable infinite loop scrolling |
+| `PositionChangedCommand` | `ICommand` | `null` | Fires when position changes |
+
+**Features:**
+- Snap-to-center with smooth deceleration
+- Scale transforms for focused/unfocused items
+- Peek area insets to show adjacent items
+- Two-way position binding
+- Infinite loop mode (MAUI)
+- Dot indicators (Blazor)
+
+### StaggeredGrid
+
+A Pinterest-style masonry/waterfall layout that arranges variable-height items in columns. Uses native staggered layout managers on MAUI (Android `StaggeredGridLayoutManager`, iOS custom `WaterfallLayout`, Windows `WaterfallVirtualizingLayout`) and CSS `column-count` on Blazor.
+
+```xml
+<shiny:StaggeredGrid ItemsSource="{Binding Items}"
+                     ColumnCount="3"
+                     ColumnSpacing="12"
+                     RowSpacing="12"
+                     ItemSelectedCommand="{Binding SelectCommand}">
+    <shiny:StaggeredGrid.ItemTemplate>
+        <DataTemplate>
+            <Border BackgroundColor="{Binding Color}" HeightRequest="{Binding Height}" StrokeThickness="0">
+                <Label Text="{Binding Title}" TextColor="White" Padding="12" />
+            </Border>
+        </DataTemplate>
+    </shiny:StaggeredGrid.ItemTemplate>
+</shiny:StaggeredGrid>
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `ColumnCount` | `int` | `2` | Number of columns (minimum 1) |
+| `ColumnSpacing` | `double` | `0` | Horizontal gap between columns |
+| `RowSpacing` | `double` | `0` | Vertical gap between items |
+
+Inherits all `CollectionControlBase` properties: `ItemsSource`, `ItemTemplate`, `ItemTemplateSelector`, `HeaderTemplate`, `FooterTemplate`, `EmptyViewTemplate`, `ItemSelectedCommand`, `LoadMoreCommand`, `LoadMoreThreshold`, `ItemSpacing`.
+
+### VirtualizedGrid
+
+A full-featured grouped grid with sticky section headers, virtualization, orientation-aware column counts, load-more, and cell padding. Uses native grid layouts on MAUI (Android `GridLayoutManager` with `StickyHeaderDecoration`, iOS `UICollectionViewCompositionalLayout` with pinned headers, Windows `ItemsRepeater` with `UniformGridLayout`) and CSS Grid with Blazor `Virtualize<T>` on Blazor.
+
+```xml
+<shiny:VirtualizedGrid ItemsSource="{Binding Items}"
+                       ColumnCount="3"
+                       ItemSpacing="8"
+                       CellPadding="4"
+                       IsGroupingEnabled="True"
+                       HasStickyHeaders="True"
+                       ItemSelectedCommand="{Binding SelectCommand}">
+    <shiny:VirtualizedGrid.GroupHeaderTemplate>
+        <DataTemplate>
+            <Label Text="{Binding .}" FontAttributes="Bold" Padding="8,4" />
+        </DataTemplate>
+    </shiny:VirtualizedGrid.GroupHeaderTemplate>
+    <shiny:VirtualizedGrid.ItemTemplate>
+        <DataTemplate>
+            <Border BackgroundColor="{Binding Color}" StrokeThickness="0" Padding="12">
+                <Label Text="{Binding Name}" TextColor="White" HorizontalTextAlignment="Center" />
+            </Border>
+        </DataTemplate>
+    </shiny:VirtualizedGrid.ItemTemplate>
+</shiny:VirtualizedGrid>
+```
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `ColumnCount` | `int` | `1` | Number of grid columns |
+| `PortraitColumnCount` | `int?` | `null` | Column count in portrait (uses `ColumnCount` if null) |
+| `LandscapeColumnCount` | `int?` | `null` | Column count in landscape (uses `ColumnCount` if null) |
+| `IsGroupingEnabled` | `bool` | `false` | Enable grouped layout with section headers |
+| `GroupHeaderTemplate` | `DataTemplate` | `null` | Template for group headers |
+| `HasStickyHeaders` | `bool` | `true` | Pin group headers while scrolling |
+| `CellPadding` | `Thickness` | `0` | Padding inside each cell |
+| `ShowLoadMoreButton` | `bool` | `false` | Show a load-more button at the bottom |
+| `LoadMoreButtonTemplate` | `DataTemplate` | `null` | Custom load-more button |
+| `IsLoadingMore` | `bool` | `false` | Loading state (OneWayToSource) |
+| `ItemVisibleCommand` | `ICommand` | `null` | Fires when an item becomes visible |
+| `ItemHiddenCommand` | `ICommand` | `null` | Fires when an item scrolls out of view |
+
+Inherits all `CollectionControlBase` properties: `ItemsSource`, `ItemTemplate`, `ItemTemplateSelector`, `HeaderTemplate`, `FooterTemplate`, `EmptyViewTemplate`, `ItemSelectedCommand`, `LoadMoreCommand`, `LoadMoreThreshold`, `ItemSpacing`.
+
+**Features:**
+- Grouped data with sticky section headers that pin while scrolling
+- Orientation-aware column count (portrait vs landscape)
+- Built-in load-more button with loading state
+- Item visibility tracking for analytics or lazy loading
+- Full header, footer, and empty view templates
