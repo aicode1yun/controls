@@ -3,6 +3,11 @@ using Microsoft.Maui.Handlers;
 using Shiny.Maui.Controls;
 using Shiny.Maui.Controls.Infrastructure;
 using Shiny.Maui.Controls.Toast;
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+using Shiny.Maui.Controls.CarouselGallery;
+using Shiny.Maui.Controls.StaggeredGrid;
+using Shiny.Maui.Controls.VirtualizedGrid;
+#endif
 
 namespace Shiny;
 
@@ -20,6 +25,15 @@ public static class ControlsMauiAppBuilderExtensions
         }
         builder.Services.TryAddSingleton<IFeedbackService, HapticFeedbackService>();
         builder.Services.TryAddSingleton<IToaster, Toaster>();
+
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        builder.ConfigureMauiHandlers(handlers =>
+        {
+            handlers.AddHandler<Shiny.Maui.Controls.CarouselGallery.CarouselGallery, CarouselGalleryHandler>();
+            handlers.AddHandler<Shiny.Maui.Controls.StaggeredGrid.StaggeredGrid, StaggeredGridHandler>();
+            handlers.AddHandler<Shiny.Maui.Controls.VirtualizedGrid.VirtualizedGrid, VirtualizedGridHandler>();
+        });
+#endif
 
         EntryHandler.Mapper.AppendToMapping("ShinyBorderless", (handler, view) =>
         {

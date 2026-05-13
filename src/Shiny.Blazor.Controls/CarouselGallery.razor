@@ -1,0 +1,44 @@
+@namespace Shiny.Blazor.Controls
+@typeparam TItem
+
+<div class="shiny-carousel" style="@ContainerStyle" @attributes="AdditionalAttributes">
+    <div class="shiny-carousel-track" @ref="trackRef" @onscroll="OnScroll">
+        @if (Items is not null)
+        {
+            var index = 0;
+            @foreach (var item in Items)
+            {
+                var localIndex = index;
+                var isFocused = localIndex == CurrentPosition;
+                var scale = isFocused ? FocusedItemScale : UnfocusedItemScale;
+                <div class="shiny-carousel-item @(isFocused ? "shiny-carousel-focused" : "")"
+                     style="@GetItemStyle(scale)"
+                     @onclick="() => OnItemClicked(localIndex)">
+                    @if (ItemTemplate is not null)
+                    {
+                        @ItemTemplate(item)
+                    }
+                    else
+                    {
+                        @item?.ToString()
+                    }
+                </div>
+                index++;
+            }
+        }
+    </div>
+
+    @if (ShowIndicators && Items is not null)
+    {
+        <div class="shiny-carousel-indicators">
+            @{ var idx = 0; }
+            @foreach (var _ in Items)
+            {
+                var localIdx = idx;
+                <button class="shiny-carousel-dot @(localIdx == CurrentPosition ? "active" : "")"
+                        @onclick="() => ScrollToPosition(localIdx)"></button>
+                idx++;
+            }
+        </div>
+    }
+</div>

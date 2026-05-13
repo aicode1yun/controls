@@ -1,0 +1,57 @@
+.shiny-carousel {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.shiny-carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: var(--carousel-spacing, 16px);
+    padding: 16px var(--carousel-peek, 40px);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    align-items: center;
+}
+
+.shiny-carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.shiny-carousel-item {
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transform-origin: center center;
+}
+
+.shiny-carousel-item.shiny-carousel-focused {
+    z-index: 1;
+}
+
+.shiny-carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 0;
+}
+
+.shiny-carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.shiny-carousel-dot.active {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.3);
+}

@@ -1,0 +1,113 @@
+using System.Windows.Input;
+using Shiny.Maui.Controls.Collections;
+
+namespace Shiny.Maui.Controls.CarouselGallery;
+
+public class CarouselGallery : CollectionControlBase
+{
+    public static readonly BindableProperty FocusedItemScaleProperty = BindableProperty.Create(
+        nameof(FocusedItemScale),
+        typeof(double),
+        typeof(CarouselGallery),
+        1.0);
+
+    public static readonly BindableProperty UnfocusedItemScaleProperty = BindableProperty.Create(
+        nameof(UnfocusedItemScale),
+        typeof(double),
+        typeof(CarouselGallery),
+        0.8);
+
+    public static readonly BindableProperty ItemWidthProperty = BindableProperty.Create(
+        nameof(ItemWidth),
+        typeof(double),
+        typeof(CarouselGallery),
+        200.0);
+
+    public static readonly BindableProperty ItemHeightProperty = BindableProperty.Create(
+        nameof(ItemHeight),
+        typeof(double),
+        typeof(CarouselGallery),
+        300.0);
+
+    public static readonly BindableProperty CurrentPositionProperty = BindableProperty.Create(
+        nameof(CurrentPosition),
+        typeof(int),
+        typeof(CarouselGallery),
+        0,
+        BindingMode.TwoWay);
+
+    public static readonly BindableProperty PeekAreaInsetsProperty = BindableProperty.Create(
+        nameof(PeekAreaInsets),
+        typeof(Thickness),
+        typeof(CarouselGallery),
+        new Thickness(0));
+
+    public static readonly BindableProperty IsInfiniteProperty = BindableProperty.Create(
+        nameof(IsInfinite),
+        typeof(bool),
+        typeof(CarouselGallery),
+        false);
+
+    public static readonly BindableProperty PositionChangedCommandProperty = BindableProperty.Create(
+        nameof(PositionChangedCommand),
+        typeof(ICommand),
+        typeof(CarouselGallery));
+
+    public double FocusedItemScale
+    {
+        get => (double)GetValue(FocusedItemScaleProperty);
+        set => SetValue(FocusedItemScaleProperty, value);
+    }
+
+    public double UnfocusedItemScale
+    {
+        get => (double)GetValue(UnfocusedItemScaleProperty);
+        set => SetValue(UnfocusedItemScaleProperty, value);
+    }
+
+    public double ItemWidth
+    {
+        get => (double)GetValue(ItemWidthProperty);
+        set => SetValue(ItemWidthProperty, value);
+    }
+
+    public double ItemHeight
+    {
+        get => (double)GetValue(ItemHeightProperty);
+        set => SetValue(ItemHeightProperty, value);
+    }
+
+    public int CurrentPosition
+    {
+        get => (int)GetValue(CurrentPositionProperty);
+        set => SetValue(CurrentPositionProperty, value);
+    }
+
+    public Thickness PeekAreaInsets
+    {
+        get => (Thickness)GetValue(PeekAreaInsetsProperty);
+        set => SetValue(PeekAreaInsetsProperty, value);
+    }
+
+    public bool IsInfinite
+    {
+        get => (bool)GetValue(IsInfiniteProperty);
+        set => SetValue(IsInfiniteProperty, value);
+    }
+
+    public ICommand? PositionChangedCommand
+    {
+        get => (ICommand?)GetValue(PositionChangedCommandProperty);
+        set => SetValue(PositionChangedCommandProperty, value);
+    }
+
+    public event EventHandler<int>? PositionChanged;
+
+    internal void RaisePositionChanged(int position)
+    {
+        CurrentPosition = position;
+        PositionChanged?.Invoke(this, position);
+        if (PositionChangedCommand?.CanExecute(position) == true)
+            PositionChangedCommand.Execute(position);
+    }
+}
