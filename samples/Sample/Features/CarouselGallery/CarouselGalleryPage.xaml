@@ -21,8 +21,11 @@
 
             <BoxView HeightRequest="1" Color="LightGray" />
 
-            <!-- Basic Carousel -->
+            <!-- Basic Carousel — 20 genres -->
             <Label Text="Basic Carousel" FontAttributes="Bold" FontSize="18" />
+            <Label Text="{Binding BasicItems.Count, StringFormat='{0} items — peek/snap, swipe to browse'}"
+                   FontSize="12"
+                   TextColor="Gray" />
 
             <shiny:CarouselGallery ItemsSource="{Binding BasicItems}"
                                    ItemWidth="280"
@@ -62,7 +65,7 @@
 
             <BoxView HeightRequest="1" Color="LightGray" />
 
-            <!-- Scale Effect Carousel -->
+            <!-- Scale Effect Carousel — same data, focus scale -->
             <Label Text="With Scale Effect" FontAttributes="Bold" FontSize="18" />
 
             <shiny:CarouselGallery ItemsSource="{Binding BasicItems}"
@@ -98,8 +101,11 @@
 
             <BoxView HeightRequest="1" Color="LightGray" />
 
-            <!-- Item Selection -->
-            <Label Text="With Selection" FontAttributes="Bold" FontSize="18" />
+            <!-- Destination Carousel — 16 items with selection -->
+            <Label Text="Destinations" FontAttributes="Bold" FontSize="18" />
+            <Label Text="{Binding GradientItems.Count, StringFormat='{0} items — tap a card to select'}"
+                   FontSize="12"
+                   TextColor="Gray" />
 
             <shiny:CarouselGallery ItemsSource="{Binding GradientItems}"
                                    ItemWidth="300"
@@ -120,7 +126,7 @@
                             </Border.Shadow>
                             <VerticalStackLayout VerticalOptions="Center"
                                                  HorizontalOptions="Center"
-                                                 Spacing="8">
+                                                 Spacing="6">
                                 <Label Text="{Binding Icon}"
                                        FontSize="40"
                                        HorizontalTextAlignment="Center" />
@@ -132,9 +138,56 @@
                                 <Label Text="{Binding Subtitle}"
                                        FontSize="12"
                                        TextColor="White"
-                                       Opacity="0.8"
+                                       Opacity="0.85"
                                        HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </shiny:CarouselGallery.ItemTemplate>
+            </shiny:CarouselGallery>
+
+            <BoxView HeightRequest="1" Color="LightGray" />
+
+            <!-- Photo Carousel — 24 photos -->
+            <Label Text="Photo Gallery" FontAttributes="Bold" FontSize="18" />
+            <Label Text="{Binding PhotoItems.Count, StringFormat='{0} photos — full-bleed image cards'}"
+                   FontSize="12"
+                   TextColor="Gray" />
+
+            <shiny:CarouselGallery ItemsSource="{Binding PhotoItems}"
+                                   ItemWidth="320"
+                                   ItemHeight="220"
+                                   ItemSpacing="14"
+                                   PeekAreaInsets="40"
+                                   ItemSelectedCommand="{Binding ItemSelectedCommand}"
+                                   HeightRequest="240">
+                <shiny:CarouselGallery.ItemTemplate>
+                    <DataTemplate x:DataType="local:CarouselPhotoItem">
+                        <Border StrokeThickness="0"
+                                BackgroundColor="{Binding Color}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="14" />
+                            </Border.StrokeShape>
+                            <Grid>
+                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+
+                                <BoxView VerticalOptions="End"
+                                         HeightRequest="80">
+                                    <BoxView.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="Transparent" Offset="0.0" />
+                                            <GradientStop Color="#B0000000" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </BoxView.Background>
+                                </BoxView>
+
+                                <Label Text="{Binding Title}"
+                                       VerticalOptions="End"
+                                       Padding="14,10"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       TextColor="White" />
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </shiny:CarouselGallery.ItemTemplate>

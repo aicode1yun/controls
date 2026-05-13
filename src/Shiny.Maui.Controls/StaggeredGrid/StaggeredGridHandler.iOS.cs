@@ -30,6 +30,7 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
     protected override void ConnectHandler(UICollectionView platformView)
     {
         base.ConnectHandler(platformView);
+        waterfallLayout!.SetMauiContext(MauiContext!);
         dataSource = new StaggeredDataSource(VirtualView, MauiContext!);
         collectionDelegate = new StaggeredDelegate(VirtualView);
         platformView.DataSource = dataSource;
@@ -138,14 +139,20 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
         }
     }
 
-    // Custom waterfall/masonry layout
+    // Custom waterfall/masonry layout — pre-measures each item's MAUI view
+    // so columns can stagger based on real content heights.
     class WaterfallLayout : UICollectionViewLayout
     {
         readonly StaggeredGrid grid;
         readonly List<UICollectionViewLayoutAttributes> allAttributes = [];
+        readonly Dictionary<DataTemplate, View> sizingViews = new();
+        IMauiContext? mauiContext;
         nfloat contentHeight;
+        nfloat lastLayoutWidth;
 
         public WaterfallLayout(StaggeredGrid grid) => this.grid = grid;
+
+        public void SetMauiContext(IMauiContext context) => mauiContext = context;
 
         public override CGSize CollectionViewContentSize =>
             new(CollectionView?.Bounds.Width ?? 0, contentHeight);
@@ -161,18 +168,20 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
 
             var columnCount = Math.Max(1, grid.ColumnCount);
             var totalWidth = CollectionView.Bounds.Width;
+            lastLayoutWidth = totalWidth;
             var columnSpacing = (nfloat)grid.ColumnSpacing;
             var rowSpacing = (nfloat)grid.RowSpacing;
 
             var totalSpacing = columnSpacing * (columnCount - 1);
             var columnWidth = (totalWidth - totalSpacing) / columnCount;
+            if (columnWidth <= 0)
+                return;
 
             var columnHeights = new nfloat[columnCount];
+            var items = grid.GetItemsList();
 
-            var itemCount = CollectionView.NumberOfItemsInSection(0);
-            for (var i = 0; i < itemCount; i++)
+            for (var i = 0; i < items.Count; i++)
             {
-                // Find the shortest column
                 var shortestColumn = 0;
                 for (var c = 1; c < columnCount; c++)
                 {
@@ -185,17 +194,37 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
                 if (y > 0)
                     y += rowSpacing;
 
-                // Estimate height — use estimated or preferredAttributes will refine it
-                var estimatedHeight = columnWidth; // square default
+                var itemHeight = MeasureItemHeight(items[i], (double)columnWidth);
+
                 var indexPath = NSIndexPath.FromRowSection(i, 0);
                 var attrs = UICollectionViewLayoutAttributes.CreateForCell(indexPath);
-                attrs.Frame = new CGRect(x, y, columnWidth, estimatedHeight);
+                attrs.Frame = new CGRect(x, y, columnWidth, (nfloat)itemHeight);
 
                 allAttributes.Add(attrs);
-                columnHeights[shortestColumn] = y + estimatedHeight;
+                columnHeights[shortestColumn] = y + (nfloat)itemHeight;
             }
 
             contentHeight = columnHeights.Length > 0 ? columnHeights.Max() : 0;
+        }
+
+        nfloat MeasureItemHeight(object item, double width)
+        {
+            if (mauiContext is null)
+                return (nfloat)width;
+
+            var template = grid.ResolveTemplate(item);
+            if (!sizingViews.TryGetValue(template, out var view))
+            {
+                view = grid.CreateItemView(item);
+                sizingViews[template] = view;
+            }
+            else
+            {
+                view.BindingContext = item;
+            }
+
+            var size = ((IView)view).Measure(width, double.PositiveInfinity);
+            return (nfloat)Math.Max(1, size.Height);
         }
 
         public override UICollectionViewLayoutAttributes[]? LayoutAttributesForElementsInRect(CGRect rect)
@@ -210,8 +239,15 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
 
         public override bool ShouldInvalidateLayoutForBoundsChange(CGRect newBounds)
         {
-            return CollectionView is not null && !CollectionView.Bounds.Size.Equals(newBounds.Size);
+            return CollectionView is not null && lastLayoutWidth != newBounds.Width;
         }
+
+        // We've already pre-measured every cell in PrepareLayout, so ignore the
+        // cell's preferred attributes — they would otherwise cause a layout pass
+        // per visible cell.
+        public override bool ShouldInvalidateLayoutForPreferredLayoutAttributes(
+            UICollectionViewLayoutAttributes preferredAttributes,
+            UICollectionViewLayoutAttributes originalAttributes) => false;
     }
 }
 #endif

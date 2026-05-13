@@ -11,13 +11,13 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- Controls -->
-        <VerticalStackLayout Padding="20,20,20,0" Spacing="12">
-            <Label Text="Staggered Grid (Pinterest)"
-                   FontSize="24"
+        <VerticalStackLayout Padding="20,16,20,8" Spacing="8">
+            <Label Text="Pinterest-style Grid"
+                   FontSize="22"
                    FontAttributes="Bold" />
 
             <Label Text="{Binding StatusMessage}"
-                   FontSize="14"
+                   FontSize="13"
                    TextColor="Gray" />
 
             <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
@@ -25,53 +25,67 @@
                 <Button Text="-" Command="{Binding DecrementColumnsCommand}" WidthRequest="40" />
                 <Label Text="{Binding ColumnCount}" VerticalTextAlignment="Center" FontAttributes="Bold" />
                 <Button Text="+" Command="{Binding IncrementColumnsCommand}" WidthRequest="40" />
+                <Button Text="Shuffle" Command="{Binding ShuffleCommand}" />
             </HorizontalStackLayout>
-
-            <BoxView HeightRequest="1" Color="LightGray" />
         </VerticalStackLayout>
 
-        <!-- Grid -->
-        <ScrollView Grid.Row="1" Padding="20,12,20,20">
-            <shiny:StaggeredGrid ItemsSource="{Binding Items}"
-                                 ColumnCount="{Binding ColumnCount}"
-                                 ColumnSpacing="12"
-                                 RowSpacing="12"
-                                 ItemSelectedCommand="{Binding ItemSelectedCommand}">
-                <shiny:StaggeredGrid.ItemTemplate>
-                    <DataTemplate x:DataType="local:StaggeredItem">
-                        <Border StrokeThickness="0"
-                                BackgroundColor="{Binding Color}"
-                                HeightRequest="{Binding Height}"
-                                Padding="16">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="12" />
-                            </Border.StrokeShape>
-                            <VerticalStackLayout Spacing="4" VerticalOptions="Fill">
-                                <Label Text="{Binding Icon}"
-                                       FontSize="24" />
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding Title}"
-                                           FontAttributes="Bold"
-                                           TextColor="White" />
-                                    <Label Text="{Binding Category}"
-                                           FontSize="12"
-                                           TextColor="White"
-                                           Opacity="0.8" />
-                                </VerticalStackLayout>
+        <!-- Pinterest grid — the control handles its own scrolling, do NOT wrap in ScrollView -->
+        <shiny:StaggeredGrid Grid.Row="1"
+                             Margin="12,0,12,0"
+                             ItemsSource="{Binding Items}"
+                             ColumnCount="{Binding ColumnCount}"
+                             ColumnSpacing="8"
+                             RowSpacing="8"
+                             ItemSelectedCommand="{Binding ItemSelectedCommand}">
+            <shiny:StaggeredGrid.ItemTemplate>
+                <DataTemplate x:DataType="local:StaggeredItem">
+                    <Border StrokeThickness="0"
+                            BackgroundColor="{Binding Accent}"
+                            HeightRequest="{Binding Height}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="14" />
+                        </Border.StrokeShape>
+                        <Grid>
+                            <Image Source="{Binding ImageUrl}"
+                                   Aspect="AspectFill" />
+
+                            <!-- Bottom gradient for legible captions -->
+                            <BoxView VerticalOptions="End"
+                                     HeightRequest="80">
+                                <BoxView.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="Transparent" Offset="0.0" />
+                                        <GradientStop Color="#A0000000" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </BoxView.Background>
+                            </BoxView>
+
+                            <VerticalStackLayout VerticalOptions="End"
+                                                 Padding="12,8"
+                                                 Spacing="0">
+                                <Label Text="{Binding Title}"
+                                       FontAttributes="Bold"
+                                       FontSize="14"
+                                       TextColor="White"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Category}"
+                                       FontSize="11"
+                                       TextColor="White"
+                                       Opacity="0.85" />
                             </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </shiny:StaggeredGrid.ItemTemplate>
-                <shiny:StaggeredGrid.EmptyViewTemplate>
-                    <DataTemplate>
-                        <Label Text="No items to display."
-                               HorizontalTextAlignment="Center"
-                               Padding="32"
-                               TextColor="Gray" />
-                    </DataTemplate>
-                </shiny:StaggeredGrid.EmptyViewTemplate>
-            </shiny:StaggeredGrid>
-        </ScrollView>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </shiny:StaggeredGrid.ItemTemplate>
+            <shiny:StaggeredGrid.EmptyViewTemplate>
+                <DataTemplate>
+                    <Label Text="No pins to display."
+                           HorizontalTextAlignment="Center"
+                           Padding="32"
+                           TextColor="Gray" />
+                </DataTemplate>
+            </shiny:StaggeredGrid.EmptyViewTemplate>
+        </shiny:StaggeredGrid>
 
     </Grid>
 </ContentPage>
