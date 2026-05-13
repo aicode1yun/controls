@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Sample.Features.FloatingPanel"
              xmlns:shiny="http://shiny.net/maui/controls"
-             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:local2="clr-namespace:Sample.Controls"
              x:Class="Sample.Features.FloatingPanel.SheetPage"
              x:DataType="local:SheetViewModel"
              AutomationId="SheetPage">
@@ -66,7 +66,7 @@
                    IsVisible="{Binding HasSignature}" />
 
             <Label Text="No signature captured yet"
-                   IsVisible="{Binding HasSignature, Converter={toolkit:InvertedBoolConverter}}"
+                   IsVisible="{Binding HasNoSignature}"
                    HorizontalTextAlignment="Center"
                    TextColor="Gray" />
 
@@ -144,23 +144,29 @@
                     StrokeShape="RoundRectangle 8"
                     HeightRequest="200"
                     BackgroundColor="White">
-                <toolkit:DrawingView x:Name="drawingView"
-                                     LineColor="Black"
-                                     LineWidth="3"
-                                     IsMultiLineModeEnabled="True"
-                                     BackgroundColor="White" />
+                <local2:DrawingCanvas x:Name="drawingCanvas"
+                                      StrokeColor="Black"
+                                      StrokeWidth="3"
+                                      BackgroundColor="White" />
             </Border>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                 <Button Text="Cancel"
                         BackgroundColor="Gray"
                         TextColor="White"
                         Command="{Binding CancelSignatureCommand}" />
 
-                <Button Text="Done"
+                <Button Text="Clear"
                         Grid.Column="1"
+                        BackgroundColor="Orange"
+                        TextColor="White"
+                        Command="{Binding ClearSignatureCommand}"
+                        CommandParameter="{x:Reference drawingCanvas}" />
+
+                <Button Text="Done"
+                        Grid.Column="2"
                         Command="{Binding DoneSignatureCommand}"
-                        CommandParameter="{x:Reference drawingView}" />
+                        CommandParameter="{x:Reference drawingCanvas}" />
             </Grid>
         </VerticalStackLayout>
     </shiny:FloatingPanel>

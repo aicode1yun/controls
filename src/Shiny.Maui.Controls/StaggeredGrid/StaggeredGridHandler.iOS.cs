@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using CoreGraphics;
 using Foundation;
 using Microsoft.Maui.Handlers;
+using Microsoft.Maui.Platform;
 using ObjCRuntime;
 using Shiny.Maui.Controls.Collections;
 using UIKit;
@@ -216,12 +217,21 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
             if (!sizingViews.TryGetValue(template, out var view))
             {
                 view = grid.CreateItemView(item);
+                // Create a platform handler so Measure() works through the native layout system.
+                // Without this, the detached MAUI view can't measure complex layouts correctly.
+                view.ToPlatform(mauiContext);
                 sizingViews[template] = view;
             }
             else
             {
                 view.BindingContext = item;
             }
+
+            // If the root view has an explicit HeightRequest (common for staggered items),
+            // use it directly — it's the most reliable signal and avoids measurement issues
+            // with remote images or async content.
+            if (view.HeightRequest > 0)
+                return (nfloat)view.HeightRequest;
 
             var size = ((IView)view).Measure(width, double.PositiveInfinity);
             return (nfloat)Math.Max(1, size.Height);
@@ -245,9 +255,7 @@ public partial class StaggeredGridHandler : ViewHandler<StaggeredGrid, UICollect
         // We've already pre-measured every cell in PrepareLayout, so ignore the
         // cell's preferred attributes — they would otherwise cause a layout pass
         // per visible cell.
-        public override bool ShouldInvalidateLayoutForPreferredLayoutAttributes(
-            UICollectionViewLayoutAttributes preferredAttributes,
-            UICollectionViewLayoutAttributes originalAttributes) => false;
+        public override bool ShouldInvalidateLayout(UICollectionViewLayoutAttributes preferredAttributes, UICollectionViewLayoutAttributes originalAttributes) => false;
     }
 }
 #endif

@@ -85,6 +85,8 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
             var section = NSCollectionLayoutSection.Create(group);
             section.InterGroupSpacing = spacing;
 
+            var supplementaryItems = new List<NSCollectionLayoutBoundarySupplementaryItem>();
+
             // Section header for grouping
             if (VirtualView.IsGroupingEnabled && VirtualView.GroupHeaderTemplate is not null)
             {
@@ -98,9 +100,27 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
                     NSRectAlignment.Top);
 
                 header.PinToVisibleBounds = VirtualView.HasStickyHeaders;
-
-                section.BoundarySupplementaryItems = [header];
+                supplementaryItems.Add(header);
             }
+
+            // Load more footer on last section
+            if (VirtualView.ShowLoadMoreButton && dataSource is not null &&
+                (int)sectionIndex == dataSource.Sections.Count - 1)
+            {
+                var footerSize = NSCollectionLayoutSize.Create(
+                    NSCollectionLayoutDimension.CreateFractionalWidth(1f),
+                    NSCollectionLayoutDimension.CreateEstimated(44));
+
+                var footer = NSCollectionLayoutBoundarySupplementaryItem.Create(
+                    footerSize,
+                    SectionFooterKind,
+                    NSRectAlignment.Bottom);
+
+                supplementaryItems.Add(footer);
+            }
+
+            if (supplementaryItems.Count > 0)
+                section.BoundarySupplementaryItems = supplementaryItems.ToArray();
 
             return section;
         });
@@ -196,12 +216,7 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
             else
             {
                 var items = control.GetItemsList();
-                var sectionItems = new List<object>(items);
-
-                if (control.ShowLoadMoreButton)
-                    sectionItems.Add(new LoadMoreMarker());
-
-                result.Add(new SectionData { Items = sectionItems });
+                result.Add(new SectionData { Items = new List<object>(items) });
             }
 
             return result;
@@ -221,8 +236,7 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
             {
                 var item = sections[indexPath.Section].Items[indexPath.Row];
                 cell.Bind(control, mauiContext, item);
-                if (item is not LoadMoreMarker)
-                    control.RaiseItemVisible(item, indexPath.Row);
+                control.RaiseItemVisible(item, indexPath.Row);
             }
 
             return cell;
@@ -239,6 +253,11 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
                 sections[indexPath.Section].GroupKey is { } key)
             {
                 view.Bind(control, mauiContext, key);
+            }
+            else if (elementKind.ToString() == SectionFooterKind.ToString() &&
+                     control.ShowLoadMoreButton)
+            {
+                view.BindLoadMore(control, mauiContext);
             }
 
             return view;
@@ -263,8 +282,7 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
                 indexPath.Row < dataSource.Sections[indexPath.Section].Items.Count)
             {
                 var item = dataSource.Sections[indexPath.Section].Items[indexPath.Row];
-                if (item is not LoadMoreMarker)
-                    control.RaiseItemSelected(item, indexPath.Row);
+                control.RaiseItemSelected(item, indexPath.Row);
             }
         }
 
@@ -275,8 +293,7 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
                 indexPath.Row < dataSource.Sections[indexPath.Section].Items.Count)
             {
                 var item = dataSource.Sections[indexPath.Section].Items[indexPath.Row];
-                if (item is not LoadMoreMarker)
-                    control.RaiseItemHidden(item, indexPath.Row);
+                control.RaiseItemHidden(item, indexPath.Row);
             }
         }
 
@@ -307,7 +324,6 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, UICol
         }
     }
 
-    record LoadMoreMarker;
 }
 
 internal class MauiSupplementaryView : UICollectionReusableView
@@ -336,6 +352,20 @@ internal class MauiSupplementaryView : UICollectionReusableView
         else
         {
             mauiView.BindingContext = groupKey;
+        }
+
+        SetNeedsLayout();
+    }
+
+    public void BindLoadMore(VirtualizedGrid control, IMauiContext context)
+    {
+        mauiContext = context;
+
+        if (mauiView is null)
+        {
+            mauiView = control.CreateLoadMoreView();
+            platformView = mauiView.ToPlatform(mauiContext);
+            AddSubview(platformView);
         }
 
         SetNeedsLayout();

@@ -20,13 +20,15 @@ public partial class CarouselGallery<TItem>
     [Parameter] public int CurrentPosition { get; set; }
     [Parameter] public EventCallback<int> CurrentPositionChanged { get; set; }
     [Parameter] public EventCallback<TItem> ItemSelected { get; set; }
+    [Parameter] public int SnapCount { get; set; } = 1;
     [Parameter] public bool ShowIndicators { get; set; } = true;
 
     [Parameter(CaptureUnmatchedValues = true)]
     public IDictionary<string, object>? AdditionalAttributes { get; set; }
 
     string ContainerStyle => $"--carousel-item-width:{ItemWidth}px;--carousel-item-height:{ItemHeight}px;" +
-                             $"--carousel-spacing:{ItemSpacing}px;--carousel-peek:{PeekAmount}px;";
+                             $"--carousel-spacing:{ItemSpacing}px;--carousel-peek:{PeekAmount}px;" +
+                             (SnapCount == 0 ? "--carousel-snap:none;" : "");
 
     string GetItemStyle(double scale) =>
         $"width:{ItemWidth}px;height:{ItemHeight}px;transform:scale({scale});transition:transform 0.3s ease;";

@@ -33,6 +33,17 @@
                 <Button Text="Grouped" Command="{Binding ShowGroupedCommand}" />
                 <Button Text="Load More" Command="{Binding ShowLoadMoreCommand}" />
             </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8"
+                                   IsVisible="{Binding IsLoadMoreVisible}">
+                <Label Text="Mode:" VerticalTextAlignment="Center" />
+                <Button Text="Button" Command="{Binding UseButtonModeCommand}" />
+                <Button Text="Threshold" Command="{Binding UseThresholdModeCommand}" />
+                <Label Text="{Binding LoadMoreModeLabel}"
+                       VerticalTextAlignment="Center"
+                       FontSize="12"
+                       TextColor="Gray" />
+            </HorizontalStackLayout>
         </VerticalStackLayout>
 
         <!-- Grid swap area — only the active VirtualizedGrid is visible. -->
@@ -134,6 +145,7 @@
                                    CellPadding="4"
                                    LoadMoreCommand="{Binding LoadMoreCommand}"
                                    LoadMoreThreshold="8"
+                                   ShowLoadMoreButton="{Binding UseLoadMoreButton}"
                                    IsVisible="{Binding IsLoadMoreVisible}">
                 <shiny:VirtualizedGrid.ItemTemplate>
                     <DataTemplate x:DataType="local:GridItem">

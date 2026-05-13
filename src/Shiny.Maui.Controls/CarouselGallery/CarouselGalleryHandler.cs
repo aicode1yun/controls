@@ -17,6 +17,7 @@ public partial class CarouselGalleryHandler
             [nameof(CarouselGallery.PeekAreaInsets)] = MapPeekInsets,
             [nameof(CarouselGallery.ItemTemplate)] = MapItemTemplate,
             [nameof(CarouselGallery.ItemTemplateSelector)] = MapItemTemplate,
+            [nameof(CarouselGallery.SnapCount)] = MapSnapCount,
         };
 
     public static CommandMapper<CarouselGallery, CarouselGalleryHandler> CommandMapper =
@@ -32,5 +33,6 @@ public partial class CarouselGalleryHandler
     static partial void MapScaling(CarouselGalleryHandler handler, CarouselGallery view);
     static partial void MapPeekInsets(CarouselGalleryHandler handler, CarouselGallery view);
     static partial void MapItemTemplate(CarouselGalleryHandler handler, CarouselGallery view);
+    static partial void MapSnapCount(CarouselGalleryHandler handler, CarouselGallery view);
 }
 #endif

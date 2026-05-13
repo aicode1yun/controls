@@ -235,8 +235,7 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, Recyc
                     break;
 
                 case ItemType.LoadMoreButton:
-                    var loadMoreData = new LoadMoreItem(control);
-                    mauiHolder.Bind(control, loadMoreData, position);
+                    mauiHolder.BindCustomView(control.CreateLoadMoreView(), mauiContext);
                     break;
 
                 case ItemType.Header when control.HeaderTemplate is not null:
@@ -401,6 +400,5 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, Recyc
     }
 
     internal record TemplateMarker(string Name);
-    internal record LoadMoreItem(VirtualizedGrid Control);
 }
 #endif

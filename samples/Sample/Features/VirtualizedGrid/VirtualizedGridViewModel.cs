@@ -33,6 +33,9 @@ public partial class VirtualizedGridViewModel : ObservableObject
     [ObservableProperty]
     bool canLoadMore = true;
 
+    [ObservableProperty]
+    bool useLoadMoreButton = true;
+
     public ObservableCollection<GridItem> FlatItems { get; } = new(
         Enumerable.Range(1, 240).Select(i => new GridItem(
             $"Item {i}",
@@ -77,6 +80,27 @@ public partial class VirtualizedGridViewModel : ObservableObject
     [RelayCommand] void ShowFlat() => Mode = DisplayMode.Flat;
     [RelayCommand] void ShowGrouped() => Mode = DisplayMode.Grouped;
     [RelayCommand] void ShowLoadMore() => Mode = DisplayMode.LoadMore;
+
+    public string LoadMoreModeLabel => UseLoadMoreButton ? "Using: Button" : "Using: Threshold (8)";
+
+    partial void OnUseLoadMoreButtonChanged(bool value)
+    {
+        OnPropertyChanged(nameof(LoadMoreModeLabel));
+    }
+
+    [RelayCommand]
+    void UseButtonMode()
+    {
+        UseLoadMoreButton = true;
+        StatusMessage = "Load More: button at end of list";
+    }
+
+    [RelayCommand]
+    void UseThresholdMode()
+    {
+        UseLoadMoreButton = false;
+        StatusMessage = "Load More: auto-loads when 8 items from end";
+    }
 
     [RelayCommand]
     void ItemSelected(object item)

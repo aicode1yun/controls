@@ -54,6 +54,31 @@ internal class MauiViewHolder : RecyclerView.ViewHolder
         }
     }
 
+    public void BindCustomView(Microsoft.Maui.Controls.View view, IMauiContext context)
+    {
+        mauiView = view;
+        platformView = mauiView.ToPlatform(context);
+        var container = (Android.Widget.FrameLayout)ItemView;
+        container.RemoveAllViews();
+        container.AddView(platformView);
+
+        var widthSpec = ItemView.LayoutParameters?.Width == ViewGroup.LayoutParams.MatchParent
+            ? ((ItemView.Parent as Android.Views.View)?.Width ?? 0)
+            : double.PositiveInfinity;
+
+        if (widthSpec > 0)
+        {
+            var density = context.Context!.Resources!.DisplayMetrics!.Density;
+            var size = (mauiView as IView).Measure(
+                widthSpec / density,
+                double.PositiveInfinity);
+            var heightPx = (int)(size.Height * density);
+
+            ItemView.LayoutParameters = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MatchParent, heightPx);
+        }
+    }
+
     public void Recycle()
     {
         if (mauiView is not null)

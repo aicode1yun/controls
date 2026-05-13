@@ -39,7 +39,9 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Scrol
             VerticalScrollBarVisibility = WinScrollBarVisibility.Disabled,
             HorizontalScrollMode = WinScrollMode.Enabled,
             VerticalScrollMode = WinScrollMode.Disabled,
-            HorizontalSnapPointsType = Microsoft.UI.Xaml.Controls.SnapPointsType.MandatorySingle,
+            HorizontalSnapPointsType = VirtualView.SnapCount >= 1
+                ? Microsoft.UI.Xaml.Controls.SnapPointsType.MandatorySingle
+                : Microsoft.UI.Xaml.Controls.SnapPointsType.None,
             HorizontalSnapPointsAlignment = Microsoft.UI.Xaml.Controls.Primitives.SnapPointsAlignment.Center,
             ZoomMode = ZoomMode.Disabled
         };
@@ -189,6 +191,16 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Scrol
     static partial void MapItemTemplate(CarouselGalleryHandler handler, CarouselGallery view)
     {
         handler.UpdateItemsSource();
+    }
+
+    static partial void MapSnapCount(CarouselGalleryHandler handler, CarouselGallery view)
+    {
+        if (handler.PlatformView is null)
+            return;
+
+        handler.PlatformView.HorizontalSnapPointsType = view.SnapCount >= 1
+            ? Microsoft.UI.Xaml.Controls.SnapPointsType.MandatorySingle
+            : Microsoft.UI.Xaml.Controls.SnapPointsType.None;
     }
 }
 #endif

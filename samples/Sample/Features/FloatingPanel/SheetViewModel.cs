@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sample.Controls;
 using Shiny.Maui.Controls;
 
 using Shiny;
@@ -57,6 +57,7 @@ public partial class SheetViewModel : ObservableObject
     ImageSource? signatureImage;
 
     public bool HasSignature => SignatureImage != null;
+    public bool HasNoSignature => SignatureImage == null;
 
     [RelayCommand]
     void OpenSignature() => IsSignatureOpen = true;
@@ -65,15 +66,22 @@ public partial class SheetViewModel : ObservableObject
     void CancelSignature() => IsSignatureOpen = false;
 
     [RelayCommand]
-    async Task DoneSignature(DrawingView drawingView)
+    void ClearSignature(DrawingCanvas canvas)
     {
-        var stream = await drawingView.GetImageStream(300, 150);
+        canvas.Clear();
+    }
+
+    [RelayCommand]
+    void DoneSignature(DrawingCanvas canvas)
+    {
+        var stream = canvas.ExportToPng(300, 150);
         if (stream != null)
         {
             SignatureImage = ImageSource.FromStream(() => stream);
             OnPropertyChanged(nameof(HasSignature));
+            OnPropertyChanged(nameof(HasNoSignature));
         }
-        drawingView.Lines.Clear();
+        canvas.Clear();
         IsSignatureOpen = false;
     }
 

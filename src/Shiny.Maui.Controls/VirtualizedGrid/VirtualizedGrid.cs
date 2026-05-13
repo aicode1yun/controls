@@ -200,6 +200,31 @@ public class VirtualizedGrid : CollectionControlBase
         return view;
     }
 
+    internal View CreateLoadMoreView()
+    {
+        if (LoadMoreButtonTemplate is not null)
+        {
+            var content = LoadMoreButtonTemplate.CreateContent();
+            var view = content as View ?? (content as ViewCell)?.View
+                ?? throw new InvalidOperationException("LoadMoreButtonTemplate must produce a View or ViewCell.");
+            return view;
+        }
+
+        var button = new Button
+        {
+            Text = "Load More",
+            HorizontalOptions = LayoutOptions.Center,
+            Margin = new Thickness(0, 8)
+        };
+        button.Clicked += (_, _) =>
+        {
+            IsLoadingMore = true;
+            RaiseLoadMoreRequested();
+            IsLoadingMore = false;
+        };
+        return button;
+    }
+
     internal (IList<GroupedData> Groups, IList<object> FlatItems) GetGroupedData()
     {
         var items = GetItemsList();

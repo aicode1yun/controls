@@ -23,7 +23,9 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, UICol
         {
             BackgroundColor = UIColor.Clear,
             ShowsHorizontalScrollIndicator = false,
-            DecelerationRate = UIScrollView.DecelerationRateFast,
+            DecelerationRate = VirtualView.SnapCount >= 1
+                ? UIScrollView.DecelerationRateFast
+                : UIScrollView.DecelerationRateNormal,
             ClipsToBounds = false
         };
 
@@ -142,6 +144,18 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, UICol
         handler.PlatformView?.ReloadData();
     }
 
+    static partial void MapSnapCount(CarouselGalleryHandler handler, CarouselGallery view)
+    {
+        if (handler.PlatformView is null)
+            return;
+
+        handler.PlatformView.DecelerationRate = view.SnapCount >= 1
+            ? UIScrollView.DecelerationRateFast
+            : UIScrollView.DecelerationRateNormal;
+
+        handler.flowLayout?.InvalidateLayout();
+    }
+
     class CarouselFlowLayout : UICollectionViewFlowLayout
     {
         readonly CarouselGallery gallery;
@@ -157,6 +171,10 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, UICol
         public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
         {
             if (CollectionView is null)
+                return proposedContentOffset;
+
+            // Free scroll mode — no snapping
+            if (gallery.SnapCount == 0)
                 return proposedContentOffset;
 
             var cvBounds = CollectionView.Bounds;

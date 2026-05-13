@@ -14,9 +14,59 @@ public partial class CarouselGalleryViewModel : ObservableObject
     [ObservableProperty]
     string statusMessage = "Swipe horizontally — tap a slide to select it";
 
+    [ObservableProperty]
+    int snapCount = 1;
+
+    [ObservableProperty]
+    double focusedScale = 1.0;
+
+    [ObservableProperty]
+    double unfocusedScale = 0.85;
+
+    [ObservableProperty]
+    bool isScaleEnabled = true;
+
+    public string SnapLabel => SnapCount == 0 ? "Free Scroll" : $"Snap ({SnapCount})";
+    public string ScaleLabel => IsScaleEnabled ? $"Scale ({UnfocusedScale:F2})" : "Scale Off";
+
+    partial void OnSnapCountChanged(int value) => OnPropertyChanged(nameof(SnapLabel));
+
+    partial void OnIsScaleEnabledChanged(bool value)
+    {
+        if (value)
+        {
+            FocusedScale = 1.0;
+            UnfocusedScale = 0.85;
+        }
+        else
+        {
+            FocusedScale = 1.0;
+            UnfocusedScale = 1.0;
+        }
+        OnPropertyChanged(nameof(ScaleLabel));
+    }
+
     public ObservableCollection<CarouselItem> BasicItems { get; } = new(BuildGenres());
     public ObservableCollection<CarouselItem> GradientItems { get; } = new(BuildDestinations());
     public ObservableCollection<CarouselItem> PhotoItems { get; } = new(BuildPhotos());
+
+    [RelayCommand]
+    void ToggleScale()
+    {
+        IsScaleEnabled = !IsScaleEnabled;
+        StatusMessage = IsScaleEnabled
+            ? "Scale effect on — focused item is full size, others shrink"
+            : "Scale effect off — all items same size";
+    }
+
+    [RelayCommand]
+    void ToggleSnap()
+    {
+        SnapCount = SnapCount == 0 ? 1 : 0;
+        StatusMessage = SnapCount == 0
+            ? "Free scroll — Netflix-style smooth scrolling"
+            : "Snap — locks to one item at a time";
+    }
 
     [RelayCommand]
     void ItemSelected(object item)

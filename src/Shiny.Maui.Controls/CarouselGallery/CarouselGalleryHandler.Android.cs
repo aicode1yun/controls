@@ -21,10 +21,6 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Recyc
 
         layoutManager = new LinearLayoutManager(Context, LinearLayoutManager.Horizontal, false);
         recyclerView.SetLayoutManager(layoutManager);
-
-        snapHelper = new LinearSnapHelper();
-        snapHelper.AttachToRecyclerView(recyclerView);
-
         recyclerView.SetItemAnimator(new DefaultItemAnimator());
 
         return recyclerView;
@@ -37,6 +33,7 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Recyc
         platformView.SetAdapter(adapter);
         platformView.AddOnScrollListener(new CarouselScrollListener(this));
         UpdatePeekInsets();
+        UpdateSnapMode();
         UpdateItemsSource();
     }
 
@@ -67,6 +64,22 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Recyc
             (int)(insets.Bottom * density));
     }
 
+    void UpdateSnapMode()
+    {
+        if (PlatformView is null)
+            return;
+
+        // Detach existing snap helper
+        snapHelper?.AttachToRecyclerView(null);
+        snapHelper = null;
+
+        if (VirtualView.SnapCount >= 1)
+        {
+            snapHelper = new LinearSnapHelper();
+            snapHelper.AttachToRecyclerView(PlatformView);
+        }
+    }
+
     void ApplyScaleTransforms()
     {
         if (layoutManager is null || PlatformView is null)
@@ -94,14 +107,39 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Recyc
 
     void OnScrollSettled()
     {
-        if (isUpdatingPosition || layoutManager is null)
+        if (isUpdatingPosition || layoutManager is null || PlatformView is null)
             return;
 
-        var snapView = snapHelper?.FindSnapView(layoutManager);
-        if (snapView is null)
-            return;
+        int position;
+        if (snapHelper is not null)
+        {
+            var snapView = snapHelper.FindSnapView(layoutManager);
+            if (snapView is null)
+                return;
+            position = layoutManager.GetPosition(snapView);
+        }
+        else
+        {
+            // Free scroll: find closest item to center
+            var midX = PlatformView.Width / 2f;
+            var closestPosition = RecyclerView.NoPosition;
+            var minDistance = float.MaxValue;
 
-        var position = layoutManager.GetPosition(snapView);
+            for (var i = 0; i < PlatformView.ChildCount; i++)
+            {
+                var child = PlatformView.GetChildAt(i);
+                if (child is null) continue;
+                var childMidX = (child.Left + child.Right) / 2f;
+                var distance = Math.Abs(midX - childMidX);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestPosition = layoutManager.GetPosition(child);
+                }
+            }
+            position = closestPosition;
+        }
+
         if (position != RecyclerView.NoPosition && position != VirtualView.CurrentPosition)
         {
             isUpdatingPosition = true;
@@ -141,6 +179,11 @@ public partial class CarouselGalleryHandler : ViewHandler<CarouselGallery, Recyc
     static partial void MapItemTemplate(CarouselGalleryHandler handler, CarouselGallery view)
     {
         handler.adapter?.NotifyDataSetChanged();
+    }
+
+    static partial void MapSnapCount(CarouselGalleryHandler handler, CarouselGallery view)
+    {
+        handler.UpdateSnapMode();
     }
 
     class CarouselAdapter : RecyclerView.Adapter

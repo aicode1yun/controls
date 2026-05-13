@@ -1,5 +1,3 @@
-using CommunityToolkit.Maui;
-using MauiDevFlow.Agent;
 using Microsoft.Extensions.Logging;
 using Plugin.Maui.Audio;
 using Sample.Features.Diagrams;
@@ -8,6 +6,9 @@ using Sample.Features.Scheduler;
 using Sample.Features.TableView;
 using Shiny;
 using Shiny.Maui.Controls.Scheduler;
+#if DEBUG
+using Microsoft.Maui.DevFlow.Agent;
+#endif
 
 namespace Sample;
 
@@ -18,7 +19,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
             .AddAudio()
             .UseShinyControls(cfg =>
             {

@@ -47,104 +47,61 @@ public partial class StaggeredGridViewModel : ObservableObject
 
 public class StaggeredItem
 {
-    static readonly (string Title, string Category, string Accent)[] Catalog =
+    static readonly (string Title, string Category, string Accent, string Description)[] Catalog =
     {
-        ("Alpine Sunrise", "Mountains", "#0F766E"),
-        ("Desert Dunes", "Travel", "#D97706"),
-        ("Forest Trail", "Nature", "#15803D"),
-        ("Neon Tokyo", "Urban", "#DB2777"),
-        ("Ocean Calm", "Beach", "#0284C7"),
-        ("Cozy Cabin", "Home", "#92400E"),
-        ("Modern Loft", "Interior", "#475569"),
-        ("Wildflowers", "Garden", "#A21CAF"),
-        ("Vintage Camera", "Photography", "#1E293B"),
-        ("Espresso", "Coffee", "#78350F"),
-        ("Plated Sushi", "Food", "#BE123C"),
-        ("Pasta Night", "Recipes", "#B45309"),
-        ("Bookshelf", "Reading", "#7C2D12"),
-        ("Workspace", "Productivity", "#0F172A"),
-        ("Iceberg", "Polar", "#0E7490"),
-        ("Sahara", "Desert", "#CA8A04"),
-        ("Rainforest", "Jungle", "#166534"),
-        ("Skyline", "Architecture", "#1E40AF"),
-        ("Surf", "Watersports", "#0891B2"),
-        ("Snowboard", "Winter", "#1D4ED8"),
-        ("Marathon", "Fitness", "#B91C1C"),
-        ("Pottery", "Crafts", "#9A3412"),
-        ("Watercolor", "Art", "#7C3AED"),
-        ("Vinyl Records", "Music", "#831843"),
-        ("Latte Art", "Cafe", "#A16207"),
-        ("Pancakes", "Brunch", "#C2410C"),
-        ("Charcuterie", "Wine", "#7F1D1D"),
-        ("Garden Path", "Outdoor", "#3F6212"),
-        ("Hot Spring", "Wellness", "#0369A1"),
-        ("Aurora", "Sky", "#4338CA"),
-        ("Cherry Blossom", "Spring", "#EC4899"),
-        ("Autumn Leaves", "Fall", "#C2410C"),
-        ("Lighthouse", "Coast", "#1E40AF"),
-        ("Canyon", "Adventure", "#A16207"),
-        ("Vintage Bike", "Lifestyle", "#374151"),
-        ("Boutique", "Fashion", "#9D174D"),
-        ("Sneakers", "Style", "#1F2937"),
-        ("Cocktail", "Bar", "#86198F"),
-        ("Stadium", "Sports", "#15803D"),
-        ("Camp Fire", "Camping", "#9A3412"),
-        ("Sailboat", "Sailing", "#1D4ED8"),
-        ("Vineyard", "Wine", "#7E22CE"),
-        ("Tea House", "Asia", "#065F46"),
-        ("Lavender Fields", "France", "#7C3AED"),
-        ("Greek Island", "Travel", "#0284C7"),
-        ("Northern Lights", "Aurora", "#1E40AF"),
-        ("Modern Kitchen", "Design", "#0F172A"),
-        ("Macarons", "Dessert", "#DB2777"),
-        ("Pizza", "Italian", "#B91C1C"),
-        ("Ramen", "Japanese", "#7C2D12"),
-        ("Yoga Studio", "Wellness", "#7C3AED"),
-        ("Bouquet", "Florist", "#BE185D"),
-        ("Studio", "Music", "#1E293B"),
-        ("Gaming Setup", "Tech", "#4338CA"),
-        ("Vintage Car", "Auto", "#991B1B"),
-        ("Skyscraper", "City", "#0F172A"),
-        ("Park Bench", "Park", "#166534"),
-        ("Antique", "Collectibles", "#78350F"),
-        ("Plants", "Plants", "#16A34A"),
-        ("Snow Peak", "Skiing", "#1E40AF"),
-        ("Festival", "Music", "#A21CAF"),
-        ("Cathedral", "Heritage", "#3F3F46"),
-        ("Train Station", "Travel", "#374151"),
-        ("Spa", "Beauty", "#9D174D"),
-        ("Cycling", "Outdoors", "#16A34A"),
-        ("Climbing", "Adventure", "#9A3412"),
-        ("Reading Nook", "Comfort", "#7E22CE"),
-        ("Bakery", "Bread", "#B45309"),
-        ("Brunch Plate", "Food", "#DC2626"),
-        ("Studio Lights", "Art", "#1F2937"),
-        ("Atelier", "Design", "#9D174D"),
-        ("Mountain Lake", "Reflection", "#0E7490"),
-        ("Coastline", "Cliffs", "#1D4ED8"),
-        ("Pier", "Sea", "#0369A1"),
-        ("Botanical", "Plants", "#15803D"),
-        ("Wood Workshop", "Craft", "#7C2D12"),
-        ("Ceramics", "Pottery", "#9A3412"),
-        ("Sketchbook", "Drawing", "#374151"),
-        ("Linen", "Textile", "#525B7A"),
-        ("Tile Floor", "Pattern", "#0F766E"),
-        ("Marble", "Texture", "#475569"),
-        ("Brass", "Materials", "#A16207"),
-        ("Garden Tools", "DIY", "#15803D")
+        ("Alpine Sunrise", "Mountains", "#0F766E", "Golden light breaks over snow-capped peaks, painting the valley in amber hues."),
+        ("Desert Dunes", "Travel", "#D97706", "Endless waves of sand."),
+        ("Forest Trail", "Nature", "#15803D", "A winding path through ancient oaks and ferns, dappled sunlight filtering through the canopy. The air smells of moss and earth after rain."),
+        ("Neon Tokyo", "Urban", "#DB2777", "Electric signs pulse."),
+        ("Ocean Calm", "Beach", "#0284C7", "Crystal blue water stretches to the horizon. The gentle sound of waves lapping against the shore."),
+        ("Cozy Cabin", "Home", "#92400E", "Warm firelight."),
+        ("Modern Loft", "Interior", "#475569", "Open-plan living with exposed brick walls, concrete floors, and floor-to-ceiling windows overlooking the city skyline. A curated collection of mid-century modern furniture."),
+        ("Wildflowers", "Garden", "#A21CAF", "Purple, yellow, and white blooms swaying in the breeze."),
+        ("Vintage Camera", "Photography", "#1E293B", "A well-worn Leica M3, its brass showing through years of use."),
+        ("Espresso", "Coffee", "#78350F", "Rich crema."),
+        ("Plated Sushi", "Food", "#BE123C", "Artfully arranged nigiri on a handmade ceramic plate. Each piece a tiny sculpture of rice and the freshest fish from Tsukiji market."),
+        ("Pasta Night", "Recipes", "#B45309", "Handmade tagliatelle."),
+        ("Bookshelf", "Reading", "#7C2D12", "Floor-to-ceiling shelves packed with well-loved paperbacks, leather-bound classics, and a few forgotten bookmarks peeking out. A reading lamp casts a warm circle of light on the worn armchair below."),
+        ("Workspace", "Productivity", "#0F172A", "Clean desk, clear mind."),
+        ("Iceberg", "Polar", "#0E7490", "Only a fraction visible above the waterline, the massive ice structure glows an ethereal blue beneath the Arctic surface."),
+        ("Sahara", "Desert", "#CA8A04", "Heat shimmer."),
+        ("Rainforest", "Jungle", "#166534", "Layers upon layers of green — ferns, vines, palms, and towering emergent trees reaching for sunlight. Parrots call from the canopy."),
+        ("Skyline", "Architecture", "#1E40AF", "Glass and steel."),
+        ("Surf", "Watersports", "#0891B2", "A perfect barrel wave, sunlight refracting through the curl. Salt spray catches the wind."),
+        ("Snowboard", "Winter", "#1D4ED8", "Fresh powder day."),
+        ("Marathon", "Fitness", "#B91C1C", "Mile 20. The wall. Every step is a negotiation between body and will, but the finish line crowd roars ahead."),
+        ("Pottery", "Crafts", "#9A3412", "Wet clay spinning on the wheel, hands shaping something from nothing."),
+        ("Watercolor", "Art", "#7C3AED", "Pigments bloom and bleed across wet paper, each painting unique and impossible to fully control. That's the beauty of the medium."),
+        ("Vinyl Records", "Music", "#831843", "Warm analog sound."),
+        ("Latte Art", "Cafe", "#A16207", "A perfect rosetta poured into a ceramic cup. The milk foam holds its shape as steam rises."),
+        ("Pancakes", "Brunch", "#C2410C", "Stacked high with maple syrup and fresh berries."),
+        ("Charcuterie", "Wine", "#7F1D1D", "A board of aged cheeses, paper-thin prosciutto, cornichons, honeycomb, and crusty sourdough. Paired with a bold Barolo."),
+        ("Garden Path", "Outdoor", "#3F6212", "Stepping stones."),
+        ("Hot Spring", "Wellness", "#0369A1", "Mineral-rich waters, surrounded by smooth volcanic rock. Steam curls upward into the cold mountain air."),
+        ("Aurora", "Sky", "#4338CA", "Green and purple light dancing across the Arctic sky, reflected in the still lake below. A phenomenon that never gets old no matter how many times you see it."),
+        ("Cherry Blossom", "Spring", "#EC4899", "Pink petals drift like snow."),
+        ("Autumn Leaves", "Fall", "#C2410C", "Crimson, amber, and gold carpet the forest floor."),
+        ("Lighthouse", "Coast", "#1E40AF", "Standing sentinel against Atlantic storms for over a century, its beam still sweeps the dark waters every twelve seconds. The keeper's cottage is long abandoned."),
+        ("Canyon", "Adventure", "#A16207", "Carved by millennia."),
+        ("Vintage Bike", "Lifestyle", "#374151", "A 1970s steel-frame road bike, restored with leather bar tape and a Brooks saddle. Still the smoothest ride on Sunday morning back roads."),
+        ("Boutique", "Fashion", "#9D174D", "Curated style."),
+        ("Sneakers", "Style", "#1F2937", "Limited edition. Only 500 pairs made."),
+        ("Cocktail", "Bar", "#86198F", "An old fashioned, whiskey-forward with a Luxardo cherry and a wide orange peel. The ice is a single clear cube, hand-cut. The kind of drink you nurse slowly while jazz plays."),
+        ("Stadium", "Sports", "#15803D", "The roar of 80,000 fans."),
+        ("Camp Fire", "Camping", "#9A3412", "Crackling flames under a blanket of stars, the smell of wood smoke and toasting marshmallows. Someone strums a guitar. The simplest kind of happiness."),
     };
 
     // Heights chosen to vary in 4 buckets to drive nice staggering across columns.
-    static readonly double[] HeightBuckets = { 220, 280, 340, 420 };
+    static readonly double[] HeightBuckets = { 180, 240, 300, 380 };
 
-    public StaggeredItem(int seed, string title, string category, double height, string accent)
+    public StaggeredItem(int seed, string title, string category, double height, string accent, string description)
     {
         Seed = seed;
         Title = title;
         Category = category;
         Height = height;
         Accent = Microsoft.Maui.Graphics.Color.Parse(accent);
-        // Picsum returns a real image with width=400 and the height we want.
+        Description = description;
         ImageUrl = $"https://picsum.photos/seed/shiny{seed}/400/{(int)height}";
     }
 
@@ -154,16 +111,16 @@ public class StaggeredItem
     public double Height { get; }
     public Color Accent { get; }
     public string ImageUrl { get; }
+    public string Description { get; }
 
     public static IEnumerable<StaggeredItem> GenerateSeed()
     {
         for (var i = 0; i < Catalog.Length; i++)
         {
-            var (title, category, accent) = Catalog[i];
+            var (title, category, accent, description) = Catalog[i];
             var height = HeightBuckets[i % HeightBuckets.Length];
-            // Add some variation to avoid repeating identical heights row after row.
-            height += (i % 7) * 8;
-            yield return new StaggeredItem(i + 1, title, category, height, accent);
+            height += (i % 7) * 12;
+            yield return new StaggeredItem(i + 1, title, category, height, accent, description);
         }
     }
 }

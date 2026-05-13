@@ -127,19 +127,9 @@ public partial class VirtualizedGridHandler : ViewHandler<VirtualizedGrid, Scrol
         // Load more button
         if (VirtualView.ShowLoadMoreButton)
         {
-            var loadMoreButton = new Microsoft.UI.Xaml.Controls.Button
-            {
-                Content = "Load More",
-                HorizontalAlignment = WinHorizontalAlignment.Center,
-                Margin = new Microsoft.UI.Xaml.Thickness(0, 8, 0, 8)
-            };
-            loadMoreButton.Click += (_, _) =>
-            {
-                VirtualView.IsLoadingMore = true;
-                VirtualView.RaiseLoadMoreRequested();
-                VirtualView.IsLoadingMore = false;
-            };
-            rootPanel.Children.Add(loadMoreButton);
+            var loadMoreView = VirtualView.CreateLoadMoreView();
+            var loadMorePlatform = loadMoreView.ToPlatform(MauiContext!);
+            rootPanel.Children.Add(loadMorePlatform);
         }
     }
 

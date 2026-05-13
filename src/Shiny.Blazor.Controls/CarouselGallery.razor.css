@@ -7,7 +7,7 @@
 .shiny-carousel-track {
     display: flex;
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: var(--carousel-snap, x mandatory);
     scroll-behavior: smooth;
     gap: var(--carousel-spacing, 16px);
     padding: 16px var(--carousel-peek, 40px);

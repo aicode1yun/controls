@@ -48,6 +48,13 @@ public class CarouselGallery : CollectionControlBase
         typeof(CarouselGallery),
         false);
 
+    public static readonly BindableProperty SnapCountProperty = BindableProperty.Create(
+        nameof(SnapCount),
+        typeof(int),
+        typeof(CarouselGallery),
+        1,
+        validateValue: (_, v) => (int)v >= 0);
+
     public static readonly BindableProperty PositionChangedCommandProperty = BindableProperty.Create(
         nameof(PositionChangedCommand),
         typeof(ICommand),
@@ -93,6 +100,12 @@ public class CarouselGallery : CollectionControlBase
     {
         get => (bool)GetValue(IsInfiniteProperty);
         set => SetValue(IsInfiniteProperty, value);
+    }
+
+    public int SnapCount
+    {
+        get => (int)GetValue(SnapCountProperty);
+        set => SetValue(SnapCountProperty, value);
     }
 
     public ICommand? PositionChangedCommand
