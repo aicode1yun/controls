@@ -1348,10 +1348,12 @@ A Netflix-style horizontal carousel with snap-to-center behavior, configurable s
 | `CurrentPosition` | `int` | `0` | Current centered item index (TwoWay) |
 | `PeekAreaInsets` | `Thickness` | `0` | Visible area of adjacent items |
 | `IsInfinite` | `bool` | `false` | Enable infinite loop scrolling |
+| `SnapCount` | `int` | `1` | Number of items to snap into view at once. Set to `0` for free-scroll (Netflix-style) with no snapping |
 | `PositionChangedCommand` | `ICommand` | `null` | Fires when position changes |
 
 **Features:**
-- Snap-to-center with smooth deceleration
+- Snap-to-center with smooth deceleration (configurable via `SnapCount`)
+- Free-scroll mode (`SnapCount="0"`) for Netflix-style browsing without snapping
 - Scale transforms for focused/unfocused items
 - Peek area insets to show adjacent items
 - Two-way position binding
@@ -1422,8 +1424,8 @@ A full-featured grouped grid with sticky section headers, virtualization, orient
 | `GroupHeaderTemplate` | `DataTemplate` | `null` | Template for group headers |
 | `HasStickyHeaders` | `bool` | `true` | Pin group headers while scrolling |
 | `CellPadding` | `Thickness` | `0` | Padding inside each cell |
-| `ShowLoadMoreButton` | `bool` | `false` | Show a load-more button at the bottom |
-| `LoadMoreButtonTemplate` | `DataTemplate` | `null` | Custom load-more button |
+| `ShowLoadMoreButton` | `bool` | `false` | Show a load-more button at the end of the data |
+| `LoadMoreButtonTemplate` | `DataTemplate` | `null` | Custom load-more button template; defaults to a centered "Load More" button |
 | `IsLoadingMore` | `bool` | `false` | Loading state (OneWayToSource) |
 | `ItemVisibleCommand` | `ICommand` | `null` | Fires when an item becomes visible |
 | `ItemHiddenCommand` | `ICommand` | `null` | Fires when an item scrolls out of view |

@@ -176,6 +176,26 @@ triggers:
   - spinner overlay
   - progress overlay
   - blazor overlay
+  - carousel
+  - carousel gallery
+  - carouselgallery
+  - netflix carousel
+  - horizontal scroll
+  - snap carousel
+  - staggered grid
+  - staggeredgrid
+  - masonry
+  - waterfall layout
+  - pinterest grid
+  - pinterest layout
+  - virtualized grid
+  - virtualizedgrid
+  - grouped grid
+  - sticky headers
+  - load more
+  - blazor carousel
+  - blazor staggered grid
+  - blazor virtualized grid
 references:
   - tableview.md
   - floating-panel.md
@@ -233,6 +253,9 @@ The library contains:
 - **Slider**: A slider control with a two-color gradient track, blended thumb border that samples the gradient at the current position, tooltip with custom templates, and full drag/tap interaction
 - **ProgressBar**: A progress bar with gradient fill and a Vista-style shimmer pulse that sweeps left-to-right. Configurable `PulseLength` (width of sheen) and `PulseSpeed` (sweep duration). Triggers on value change or timed interval. Supports indeterminate mode and text overlay
 - **Overlay & LoadingOverlay**: Full-screen overlay with configurable backdrop color and opacity, fade animation, and custom content via `DataTemplate` (MAUI) or `RenderFragment` (Blazor). `LoadingOverlay` extends it with built-in spinner (indeterminate) or progress bar (determinate) plus optional message text
+- **CarouselGallery**: Netflix-style horizontal carousel with snap-to-center, configurable scale transforms (FocusedItemScale/UnfocusedItemScale), peek area insets, infinite loop, two-way position tracking, and `SnapCount` (0=free scroll, 1+=snap to item). Uses native recycler views on MAUI and CSS scroll-snap on Blazor
+- **StaggeredGrid**: Pinterest-style masonry/waterfall layout with variable-height items in configurable columns. Items with HeightRequest on the root template view use that value directly for measurement. Uses native staggered layout managers on MAUI and CSS column-count on Blazor
+- **VirtualizedGrid**: Full-featured grouped grid with sticky section headers, virtualization, orientation-aware column counts, cell padding, load-more button (renders as footer at end of data) with custom template support, and item visibility tracking. Uses native grid layouts on MAUI and CSS Grid on Blazor
 - **Feedback Service**: All interactive controls fire events through `IFeedbackService`. Default `HapticFeedbackService` provides tactile feedback. Replace with `SetCustomFeedback<T>()` in `UseShinyControls()` for TTS, sounds, analytics, or custom responses. The `control` parameter is the actual control instance (use pattern matching like `control is ChatView`), and `args` carries context — `ChatMessage` for ChatView events, native `EventArgs` for standard MAUI controls. Standard MAUI control integration is pluggable and AOT-compatible via `MauiControlFeedbackBuilder` — use `AddDefaultMauiControlFeedback()` for all built-in hooks, add custom hooks with `Hook<TControl>(eventName, subscribe, unsubscribe)`, or use `AddMauiControlFeedback()` for only the hooks you configure
 
 ## When to Use This Skill
@@ -293,6 +316,11 @@ Invoke this skill when the user wants to:
 - Add a full-screen overlay / loading overlay to a page
 - Show a busy/loading indicator over content (spinner or progress bar)
 - Create a custom overlay with configurable color and content
+- Build a horizontal carousel with snap-to-center or free-scroll behavior
+- Create a Netflix-style browsing gallery
+- Build a Pinterest-style masonry/waterfall grid with variable-height items
+- Create a virtualized grid with grouping, sticky headers, and load-more
+- Add load-more pagination (threshold or button) to a collection view
 
 ## Library Overview
 
