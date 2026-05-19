@@ -14,6 +14,7 @@ public partial class ChatView : ContentView
     readonly Label toastNewMessagesLabel;
     readonly Label toastTypingLabel;
     readonly Grid messageArea;
+    readonly Grid rootGrid;
     readonly FabMenu toolsMenu;
     readonly FabMenu bubbleToolsMenu;
     ChatMessage? activeBubbleToolMessage;
@@ -132,7 +133,7 @@ public partial class ChatView : ContentView
         bubbleToolsMenu.PropertyChanged += OnBubbleToolsMenuPropertyChanged;
 
         // Root: messages fill space, typing bubbles below, input bar at bottom
-        var rootGrid = new Grid
+        rootGrid = new Grid
         {
             RowDefinitions =
             {
@@ -181,5 +182,113 @@ public partial class ChatView : ContentView
 
         inputBar.ClearText();
         OnSendRequested(text);
+    }
+
+    /// <summary>
+    /// Displays a centered grid of tappable glyphs over the chat area and returns the
+    /// glyph the user selects, or null if the backdrop is tapped to cancel.
+    /// </summary>
+    internal Task<string?> ShowGlyphPickerAsync(IReadOnlyList<string> glyphs, int columns = 6)
+    {
+        var tcs = new TaskCompletionSource<string?>();
+
+        var backdrop = new BoxView
+        {
+            BackgroundColor = Color.FromRgba(0, 0, 0, 0.4),
+            Opacity = 0
+        };
+        var backdropTap = new TapGestureRecognizer();
+        backdrop.GestureRecognizers.Add(backdropTap);
+
+        var pickerGrid = new Grid
+        {
+            ColumnSpacing = 4,
+            RowSpacing = 4,
+            Padding = new Thickness(8)
+        };
+        for (var c = 0; c < columns; c++)
+            pickerGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+        var rowCount = (int)Math.Ceiling(glyphs.Count / (double)columns);
+        for (var r = 0; r < rowCount; r++)
+            pickerGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+        var container = new Border
+        {
+            StrokeThickness = 0,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 16 },
+            BackgroundColor = Colors.White,
+            Padding = 4,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center,
+            Opacity = 0,
+            Scale = 0.85,
+            Content = pickerGrid
+        };
+
+        void Close(string? result)
+        {
+            backdrop.GestureRecognizers.Remove(backdropTap);
+            if (rootGrid.Children.Contains(backdrop))
+                rootGrid.Children.Remove(backdrop);
+            if (rootGrid.Children.Contains(container))
+                rootGrid.Children.Remove(container);
+            tcs.TrySetResult(result);
+        }
+
+        backdropTap.Tapped += (_, _) => Close(null);
+
+        for (var i = 0; i < glyphs.Count; i++)
+        {
+            var glyph = glyphs[i];
+            var label = new Label
+            {
+                Text = glyph,
+                FontSize = 28,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center
+            };
+            var cell = new Border
+            {
+                StrokeThickness = 0,
+                BackgroundColor = Colors.Transparent,
+                Padding = new Thickness(8, 6),
+                Content = label
+            };
+            var tap = new TapGestureRecognizer();
+            tap.Tapped += (_, _) => Close(glyph);
+            cell.GestureRecognizers.Add(tap);
+
+            pickerGrid.Add(cell, i % columns, i / columns);
+        }
+
+        rootGrid.Add(backdrop, 0, 0);
+        Grid.SetRowSpan(backdrop, 3);
+        rootGrid.Add(container, 0, 0);
+        Grid.SetRowSpan(container, 3);
+
+        _ = Task.WhenAll(
+            backdrop.FadeToAsync(1, 150u),
+            container.FadeToAsync(1, 150u),
+            container.ScaleToAsync(1, 150u, Easing.SpringOut));
+
+        return tcs.Task;
+    }
+
+    partial void HookKeyboard();
+    partial void UnhookKeyboard();
+
+    protected override void OnHandlerChanging(HandlerChangingEventArgs args)
+    {
+        base.OnHandlerChanging(args);
+        if (args.OldHandler != null)
+            UnhookKeyboard();
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+        if (Handler != null)
+            HookKeyboard();
     }
 }

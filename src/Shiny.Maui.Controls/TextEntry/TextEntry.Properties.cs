@@ -37,12 +37,12 @@ public partial class TextEntry
     // Placeholder
     public static readonly BindableProperty PlaceholderProperty = BindableProperty.Create(
         nameof(Placeholder), typeof(string), typeof(TextEntry), string.Empty,
-        propertyChanged: (b, _, n) => ((TextEntry)b).placeholderLabel.Text = (string)n);
+        propertyChanged: (b, _, n) => ((TextEntry)b).ApplyPlaceholder((string)n));
     public string Placeholder { get => (string)GetValue(PlaceholderProperty); set => SetValue(PlaceholderProperty, value); }
 
-    // PlaceholderColor
+    // PlaceholderColor — Bootstrap text-muted #6C757D
     public static readonly BindableProperty PlaceholderColorProperty = BindableProperty.Create(
-        nameof(PlaceholderColor), typeof(Color), typeof(TextEntry), Colors.Grey,
+        nameof(PlaceholderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#6C757D"),
         propertyChanged: (b, _, n) =>
         {
             if (n is Color c && !((TextEntry)b).isPlaceholderUp)
@@ -50,14 +50,20 @@ public partial class TextEntry
         });
     public Color PlaceholderColor { get => (Color)GetValue(PlaceholderColorProperty); set => SetValue(PlaceholderColorProperty, value); }
 
-    // FocusedPlaceholderColor
+    // FocusedPlaceholderColor — Bootstrap primary #0D6EFD
     public static readonly BindableProperty FocusedPlaceholderColorProperty = BindableProperty.Create(
-        nameof(FocusedPlaceholderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#007AFF"));
+        nameof(FocusedPlaceholderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#0D6EFD"));
     public Color FocusedPlaceholderColor { get => (Color)GetValue(FocusedPlaceholderColorProperty); set => SetValue(FocusedPlaceholderColorProperty, value); }
 
-    // Border
+    // Variant — picks Classic (.form-control) or Floating (.form-floating)
+    public static readonly BindableProperty VariantProperty = BindableProperty.Create(
+        nameof(Variant), typeof(TextEntryVariant), typeof(TextEntry), TextEntryVariant.Classic,
+        propertyChanged: (b, _, _) => ((TextEntry)b).ApplyVariant());
+    public TextEntryVariant Variant { get => (TextEntryVariant)GetValue(VariantProperty); set => SetValue(VariantProperty, value); }
+
+    // Border — Bootstrap #CED4DA
     public static readonly BindableProperty BorderColorProperty = BindableProperty.Create(
-        nameof(BorderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#CCCCCC"),
+        nameof(BorderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#CED4DA"),
         propertyChanged: (b, _, n) =>
         {
             var te = (TextEntry)b;
@@ -66,8 +72,9 @@ public partial class TextEntry
         });
     public Color BorderColor { get => (Color)GetValue(BorderColorProperty); set => SetValue(BorderColorProperty, value); }
 
+    // Focused border — Bootstrap #86B7FE
     public static readonly BindableProperty FocusedBorderColorProperty = BindableProperty.Create(
-        nameof(FocusedBorderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#007AFF"));
+        nameof(FocusedBorderColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#86B7FE"));
     public Color FocusedBorderColor { get => (Color)GetValue(FocusedBorderColorProperty); set => SetValue(FocusedBorderColorProperty, value); }
 
     public static readonly BindableProperty BorderThicknessProperty = BindableProperty.Create(
@@ -84,13 +91,15 @@ public partial class TextEntry
         nameof(FocusedBorderThickness), typeof(double), typeof(TextEntry), 2.0);
     public double FocusedBorderThickness { get => (double)GetValue(FocusedBorderThicknessProperty); set => SetValue(FocusedBorderThicknessProperty, value); }
 
+    // Bootstrap radius is .375rem = 6px
     public static readonly BindableProperty CornerRadiusProperty = BindableProperty.Create(
-        nameof(CornerRadius), typeof(CornerRadius), typeof(TextEntry), new CornerRadius(8),
+        nameof(CornerRadius), typeof(CornerRadius), typeof(TextEntry), new CornerRadius(6),
         propertyChanged: (b, _, n) => ((TextEntry)b).borderShape.CornerRadius = (CornerRadius)n);
     public CornerRadius CornerRadius { get => (CornerRadius)GetValue(CornerRadiusProperty); set => SetValue(CornerRadiusProperty, value); }
 
+    // Bootstrap inputs sit on a white surface by default
     public static readonly BindableProperty EntryBackgroundColorProperty = BindableProperty.Create(
-        nameof(EntryBackgroundColor), typeof(Color), typeof(TextEntry), Colors.Transparent,
+        nameof(EntryBackgroundColor), typeof(Color), typeof(TextEntry), Colors.White,
         propertyChanged: (b, _, n) =>
         {
             if (n is Color c)
@@ -98,9 +107,9 @@ public partial class TextEntry
         });
     public Color EntryBackgroundColor { get => (Color)GetValue(EntryBackgroundColorProperty); set => SetValue(EntryBackgroundColorProperty, value); }
 
-    // Font
+    // Font — Bootstrap base 1rem = 16
     public static readonly BindableProperty FontSizeProperty = BindableProperty.Create(
-        nameof(FontSize), typeof(double), typeof(TextEntry), 15.0,
+        nameof(FontSize), typeof(double), typeof(TextEntry), 16.0,
         propertyChanged: (b, _, n) =>
         {
             var te = (TextEntry)b;
@@ -125,8 +134,9 @@ public partial class TextEntry
         propertyChanged: (b, _, n) => ((TextEntry)b).entry.FontAttributes = (FontAttributes)n);
     public FontAttributes FontAttributes { get => (FontAttributes)GetValue(FontAttributesProperty); set => SetValue(FontAttributesProperty, value); }
 
+    // TextColor — Bootstrap body color #212529
     public static readonly BindableProperty TextColorProperty = BindableProperty.Create(
-        nameof(TextColor), typeof(Color), typeof(TextEntry), Colors.Black,
+        nameof(TextColor), typeof(Color), typeof(TextEntry), Color.FromArgb("#212529"),
         propertyChanged: (b, _, n) =>
         {
             if (n is Color c)

@@ -507,4 +507,21 @@ public partial class ChatView
         get => (bool)GetValue(UseFeedbackProperty);
         set => SetValue(UseFeedbackProperty, value);
     }
+
+    /// <summary>
+    /// When true, the chat view automatically pads its bottom edge by the on-screen
+    /// keyboard height so the input bar is never covered. Android already resizes
+    /// via WindowSoftInputMode.AdjustResize, so this property only affects iOS.
+    /// </summary>
+    public static readonly BindableProperty AdjustForKeyboardProperty = BindableProperty.Create(
+        nameof(AdjustForKeyboard),
+        typeof(bool),
+        typeof(ChatView),
+        true);
+
+    public bool AdjustForKeyboard
+    {
+        get => (bool)GetValue(AdjustForKeyboardProperty);
+        set => SetValue(AdjustForKeyboardProperty, value);
+    }
 }

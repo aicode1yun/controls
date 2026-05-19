@@ -12,13 +12,23 @@
     <ScrollView Padding="16">
         <VerticalStackLayout Spacing="20">
 
-            <!-- Basic -->
-            <Label Text="Basic" FontSize="18" FontAttributes="Bold" />
+            <!-- Basic (Classic, Bootstrap .form-control) -->
+            <Label Text="Basic — Classic" FontSize="18" FontAttributes="Bold" />
             <shiny:TextEntry AutomationId="FirstNameEntry" Placeholder="First Name"
                              Text="{Binding FirstName, Mode=TwoWay}" />
 
             <shiny:TextEntry AutomationId="LastNameEntry" Placeholder="Last Name"
                              Text="{Binding LastName, Mode=TwoWay}" />
+
+            <!-- Floating (Bootstrap .form-floating) -->
+            <Label Text="Floating Label" FontSize="18" FontAttributes="Bold" />
+            <shiny:TextEntry Placeholder="Email address" Variant="Floating"
+                             Text="{Binding FloatingEmail, Mode=TwoWay}"
+                             Keyboard="Email" />
+
+            <shiny:TextEntry Placeholder="Password" Variant="Floating"
+                             IsPassword="True"
+                             Text="{Binding FloatingPassword, Mode=TwoWay}" />
 
             <!-- With Clear Button -->
             <Label Text="With Clear Button" FontSize="18" FontAttributes="Bold" />

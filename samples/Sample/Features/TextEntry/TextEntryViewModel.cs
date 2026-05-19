@@ -19,6 +19,8 @@ public partial class TextEntryViewModel : ObservableObject
     [ObservableProperty] string maskedDate = "";
     [ObservableProperty] string quantity = "0";
     [ObservableProperty] string score = "50";
+    [ObservableProperty] string floatingEmail = "";
+    [ObservableProperty] string floatingPassword = "";
 
     [ObservableProperty] string email = "";
     [ObservableProperty] bool hasEmailError;

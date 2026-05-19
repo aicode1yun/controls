@@ -92,21 +92,11 @@ public class AcknowledgementSelectorBubbleTool : ChatBubbleTool
         RequestRefresh();
     }
 
-    async Task<string?> ShowSelectorAsync(string[] glyphs)
+    Task<string?> ShowSelectorAsync(string[] glyphs)
     {
-        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-        if (page is null)
-            return null;
+        if (ParentChatView is null)
+            return Task.FromResult<string?>(null);
 
-        var result = await page.DisplayActionSheet(
-            "React",
-            "Cancel",
-            null,
-            glyphs);
-
-        if (result is null or "Cancel")
-            return null;
-
-        return result;
+        return ParentChatView.ShowGlyphPickerAsync(glyphs);
     }
 }

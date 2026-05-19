@@ -7,13 +7,23 @@ namespace Shiny.Maui.Controls;
 [ContentProperty(nameof(RightTools))]
 public partial class TextEntry : ContentView
 {
-    const double PlaceholderTranslationY = -16;
-    const double PlaceholderScaledSize = 0.8;
+    // Floating-label animation targets
+    const double PlaceholderTranslationY = -14;
+    const double PlaceholderScaledSize = 0.85;
     const uint AnimationDuration = 150;
+
+    // Bootstrap form-control sizing
+    const double ClassicMinHeight = 38;
+    const double FloatingMinHeight = 58;
+    const double EntryHorizontalPadding = 12;
+    const double ClassicVerticalPadding = 6;
+    const double FloatingVerticalPaddingTop = 18;
+    const double FloatingVerticalPaddingBottom = 6;
 
     readonly Border outerBorder;
     readonly Microsoft.Maui.Controls.Shapes.RoundRectangle borderShape;
     readonly Grid contentGrid;
+    readonly Grid entryArea;
     readonly HorizontalStackLayout leftToolsLayout;
     readonly HorizontalStackLayout rightToolsLayout;
     readonly BoxView leftSeparator;
@@ -33,8 +43,8 @@ public partial class TextEntry : ContentView
     {
         placeholderLabel = new Label
         {
-            FontSize = 15,
-            TextColor = Colors.Grey,
+            FontSize = 16,
+            TextColor = Color.FromArgb("#6C757D"),
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Start,
             InputTransparent = true,
@@ -43,7 +53,9 @@ public partial class TextEntry : ContentView
 
         entry = new BorderlessEntry
         {
-            FontSize = 15,
+            FontSize = 16,
+            TextColor = Color.FromArgb("#212529"),
+            PlaceholderColor = Color.FromArgb("#6C757D"),
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Fill,
             BackgroundColor = Colors.Transparent
@@ -53,31 +65,32 @@ public partial class TextEntry : ContentView
         entry.Unfocused += OnEntryUnfocused;
         entry.Completed += OnEntryCompleted;
 
-        var entryArea = new Grid
+        entryArea = new Grid
         {
-            Padding = new Thickness(12, 8),
+            Padding = new Thickness(EntryHorizontalPadding, ClassicVerticalPadding),
             Children = { placeholderLabel, entry }
         };
 
+        // Bootstrap input-group uses a #e9ecef "addon" surface
         leftToolsLayout = new HorizontalStackLayout
         {
             Spacing = 0,
             VerticalOptions = LayoutOptions.Fill,
-            BackgroundColor = Color.FromArgb("#F8F9FA")
+            BackgroundColor = Color.FromArgb("#E9ECEF")
         };
 
         rightToolsLayout = new HorizontalStackLayout
         {
             Spacing = 0,
             VerticalOptions = LayoutOptions.Fill,
-            BackgroundColor = Color.FromArgb("#F8F9FA")
+            BackgroundColor = Color.FromArgb("#E9ECEF")
         };
 
         leftSeparator = new BoxView
         {
             WidthRequest = 1,
             VerticalOptions = LayoutOptions.Fill,
-            Color = Color.FromArgb("#CCCCCC"),
+            Color = Color.FromArgb("#CED4DA"),
             IsVisible = false
         };
 
@@ -85,7 +98,7 @@ public partial class TextEntry : ContentView
         {
             WidthRequest = 1,
             VerticalOptions = LayoutOptions.Fill,
-            Color = Color.FromArgb("#CCCCCC"),
+            Color = Color.FromArgb("#CED4DA"),
             IsVisible = false
         };
 
@@ -108,23 +121,23 @@ public partial class TextEntry : ContentView
         contentGrid.Add(rightSeparator, 3, 0);
         contentGrid.Add(rightToolsLayout, 4, 0);
 
-        borderShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 8 };
+        borderShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 6 };
         outerBorder = new Border
         {
             StrokeShape = borderShape,
-            Stroke = Color.FromArgb("#CCCCCC"),
+            Stroke = Color.FromArgb("#CED4DA"),
             StrokeThickness = 1,
-            BackgroundColor = Colors.Transparent,
+            BackgroundColor = Colors.White,
             Padding = 0,
             Content = contentGrid,
-            MinimumHeightRequest = 48
+            MinimumHeightRequest = ClassicMinHeight
         };
 
         hintLabel = new Label
         {
             FontSize = 12,
-            TextColor = Colors.Grey,
-            Margin = new Thickness(12, 2, 12, 0),
+            TextColor = Color.FromArgb("#6C757D"),
+            Margin = new Thickness(2, 4, 2, 0),
             IsVisible = false
         };
 
@@ -144,7 +157,50 @@ public partial class TextEntry : ContentView
         // Initialize tool collections
         LeftTools = new ObservableCollection<TextEntryTool>();
         RightTools = new ObservableCollection<TextEntryTool>();
+
+        // Apply default variant (Classic) so the placeholder lives on the native entry.
+        ApplyVariant();
     }
+
+    void ApplyVariant()
+    {
+        if (Variant == TextEntryVariant.Classic)
+        {
+            placeholderLabel.IsVisible = false;
+            entry.Placeholder = Placeholder;
+            entryArea.Padding = new Thickness(EntryHorizontalPadding, ClassicVerticalPadding);
+            outerBorder.MinimumHeightRequest = ClassicMinHeight;
+        }
+        else
+        {
+            placeholderLabel.IsVisible = true;
+            entry.Placeholder = string.Empty;
+            entryArea.Padding = new Thickness(EntryHorizontalPadding, FloatingVerticalPaddingTop, EntryHorizontalPadding, FloatingVerticalPaddingBottom);
+            outerBorder.MinimumHeightRequest = FloatingMinHeight;
+
+            // Snap the placeholder to the correct rest position for the current text.
+            isPlaceholderUp = false;
+            placeholderLabel.TranslationY = 0;
+            placeholderLabel.Scale = 1;
+            if (!string.IsNullOrEmpty(entry.Text) || entry.IsFocused)
+                AnimatePlaceholder(true);
+        }
+    }
+
+    void ApplyPlaceholder(string text)
+    {
+        placeholderLabel.Text = text;
+        if (Variant == TextEntryVariant.Classic)
+            entry.Placeholder = text;
+    }
+
+    Shadow BuildFocusGlow(Color color) => new Shadow
+    {
+        Brush = new SolidColorBrush(color),
+        Offset = Point.Zero,
+        Radius = 8,
+        Opacity = 0.35f
+    };
 
     void OnEntryTextChanged(object? sender, TextChangedEventArgs e)
     {
@@ -185,21 +241,25 @@ public partial class TextEntry : ContentView
 
     void OnEntryFocused(object? sender, FocusEventArgs e)
     {
-        AnimatePlaceholder(true);
+        if (Variant == TextEntryVariant.Floating)
+            AnimatePlaceholder(true);
+
         var color = HasError ? ErrorColor : FocusedBorderColor;
         outerBorder.Stroke = color;
         outerBorder.StrokeThickness = FocusedBorderThickness;
+        outerBorder.Shadow = BuildFocusGlow(HasError ? ErrorColor : FocusedBorderColor);
         UpdateSeparatorColors(color);
     }
 
     void OnEntryUnfocused(object? sender, FocusEventArgs e)
     {
-        if (string.IsNullOrEmpty(entry.Text))
+        if (Variant == TextEntryVariant.Floating && string.IsNullOrEmpty(entry.Text))
             AnimatePlaceholder(false);
 
         var color = HasError ? ErrorColor : BorderColor;
         outerBorder.Stroke = color;
         outerBorder.StrokeThickness = BorderThickness;
+        outerBorder.Shadow = HasError ? BuildFocusGlow(ErrorColor) : null!;
         UpdateSeparatorColors(color);
     }
 
@@ -218,6 +278,7 @@ public partial class TextEntry : ContentView
 
     async void AnimatePlaceholder(bool up)
     {
+        if (Variant != TextEntryVariant.Floating) return;
         if (up == isPlaceholderUp) return;
         isPlaceholderUp = up;
 
@@ -282,6 +343,13 @@ public partial class TextEntry : ContentView
 
         outerBorder.Stroke = borderColor;
         UpdateSeparatorColors(borderColor);
+
+        if (HasError)
+            outerBorder.Shadow = BuildFocusGlow(ErrorColor);
+        else if (entry.IsFocused)
+            outerBorder.Shadow = BuildFocusGlow(FocusedBorderColor);
+        else
+            outerBorder.Shadow = null!;
     }
 
     // Tool collection management
