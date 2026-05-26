@@ -31,6 +31,7 @@
                   xmlns:carouselgallery="clr-namespace:Sample.Features.CarouselGallery"
                   xmlns:staggeredgrid="clr-namespace:Sample.Features.StaggeredGrid"
                   xmlns:virtualizedgrid="clr-namespace:Sample.Features.VirtualizedGrid"
+                  xmlns:treeview="clr-namespace:Sample.Features.TreeView"
                   Title="Shiny Controls"
                   FlyoutBackgroundColor="{AppThemeBinding Light=#F5F3FF, Dark=#0F0D1A}"
                   FlyoutWidth="310"
@@ -267,6 +268,14 @@
                              Color="{AppThemeBinding Light=#0284C7, Dark=#60A5FA}" />
         </FlyoutItem.FlyoutIcon>
         <ShellContent ContentTemplate="{DataTemplate virtualizedgrid:VirtualizedGridPage}" Route="virtualizedgrid" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Tree View">
+        <FlyoutItem.FlyoutIcon>
+            <FontImageSource Glyph="&#x2387;" Size="20"
+                             Color="{AppThemeBinding Light=#0284C7, Dark=#60A5FA}" />
+        </FlyoutItem.FlyoutIcon>
+        <ShellContent ContentTemplate="{DataTemplate treeview:TreeViewPage}" Route="treeview" />
     </FlyoutItem>
 
     <!-- ============================================================ -->

@@ -1,0 +1,395 @@
+using System.Collections;
+using System.Collections.Specialized;
+using Shiny.Maui.Controls.Tree.Internal;
+
+namespace Shiny.Maui.Controls.Tree;
+
+public partial class TreeView : ContentView
+{
+    readonly ScrollView scrollView;
+    internal readonly VerticalStackLayout rowLayout;
+    readonly ActivityIndicator rootLoadingIndicator;
+    readonly Label rootErrorLabel;
+    readonly Grid root;
+
+    readonly List<TreeNode> rootNodes = new();
+    readonly Dictionary<TreeNode, TreeNodeView> nodeViews = new();
+    readonly List<TreeNode> flatNodes = new();
+
+    INotifyCollectionChanged? observedSource;
+    bool isRebuilding;
+    Exception? rootLoadError;
+    bool rootLoaderInvoked;
+
+    public TreeView()
+    {
+        rowLayout = new VerticalStackLayout { Spacing = 0 };
+        scrollView = new ScrollView { Content = rowLayout };
+
+        rootLoadingIndicator = new ActivityIndicator
+        {
+            IsRunning = false,
+            IsVisible = false,
+            VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Center
+        };
+        rootErrorLabel = new Label
+        {
+            IsVisible = false,
+            HorizontalTextAlignment = TextAlignment.Center,
+            VerticalTextAlignment = TextAlignment.Center,
+            TextColor = Colors.Gray,
+            Padding = 16
+        };
+
+        root = new Grid { Children = { scrollView, rootLoadingIndicator, rootErrorLabel } };
+        Content = root;
+    }
+
+    // ------------- Source management -------------
+    void OnItemsSourceChanged()
+    {
+        if (observedSource != null)
+        {
+            observedSource.CollectionChanged -= OnSourceCollectionChanged;
+            observedSource = null;
+        }
+
+        if (RootLoader != null)
+        {
+            // RootLoader takes precedence; leave nodes as-is until loader runs.
+            return;
+        }
+
+        if (ItemsSource is INotifyCollectionChanged notify)
+        {
+            observedSource = notify;
+            notify.CollectionChanged += OnSourceCollectionChanged;
+        }
+
+        BuildRootNodes();
+        Rebuild();
+    }
+
+    void OnSourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        BuildRootNodes();
+        Rebuild();
+    }
+
+    void BuildRootNodes()
+    {
+        rootNodes.Clear();
+        if (ItemsSource == null)
+            return;
+
+        foreach (var item in ItemsSource)
+        {
+            if (item != null)
+                rootNodes.Add(new TreeNode(item, parent: null, depth: 0));
+        }
+    }
+
+    async void OnRootLoaderChanged()
+    {
+        rootLoaderInvoked = false;
+        await EnsureRootLoadedAsync();
+    }
+
+    async Task EnsureRootLoadedAsync()
+    {
+        if (RootLoader == null || rootLoaderInvoked)
+            return;
+
+        rootLoaderInvoked = true;
+        rootLoadError = null;
+        rootLoadingIndicator.IsVisible = true;
+        rootLoadingIndicator.IsRunning = true;
+        rootErrorLabel.IsVisible = false;
+        scrollView.IsVisible = false;
+
+        try
+        {
+            var items = await RootLoader();
+            rootNodes.Clear();
+            foreach (var item in items)
+            {
+                if (item != null)
+                    rootNodes.Add(new TreeNode(item, parent: null, depth: 0));
+            }
+        }
+        catch (Exception ex)
+        {
+            rootLoadError = ex;
+            rootErrorLabel.Text = $"Failed to load: {ex.Message}\nTap to retry.";
+            rootErrorLabel.IsVisible = true;
+            var tap = new TapGestureRecognizer();
+            tap.Tapped += async (_, _) =>
+            {
+                rootLoaderInvoked = false;
+                await EnsureRootLoadedAsync();
+            };
+            rootErrorLabel.GestureRecognizers.Clear();
+            rootErrorLabel.GestureRecognizers.Add(tap);
+        }
+        finally
+        {
+            rootLoadingIndicator.IsRunning = false;
+            rootLoadingIndicator.IsVisible = false;
+            scrollView.IsVisible = rootLoadError == null;
+        }
+
+        Rebuild();
+    }
+
+    protected override void OnHandlerChanged()
+    {
+        base.OnHandlerChanged();
+        if (Handler != null && RootLoader != null && !rootLoaderInvoked)
+            _ = EnsureRootLoadedAsync();
+    }
+
+    protected override void OnBindingContextChanged()
+    {
+        base.OnBindingContextChanged();
+        foreach (var node in flatNodes)
+        {
+            if (nodeViews.TryGetValue(node, out var view) && view.BindingContext is null)
+                view.BindingContext = node.Item;
+        }
+    }
+
+    // ------------- Predicates -------------
+    internal bool HasChildren(object item)
+    {
+        if (HasChildrenSelector != null)
+            return HasChildrenSelector(item);
+        if (ChildrenLoader != null)
+            return true;
+        var kids = ChildrenSelector?.Invoke(item);
+        return kids != null && kids.Any();
+    }
+
+    internal bool CanExpand(object item)
+    {
+        if (CanExpandSelector != null)
+            return CanExpandSelector(item);
+        return true;
+    }
+
+    internal bool CanSelect(object item)
+    {
+        if (SelectionMode == TreeSelectionMode.None)
+            return false;
+        if (CanSelectSelector != null)
+            return CanSelectSelector(item);
+        return true;
+    }
+
+    // ------------- Flatten + render -------------
+    internal void Rebuild()
+    {
+        if (isRebuilding)
+            return;
+        isRebuilding = true;
+        try
+        {
+            flatNodes.Clear();
+            foreach (var n in rootNodes)
+                Flatten(n);
+
+            rowLayout.Children.Clear();
+            var newViews = new Dictionary<TreeNode, TreeNodeView>();
+            foreach (var node in flatNodes)
+            {
+                var view = new TreeNodeView(this, node);
+                newViews[node] = view;
+                rowLayout.Children.Add(view);
+            }
+            nodeViews.Clear();
+            foreach (var kv in newViews)
+                nodeViews[kv.Key] = kv.Value;
+        }
+        finally
+        {
+            isRebuilding = false;
+        }
+    }
+
+    void Flatten(TreeNode node)
+    {
+        flatNodes.Add(node);
+        if (node.IsExpanded && node.Children != null)
+        {
+            foreach (var c in node.Children)
+                Flatten(c);
+        }
+    }
+
+    internal void RefreshChevrons()
+    {
+        foreach (var v in nodeViews.Values)
+            v.RefreshChevron();
+    }
+
+    internal void RefreshSelectionVisuals()
+    {
+        foreach (var v in nodeViews.Values)
+            v.RefreshSelection();
+    }
+
+    // ------------- Expand / collapse -------------
+    internal async void ToggleExpand(TreeNode node)
+    {
+        if (node.IsExpanded)
+        {
+            node.IsExpanded = false;
+            Rebuild();
+            RaiseCollapsed(node);
+            return;
+        }
+
+        if (node.Children == null)
+        {
+            // Selector takes precedence; loader is a fallback for items the selector
+            // can't provide (returns null). This lets a single tree mix sync and lazy
+            // branches.
+            var syncKids = ChildrenSelector?.Invoke(node.Item);
+            if (syncKids != null)
+            {
+                node.Children = new System.Collections.ObjectModel.ObservableCollection<TreeNode>();
+                foreach (var item in syncKids)
+                {
+                    if (item != null)
+                        node.Children.Add(new TreeNode(item, node, node.Depth + 1));
+                }
+                node.LoadState = TreeLoadState.Loaded;
+            }
+            else if (ChildrenLoader != null)
+            {
+                node.LoadState = TreeLoadState.Loading;
+                try
+                {
+                    var children = await ChildrenLoader(node.Item);
+                    node.Children = new System.Collections.ObjectModel.ObservableCollection<TreeNode>();
+                    foreach (var item in children)
+                    {
+                        if (item != null)
+                            node.Children.Add(new TreeNode(item, node, node.Depth + 1));
+                    }
+                    node.LoadState = TreeLoadState.Loaded;
+                }
+                catch (Exception ex)
+                {
+                    node.LoadError = ex;
+                    node.LoadState = TreeLoadState.Error;
+                    RaiseLoadFailed(node, ex);
+                    return;
+                }
+            }
+            else
+            {
+                node.Children = new System.Collections.ObjectModel.ObservableCollection<TreeNode>();
+                node.LoadState = TreeLoadState.Loaded;
+            }
+        }
+
+        node.IsExpanded = true;
+        Rebuild();
+        RaiseExpanded(node);
+    }
+
+    internal async void RetryLoad(TreeNode node)
+    {
+        node.LoadError = null;
+        node.Children = null;
+        node.LoadState = TreeLoadState.NotLoaded;
+        await Task.Yield();
+        ToggleExpand(node); // will trigger a load attempt
+    }
+
+    // ------------- Selection -------------
+    internal void HandleRowTapped(TreeNode node)
+    {
+        if (!CanSelect(node.Item))
+        {
+            // Still raise selection-attempt? No — keep semantics tight.
+            return;
+        }
+
+        switch (SelectionMode)
+        {
+            case TreeSelectionMode.None:
+                return;
+
+            case TreeSelectionMode.Single:
+                foreach (var n in flatNodes)
+                    n.IsSelected = ReferenceEquals(n, node);
+                SetValueFromInternal(SelectedItemProperty, node.Item);
+                break;
+
+            case TreeSelectionMode.Multiple:
+                node.IsSelected = !node.IsSelected;
+                EnsureSelectedItemsCollection();
+                if (node.IsSelected && !SelectedItems!.Contains(node.Item))
+                    SelectedItems.Add(node.Item);
+                else if (!node.IsSelected && SelectedItems!.Contains(node.Item))
+                    SelectedItems.Remove(node.Item);
+                SetValueFromInternal(SelectedItemProperty, node.IsSelected ? node.Item : null);
+                break;
+        }
+
+        RaiseSelected(node);
+    }
+
+    void EnsureSelectedItemsCollection()
+    {
+        if (SelectedItems == null)
+            SetValueFromInternal(SelectedItemsProperty, new System.Collections.ObjectModel.ObservableCollection<object>());
+    }
+
+    bool suppressSelectedItemSync;
+
+    void OnSelectedItemPropertyChanged(object? newValue)
+    {
+        if (suppressSelectedItemSync || SelectionMode == TreeSelectionMode.None)
+            return;
+
+        foreach (var n in flatNodes)
+            n.IsSelected = n.Item == newValue;
+    }
+
+    void OnSelectionModeChanged()
+    {
+        if (SelectionMode == TreeSelectionMode.None)
+        {
+            foreach (var n in flatNodes)
+                n.IsSelected = false;
+            SetValueFromInternal(SelectedItemProperty, null);
+            SetValueFromInternal(SelectedItemsProperty, null);
+        }
+    }
+
+    void SetValueFromInternal(BindableProperty prop, object? value)
+    {
+        suppressSelectedItemSync = true;
+        try { SetValue(prop, value); }
+        finally { suppressSelectedItemSync = false; }
+    }
+
+    // ------------- Drag/drop dispatch -------------
+    internal void HandleDrop(TreeNode source, TreeNode target, TreeDropPosition position)
+    {
+        if (ReferenceEquals(source, target))
+            return;
+        // Don't allow dropping a node onto its own descendant
+        var probe = target;
+        while (probe != null)
+        {
+            if (ReferenceEquals(probe, source))
+                return;
+            probe = probe.Parent;
+        }
+        RaiseDropped(new TreeItemDroppedEventArgs(source, target, position));
+    }
+}

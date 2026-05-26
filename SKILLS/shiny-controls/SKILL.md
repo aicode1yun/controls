@@ -1,6 +1,6 @@
 ---
 name: shiny-controls
-description: Generate UI for .NET MAUI (Shiny.Maui.Controls) and Blazor (Shiny.Blazor.Controls) - includes TableView with 14 cell types, FloatingPanel/OverlayHost/ShinyContentPage (bottom/top overlay panels) with detents and header peek, ShinyDurationPicker (duration picker with FloatingPanel), FrostedGlassView (native blur/glass effect), Toast service (code-invoked toast notifications with queue/stack, auto-dismiss, spinner, progress bar, pill/fill modes), PillView status badges, ImageViewer with pinch/pan/double-tap zoom, ImageEditor with crop/rotate/draw/text/undo/redo/export, ChatView with bubbles/typing/load-more/input-bar and custom MessageTemplate/MessageTemplateSelector for per-message rendering, SecurityPin entry, Fab and FabMenu (floating action button and expanding action menu), Scheduler views (calendar grid, agenda timeline, event list), Markdown controls (MarkdownView renderer, MarkdownEditor with toolbar), AutoCompleteEntry with debounced search and dropdown suggestions, CountryPicker with flag/dial code, AddressEntry with geocoding, SignaturePad for capturing signatures with canvas drawing and PNG export, TextEntry with animated floating placeholder/customizable border/tool slots/validation hints/character count, Slider with two-color gradient track and blended thumb, ProgressBar with gradient fill and Vista-style shimmer pulse sweep, Overlay/LoadingOverlay (full-screen overlay with configurable color/opacity, custom content template, and built-in loading mode with indeterminate spinner or determinate progress bar), Feedback Service (extensible IFeedbackService with haptic default, replaceable with TTS/sound/analytics), and UseFeedback support across all interactive controls
+description: Generate UI for .NET MAUI (Shiny.Maui.Controls) and Blazor (Shiny.Blazor.Controls) - includes TableView with 14 cell types, TreeView with lazy loading and configurable expand/collapse icons, FloatingPanel/OverlayHost/ShinyContentPage (bottom/top overlay panels) with detents and header peek, ShinyDurationPicker (duration picker with FloatingPanel), FrostedGlassView (native blur/glass effect), Toast service (code-invoked toast notifications with queue/stack, auto-dismiss, spinner, progress bar, pill/fill modes), PillView status badges, ImageViewer with pinch/pan/double-tap zoom, ImageEditor with crop/rotate/draw/text/undo/redo/export, ChatView with bubbles/typing/load-more/input-bar and custom MessageTemplate/MessageTemplateSelector for per-message rendering, SecurityPin entry, Fab and FabMenu (floating action button and expanding action menu), Scheduler views (calendar grid, agenda timeline, event list), Markdown controls (MarkdownView renderer, MarkdownEditor with toolbar), AutoCompleteEntry with debounced search and dropdown suggestions, CountryPicker with flag/dial code, AddressEntry with geocoding, SignaturePad for capturing signatures with canvas drawing and PNG export, TextEntry with animated floating placeholder/customizable border/tool slots/validation hints/character count, Slider with two-color gradient track and blended thumb, ProgressBar with gradient fill and Vista-style shimmer pulse sweep, Overlay/LoadingOverlay (full-screen overlay with configurable color/opacity, custom content template, and built-in loading mode with indeterminate spinner or determinate progress bar), Feedback Service (extensible IFeedbackService with haptic default, replaceable with TTS/sound/analytics), and UseFeedback support across all interactive controls
 auto_invoke: true
 triggers:
   - tableview
@@ -8,6 +8,22 @@ triggers:
   - settings page
   - settings view
   - settingsview
+  - treeview
+  - tree view
+  - tree control
+  - hierarchical view
+  - hierarchy
+  - file browser
+  - folder browser
+  - folder picker
+  - directory tree
+  - lazy load tree
+  - expandable list
+  - nested list
+  - tree node
+  - org chart
+  - blazor treeview
+  - blazor tree view
   - sheet view
   - sheetview
   - bottom sheet
@@ -198,6 +214,7 @@ triggers:
   - blazor virtualized grid
 references:
   - tableview.md
+  - treeview.md
   - floating-panel.md
   - pillview.md
   - image-viewer.md
@@ -231,6 +248,7 @@ Every control below is available on **both** MAUI and Blazor. The feature set (p
 
 The library contains:
 - **TableView**: A pure MAUI settings-style TableView with 14 cell types, cascading styles, sections, drag-sort reordering, and full MVVM/binding support
+- **TreeView**: Hierarchical tree with lazy-loaded branches (`ChildrenLoader` for per-node async, `RootLoader` for async root), `ChildrenSelector` for sync data, `HasChildrenSelector`/`CanExpandSelector`/`CanSelectSelector` predicates, configurable `ExpandedIcon`/`CollapsedIcon`/`RetryIcon` (ImageSource on MAUI, RenderFragment slots on Blazor), single/multi selection with two-way `SelectedItem`/`SelectedItems`, events + ICommand mirrors for `ItemSelected`/`ItemExpanded`/`ItemCollapsed`/`LoadFailed`/`ItemDropped`, indent + guide lines, drag/drop reorder (event-only — never mutates your data), and keyboard navigation on Blazor
 - **FloatingPanel + OverlayHost**: A floating panel overlay system (MAUI only). Panels slide from bottom or top with configurable detents, header peek when closed, backdrop dimming, and feedback. Multiple panels coexist without blocking touches. Use with `OverlayHost` (manual Grid setup) or `ShinyContentPage` (convenience ContentPage with built-in overlay). Blazor uses `SheetView` with CSS-based overlays instead
 - **PillView**: A status badge/label control with 6 preset themes, custom colors, and WCAG-accessible contrast
 - **ImageViewer**: A full-screen image overlay with pinch-to-zoom, pan when zoomed, double-tap to toggle zoom, animated open/close, and a close button
@@ -269,6 +287,11 @@ Invoke this skill when the user wants to:
 - Bind cell properties to a ViewModel using MVVM
 - Create radio button groups, date/time pickers, number pickers, or multi-select pickers
 - Build any form-like or list-based settings UI
+- Build a tree/hierarchical view (file browser, folder picker, org chart, category tree)
+- Lazy-load tree branches from a remote source on first expand
+- Show a tree with single or multi-select and per-item `CanSelect`/`CanExpand` predicates
+- Customize the tree's expand/collapse icons (font icons, custom images, render fragments)
+- Enable drag-and-drop reordering within a tree
 - Add a bottom sheet / sliding panel / floating panel to a page
 - Show status badges, tags, or labels (pill views)
 - Display categorized status indicators (success, warning, critical, etc.)
@@ -389,6 +412,7 @@ All controls exist on both hosts, but the Blazor surface is idiomatic Razor, not
 |-------------------------|-------------------|-------------------------------------------------|
 | `shiny:TableView`       | `<TableView>`     | No prefix on Blazor; `TableRoot` is not needed  |
 | `shiny:TableRoot`       | *(omitted)*       | Sections go directly inside `<TableView>`       |
+| `shiny:TreeView`        | `<TreeView TItem="…">` | Strongly typed on Blazor; `ExpandedIcon`/`CollapsedIcon`/`RetryIcon` are `RenderFragment` slots, not `ImageSource`; Blazor adds keyboard navigation (↑/↓/←/→/Enter/Home/End) and a `<LoadingTemplate>` slot for the root-load spinner |
 | `shiny:TableSection`    | `<TableSection>`  |                                                 |
 | `shiny:PillView`        | `<Pill>`          | Renamed to just `Pill` on Blazor                |
 | `shiny:FloatingPanel` in `shiny:OverlayHost` | `<SheetView>` | MAUI uses FloatingPanel+OverlayHost; Blazor uses SheetView with CSS overlay. Content goes in `<SheetContent>` named slot on Blazor |

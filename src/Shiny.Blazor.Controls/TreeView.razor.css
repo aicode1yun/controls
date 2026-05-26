@@ -1,0 +1,106 @@
+.shiny-treeview {
+    font-family: inherit;
+    outline: none;
+    user-select: none;
+}
+
+.shiny-treeview-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.shiny-treeview-item {
+    position: relative;
+}
+
+.shiny-treeview-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 4px;
+    transition: background-color 0.12s ease;
+}
+
+.shiny-treeview-row:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.shiny-treeview-item.selected > .shiny-treeview-row {
+    background-color: #E3F2FD;
+}
+
+.shiny-treeview-row.focused {
+    outline: 2px solid rgba(0, 120, 215, 0.5);
+    outline-offset: -2px;
+}
+
+.shiny-treeview-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.shiny-treeview-leaf {
+    display: inline-block;
+}
+
+.shiny-treeview-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.shiny-treeview-noselect {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.shiny-treeview-guide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: #E0E0E0;
+    pointer-events: none;
+}
+
+.shiny-treeview-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.shiny-treeview-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: shiny-treeview-spin 0.8s linear infinite;
+    color: #666;
+}
+
+@keyframes shiny-treeview-spin {
+    to { transform: rotate(360deg); }
+}
+
+.shiny-treeview-error {
+    padding: 16px;
+    color: #B00020;
+    text-align: center;
+    cursor: pointer;
+}
+
+.shiny-treeview-retry {
+    font-size: 12px;
+    text-decoration: underline;
+    margin-top: 4px;
+    display: inline-block;
+}

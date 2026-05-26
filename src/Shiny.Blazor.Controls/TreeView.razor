@@ -1,0 +1,134 @@
+@namespace Shiny.Blazor.Controls
+@typeparam TItem
+
+<div class="shiny-treeview @CssClass" tabindex="0" @onkeydown="OnKeyDown" @attributes="AdditionalAttributes">
+    @if (isLoadingRoot)
+    {
+        <div class="shiny-treeview-loading">
+            @if (LoadingTemplate is not null)
+            {
+                @LoadingTemplate
+            }
+            else
+            {
+                <div class="shiny-treeview-spinner"></div>
+            }
+        </div>
+    }
+    else if (rootError is not null)
+    {
+        <div class="shiny-treeview-error" @onclick="ReloadAsync">
+            Failed to load: @rootError.Message<br/>
+            <span class="shiny-treeview-retry">Tap to retry</span>
+        </div>
+    }
+    else
+    {
+        <ul class="shiny-treeview-list" role="tree">
+            @foreach (var node in rootNodes)
+            {
+                @RenderNode(node)
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    RenderFragment RenderNode(BlazorTreeNode<TItem> node) => __builder =>
+    {
+        var hasChildren = HasChildren(node.Item);
+        var canExpand = CanExpand(node.Item);
+        var canSelect = CanSelect(node.Item);
+        var indent = $"padding-left: {node.Depth * IndentSize}px;";
+
+        <li class="shiny-treeview-item @(node.IsSelected ? "selected" : "")" role="treeitem"
+            aria-expanded="@(hasChildren ? node.IsExpanded.ToString().ToLowerInvariant() : null)"
+            aria-selected="@node.IsSelected.ToString().ToLowerInvariant()">
+            <div class="shiny-treeview-row @(node == focusedNode ? "focused" : "")"
+                 style="@indent"
+                 draggable="@(EnableDragDrop ? "true" : "false")"
+                 @ondragstart="@(e => OnDragStart(e, node))"
+                 @ondragover="@(e => OnDragOver(e, node))"
+                 @ondragover:preventDefault="EnableDragDrop"
+                 @ondrop="@(e => OnDrop(e, node))"
+                 @ondrop:preventDefault="EnableDragDrop"
+                 @onclick="@(e => OnRowClick(e, node, canSelect))">
+
+                @if (ShowGuideLines && node.Depth > 0)
+                {
+                    for (var d = 0; d < node.Depth; d++)
+                    {
+                        <span class="shiny-treeview-guide" style="@($"left: {(d * IndentSize) + (IndentSize / 2)}px;")"></span>
+                    }
+                }
+
+                <span class="shiny-treeview-chevron"
+                      style="@($"width:{ChevronSize + 6}px;height:{ChevronSize + 6}px;color:{ChevronColor};opacity:{(canExpand ? 1 : 0.35)};")"
+                      @onclick="@(e => OnChevronClick(e, node, hasChildren, canExpand))"
+                      @onclick:stopPropagation="true">
+                    @if (!hasChildren)
+                    {
+                        <span class="shiny-treeview-leaf"></span>
+                    }
+                    else if (node.LoadState == BlazorTreeLoadState.Loading)
+                    {
+                        <span class="shiny-treeview-spinner" style="@($"width:{ChevronSize}px;height:{ChevronSize}px;")"></span>
+                    }
+                    else if (node.LoadState == BlazorTreeLoadState.Error)
+                    {
+                        @if (RetryIcon is not null)
+                        {
+                            @RetryIcon
+                        }
+                        else
+                        {
+                            <span style="@($"font-size:{ChevronSize * 0.9}px;line-height:1;")">↻</span>
+                        }
+                    }
+                    else if (node.IsExpanded)
+                    {
+                        @if (ExpandedIcon is not null)
+                        {
+                            @ExpandedIcon
+                        }
+                        else
+                        {
+                            <span style="@($"font-size:{ChevronSize * 0.75}px;line-height:1;")">▼</span>
+                        }
+                    }
+                    else
+                    {
+                        @if (CollapsedIcon is not null)
+                        {
+                            @CollapsedIcon
+                        }
+                        else
+                        {
+                            <span style="@($"font-size:{ChevronSize * 0.75}px;line-height:1;")">▶</span>
+                        }
+                    }
+                </span>
+
+                <div class="shiny-treeview-content @(canSelect ? "" : "shiny-treeview-noselect")">
+                    @if (ItemTemplate is not null)
+                    {
+                        @ItemTemplate(node.Item)
+                    }
+                    else
+                    {
+                        @node.Item?.ToString()
+                    }
+                </div>
+            </div>
+            @if (node.IsExpanded && node.Children is not null)
+            {
+                <ul class="shiny-treeview-list" role="group">
+                    @foreach (var child in node.Children)
+                    {
+                        @RenderNode(child)
+                    }
+                </ul>
+            }
+        </li>
+    };
+}

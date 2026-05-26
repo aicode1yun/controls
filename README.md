@@ -1,6 +1,6 @@
 # Shiny Controls
 
-A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, Slider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, TextEntry, CarouselGallery, StaggeredGrid, and VirtualizedGrid. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
+A rich, ready-to-use UI controls library for both **.NET MAUI** and **Blazor**. One package per host covers TableView, TreeView, Scheduler, FloatingPanel/OverlayHost, ShinyDurationPicker, FrostedGlassView, Toast, Fab/FabMenu, PillView, SecurityPin, SignaturePad, ImageViewer, ImageEditor, ChatView, ColorPicker, FontPicker, Slider, ProgressBar, Overlay/LoadingOverlay, AutoCompleteEntry, CountryPicker, AddressEntry, TextEntry, CarouselGallery, StaggeredGrid, and VirtualizedGrid. Markdown and Mermaid Diagrams ship as separate add-on packages per host.
 
 [![MAUI NuGet](https://img.shields.io/nuget/v/Shiny.Maui.Controls.svg?label=Shiny.Maui.Controls)](https://www.nuget.org/packages/Shiny.Maui.Controls)
 [![Blazor NuGet](https://img.shields.io/nuget/v/Shiny.Blazor.Controls.svg?label=Shiny.Blazor.Controls)](https://www.nuget.org/packages/Shiny.Blazor.Controls)
@@ -78,6 +78,7 @@ No DI registration is required — drop the components into any `.razor` page.
 | MAUI (XAML) | Blazor (Razor) |
 |---|---|
 | `<shiny:TableView>` with `<shiny:TableRoot>` | `<TableView>` (no `TableRoot` wrapper) |
+| `<shiny:TreeView>` — `ExpandedIcon`/`CollapsedIcon` are `ImageSource` | `<TreeView TItem="…">` — icons are `RenderFragment` slots; adds keyboard navigation |
 | `<shiny:PillView>` | `<Pill>` |
 | `<shiny:FloatingPanel>` in `<shiny:OverlayHost>` | `<SheetView>` with `<SheetContent>` child (Blazor uses CSS overlay) |
 | `Value="{Binding Pin}"` (TwoWay) | `@bind-Value="pin"` |
@@ -1229,6 +1230,66 @@ A settings-style table view with 14+ built-in cell types, section grouping, drag
 ```xml
 <shiny:TableView ItemsSource="{Binding Items}" ItemTemplate="{StaticResource SectionTemplate}" />
 ```
+
+### TreeView
+
+Hierarchical tree control with lazy-loaded branches, configurable expand/collapse icons, single or multi-selection, per-item `CanExpand`/`CanSelect` predicates, retry on load failure, optional guide lines, and drag/drop reorder. Available on both MAUI and Blazor.
+
+| Initial | Expanded | Multi-level | Lazy loading | Multi-select |
+|:---:|:---:|:---:|:---:|:---:|
+| ![Initial](assets/treeview-initial.png) | ![Expanded](assets/treeview-expanded.png) | ![Multi-level](assets/treeview-deep.png) | ![Lazy load](assets/treeview-loading.png) | ![Multi-select](assets/treeview-multiselect.png) |
+
+```xml
+<shiny:TreeView x:Name="Tree"
+                IndentSize="22"
+                ShowGuideLines="True"
+                SelectionMode="Single"
+                SelectedItem="{Binding Selected, Mode=TwoWay}"
+                ItemSelected="OnSelected"
+                ItemExpanded="OnExpanded"
+                LoadFailed="OnLoadFailed">
+    <shiny:TreeView.ItemTemplate>
+        <DataTemplate x:DataType="local:FileNode">
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="{Binding Icon}" />
+                <Label Text="{Binding Name}" VerticalTextAlignment="Center" />
+            </HorizontalStackLayout>
+        </DataTemplate>
+    </shiny:TreeView.ItemTemplate>
+</shiny:TreeView>
+```
+
+```csharp
+// Delegates aren't bindable from XAML — wire in code-behind
+Tree.ItemsSource         = roots;
+Tree.ChildrenSelector    = item => (item is FileNode f && !f.LazyLoad) ? f.Children : null;
+Tree.ChildrenLoader      = LoadRemoteChildrenAsync;            // covers lazy branches
+Tree.HasChildrenSelector = item => item is FileNode { IsFolder: true };
+Tree.CanSelectSelector   = item => item is FileNode f && !f.IsLocked;
+```
+
+**Key Properties:**
+
+| Property | Type | Description |
+|---|---|---|
+| ItemsSource | IEnumerable | Root items (ignored when `RootLoader` is set) |
+| RootLoader | `Func<Task<IEnumerable<object>>>` | Async loader for roots; shows a centered spinner |
+| ChildrenSelector | `Func<object, IEnumerable<object>?>` | Sync children getter (return `null` to defer to loader) |
+| ChildrenLoader | `Func<object, Task<IEnumerable<object>>>` | Async children loader; cached on first expand |
+| HasChildrenSelector | `Func<object, bool>` | Render chevron only when true |
+| CanExpandSelector | `Func<object, bool>` | Gate expand gesture (dimmed chevron when false) |
+| CanSelectSelector | `Func<object, bool>` | Gate selection per item |
+| SelectionMode | TreeSelectionMode | `None` / `Single` / `Multiple` |
+| SelectedItem | object? | Two-way (Single mode) |
+| SelectedItems | IList\<object\>? | Two-way (Multiple mode) |
+| ExpandedIcon / CollapsedIcon / RetryIcon | ImageSource? | Fall back to ▼ / ▶ / ↻ glyphs |
+| IndentSize | double | Pixels of indent per depth level (default 20) |
+| ShowGuideLines | bool | Vertical connector lines between parent and children |
+| EnableDragDrop | bool | Adds drag source + drop target gestures; event-only, never mutates data |
+
+**Events + Commands (MAUI):** `ItemSelected` / `ItemExpanded` / `ItemCollapsed` / `LoadFailed` / `ItemDropped` each have a matching `*Command` bindable property.
+
+**Public methods:** `ExpandAll`, `ExpandAllAsync`, `CollapseAll`, `Expand(item)`, `Collapse(item)`, `Refresh(item)`, `ReloadAsync`.
 
 ### Markdown Controls
 

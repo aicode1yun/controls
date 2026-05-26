@@ -16,4 +16,5 @@
 [assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://shiny.net/maui/controls", "Shiny.Maui.Controls.CarouselGallery")]
 [assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://shiny.net/maui/controls", "Shiny.Maui.Controls.StaggeredGrid")]
 [assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://shiny.net/maui/controls", "Shiny.Maui.Controls.VirtualizedGrid")]
+[assembly: Microsoft.Maui.Controls.XmlnsDefinition("http://shiny.net/maui/controls", "Shiny.Maui.Controls.Tree")]
 [assembly: Microsoft.Maui.Controls.XmlnsPrefix("http://shiny.net/maui/controls", "shiny")]
