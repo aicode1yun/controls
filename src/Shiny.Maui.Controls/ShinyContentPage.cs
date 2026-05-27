@@ -1,4 +1,6 @@
-namespace Shiny.Maui.Controls.FloatingPanel;
+using Shiny.Maui.Controls.FloatingPanel;
+
+namespace Shiny.Maui.Controls;
 
 /// <summary>
 /// A ContentPage with a built-in OverlayHost. Set page content via <see cref="PageContent"/>
