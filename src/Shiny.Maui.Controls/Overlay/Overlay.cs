@@ -11,7 +11,8 @@ public partial class Overlay : ContentView
 {
     readonly ContentView overlayContainer;
     FrostedGlassView? blurBackdrop;
-    bool isAnimating;
+    bool latestTarget;
+    bool workerRunning;
 
     public Overlay()
     {
@@ -79,18 +80,37 @@ public partial class Overlay : ContentView
 
     async void OnIsShownChanged(bool shown)
     {
-        if (isAnimating) return;
+        // Always record the latest desired state. A worker loop drives the
+        // actual animation, re-checking the target after each animation so a
+        // rapid true→false (or false→true) flip never gets dropped — which
+        // previously happened because an `if (isAnimating) return;` guard
+        // ignored the second change and left the overlay stuck in the first
+        // animation's end state.
+        this.latestTarget = shown;
+        if (this.workerRunning)
+            return;
 
-        if (shown)
-            await ShowAsync();
-        else
-            await HideAsync();
+        this.workerRunning = true;
+        try
+        {
+            bool current = !shown; // force first iteration
+            while (current != this.latestTarget)
+            {
+                current = this.latestTarget;
+                if (current)
+                    await ShowAsync();
+                else
+                    await HideAsync();
+            }
+        }
+        finally
+        {
+            this.workerRunning = false;
+        }
     }
 
     async Task ShowAsync()
     {
-        isAnimating = true;
-
         var overlayHost = GetOverlayHost();
         if (overlayHost != null)
             overlayHost.ShowBackdrop(this, AnimationDuration);
@@ -112,15 +132,22 @@ public partial class Overlay : ContentView
 
         IsVisible = true;
         Opacity = 0;
-        await this.FadeToAsync(1, AnimationDuration);
-
-        isAnimating = false;
+        try
+        {
+            await this.FadeToAsync(1, AnimationDuration);
+        }
+        catch
+        {
+            // FadeToAsync can throw if the view is detached from the visual tree
+            // mid-animation (e.g. the host page is navigated away during a
+            // rapid IsShown toggle). Snap to the target state below regardless
+            // so the visual state remains consistent when the host returns.
+        }
+        Opacity = 1;
     }
 
     async Task HideAsync()
     {
-        isAnimating = true;
-
         var overlayHost = GetOverlayHost();
         if (overlayHost != null)
             overlayHost.HideBackdrop(this, AnimationDuration);
@@ -128,7 +155,16 @@ public partial class Overlay : ContentView
         if (blurBackdrop != null)
             _ = blurBackdrop.FadeToAsync(0, AnimationDuration);
 
-        await this.FadeToAsync(0, AnimationDuration);
+        try
+        {
+            await this.FadeToAsync(0, AnimationDuration);
+        }
+        catch
+        {
+            // See note in ShowAsync. Snap to hidden state below regardless of
+            // whether the fade-out animation actually completed.
+        }
+        Opacity = 0;
         IsVisible = false;
 
         if (blurBackdrop != null)
@@ -138,7 +174,5 @@ public partial class Overlay : ContentView
             if (host != null && host.Children.Contains(blurBackdrop))
                 host.Children.Remove(blurBackdrop);
         }
-
-        isAnimating = false;
     }
 }
